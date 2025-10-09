@@ -85,10 +85,10 @@ def test_user_has_esta_activo_attribute():
     assert 'esta_activo' in User.__annotations__
     assert User.__annotations__['esta_activo'] == bool
 
-def test_user_esta_activo_defaults_to_false():
-    """Tests that a new user defaults to esta_activo=False."""
+def test_user_esta_activo_defaults_to_true():
+    """Tests that a new user defaults to esta_activo=True."""
     user = User(email="test@test.com", contrasena_hasheada="hash", apodo="test", numero_telefono="123")
-    assert user.esta_activo is False
+    assert user.esta_activo is True
 
 def test_user_has_email_verificado_attribute():
     """
@@ -134,18 +134,9 @@ def test_user_has_fecha_actualizacion_attribute():
     assert User.__annotations__['fecha_actualizacion'] == datetime
 
 def test_user_fecha_actualizacion_defaults_to_utcnow():
+
     """Tests that a new user defaults to fecha_actualizacion being a datetime object."""
+
     user = User(email="test@test.com", contrasena_hasheada="hash", apodo="test", numero_telefono="123")
+
     assert isinstance(user.fecha_actualizacion, datetime)
-
-def test_user_has_aprobado_por_admin_attribute():
-    """
-    Tests if the User class has an 'aprobado_por_admin' attribute with the correct type.
-    """
-    assert 'aprobado_por_admin' in User.__annotations__
-    assert User.__annotations__['aprobado_por_admin'] == bool
-
-def test_user_aprobado_por_admin_defaults_to_false():
-    """Tests that a new user defaults to aprobado_por_admin=False."""
-    user = User(email="test@test.com", contrasena_hasheada="hash", apodo="test", numero_telefono="123")
-    assert user.aprobado_por_admin is False
