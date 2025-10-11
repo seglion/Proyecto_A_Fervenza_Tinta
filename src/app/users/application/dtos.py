@@ -29,3 +29,14 @@ class UsuarioResponseDTO(BaseModel):
     url_avatar: Optional[str] = None
     esta_activo: bool
     roles: List[str]
+
+class ActualizarMiPerfilDTO(BaseModel):
+    nombre: Optional[str] = None
+    apellidos: Optional[str] = None
+    apodo: Optional[str] = None
+    numero_telefono: Optional[str] = None
+    url_avatar: Optional[str] = None
+
+class CambiarContrasenaDTO(BaseModel):
+    contrasena_antigua: str
+    contrasena_nueva: str
