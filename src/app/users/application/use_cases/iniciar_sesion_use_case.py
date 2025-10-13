@@ -1,7 +1,7 @@
 from app.users.application.repositories.i_user_repository import IUserRepository
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.core.services.i_jwt_service import IJWTService
-from app.users.application.dtos import TokensDTO
+from app.users.application.dtos import IniciarSesionDTO, TokensDTO
 
 class IniciarSesionUseCase:
     def __init__(
@@ -14,21 +14,19 @@ class IniciarSesionUseCase:
         self.password_hasher = password_hasher
         self.jwt_service = jwt_service
 
-    async def execute(self, email: str, password: str) -> TokensDTO:
-        user = await self.user_repository.buscar_por_email(email)
+    async def execute(self, dto: IniciarSesionDTO) -> TokensDTO:
+        user = await self.user_repository.buscar_por_email(dto.email)
 
-        if not user or not self.password_hasher.verify(password, user.contrasena_hasheada):
+        if not user or not self.password_hasher.verify(dto.contrasena, user.contrasena_hasheada):
             raise ValueError("Invalid credentials.") # TODO: Specific exception
 
         if not user.email_verificado:
             raise ValueError("Email not verified.") # TODO: Specific exception
 
         if not user.esta_activo:
-            raise ValueError("User account is inactive.") # TODO: Specific exception
+            raise ValueError("Account is inactive.") # TODO: Specific exception
 
-        # Assuming roles are fetched with the user or can be retrieved separately
-        # For now, we'll pass an empty list of roles
-        access_token, refresh_token = self.jwt_service.generar_tokens(user.id, [])
+        access_token, refresh_token = self.jwt_service.generar_tokens(user.id, [user.rol.value])
 
         return TokensDTO(
             access_token=access_token,

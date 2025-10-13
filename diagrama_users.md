@@ -29,6 +29,7 @@ erDiagram
      VARCHAR(100) nombre "Nulo"
      VARCHAR(100) apellidos "Nulo"
      VARCHAR(50) apodo "Único, No Nulo"
+     VARCHAR(50) rol "No Nulo"
      VARCHAR(20) numero_telefono "Único, No Nulo"
      VARCHAR(255) url_avatar "Nulo"
      BOOLEAN esta_activo "Default: true"
@@ -36,15 +37,6 @@ erDiagram
      BOOLEAN aprobado_por_admin "Default: false"
      TIMESTAMPZ fecha_creacion "No Nulo"
      TIMESTAMPZ fecha_actualizacion "No Nulo"
- }
- roles {
-     INTEGER id PK "Clave Primaria"
-     VARCHAR(50) nombre "Único, No Nulo (ej: 'admin')"
-     TEXT descripcion "Nulo"
- }
- usuario_roles {
-     UUID usuario_id PK, FK "Clave Primaria Compuesta y Externa"
-     INTEGER rol_id PK, FK "Clave Primaria Compuesta y Externa"
  }
  tokens {
      UUID id PK "Clave Primaria"
@@ -56,8 +48,6 @@ erDiagram
      TIMESTAMPZ fecha_creacion "No Nulo"
      
  }
- usuarios ||--|{ usuario_roles : "tiene"
- roles ||--|{ usuario_roles : "pertenece_a"
  usuarios ||--o{ tokens : "genera"
  ```
 
@@ -73,6 +63,7 @@ erDiagram
 | **nombre** | VARCHAR(100) | Nulo (Opcional) |
 | **apellidos** | VARCHAR(100) | Nulo (Opcional) |
 | **apodo** | VARCHAR(50) | Único, No Nulo |
+| **rol** | VARCHAR(50) |  No Nulo |
 | **numero_telefono** | VARCHAR(20) | Único, No Nulo |
 | **url_avatar** | VARCHAR(255) | Nulo (Opcional) |
 | **esta_activo** | BOOLEAN | Default: true |
@@ -80,19 +71,6 @@ erDiagram
 | **aprobado_por_admin** | BOOLEAN | Default: false. Aprobado por un administrador. |
 | **fecha_creacion** | TIMESTAMPZ | No Nulo |
 | **fecha_actualizacion** | TIMESTAMPZ | No Nulo |
-
-Tabla: roles
-| Nombre de Columna | Tipo de Dato | Restricciones / Notas |
-| :--- | :--- | :--- |
-| **id** | INTEGER | Clave Primaria (Autoincremental) |
-| **nombre** | VARCHAR(50) | Único, No Nulo (ej: 'admin', 'usuario') |
-| **descripcion** | TEXT | Nulo (Opcional) |
-
-Tabla: usuario_roles (Tabla intermedia para relación Muchos a Muchos)
-| Nombre de Columna | Tipo de Dato | Restricciones / Notas |
-| :--- | :--- | :--- |
-| **usuario_id** | UUID | Clave Primaria Compuesta y Clave Externa a usuarios.id |
-| **rol_id** | INTEGER | Clave Primaria Compuesta y Clave Externa a roles.id |
 
 Tabla: tokens (Para acciones de un solo uso)
 | Nombre de Columna | Tipo de Dato | Restricciones / Notas |
@@ -146,9 +124,8 @@ rectangle "Sistema de Gestión de Usuarios" {
   usecase UC16 as "16. Rechazar usuario"
   usecase UC17 as "17. Activar/Desactivar usuario"
   usecase UC18 as "18. Modificar roles"
-  usecase UC19 as "19. Desbloquear cuenta"
-  usecase UC20 as "20. Eliminar usuario"
-  usecase UC21 as "21. Forzar reseteo"
+  usecase UC19 as "20. Eliminar usuario"
+  usecase UC20 as "21. Forzar reseteo"
 
   ' --- Casos de Uso Técnicos / Reutilizables ---
   usecase GenJWT as "(Generar Tokens JWT)"
@@ -172,7 +149,6 @@ rectangle "Sistema de Gestión de Usuarios" {
   Administrador -- UC14
   Administrador -- UC19
   Administrador -- UC20
-  Administrador -- UC21
 
   ' --- Relaciones <<include>> ---
   ' Iniciar sesión y Refrescar sesión DEBEN generar tokens.
@@ -1047,60 +1023,14 @@ deactivate Administrador
 @enduml
 ```
 ---
+
 ---
-### CASO DE USO 19: Desbloquear Cuenta (Admin)
----
-```plantuml
-@startuml
-!theme materia
-title Secuencia: 19. Desbloquear Cuenta de Usuario (Admin)
-
-actor Administrador
-participant "Middleware Auth" as Auth
-participant "Router (FastAPI)" as API
-participant "DesbloquearUsuarioUseCase" as UseCase
-participant "IUsuarioRepository" as Repo
-
-activate Administrador
-Administrador -> API: POST /api/v1/admin/usuarios/{id}/desbloquear\n(con Access Token)
-activate API
-
-API -> Auth: Validar Access Token y rol de Admin
-activate Auth
-Auth --> API: (éxito)
-deactivate Auth
-
-API -> UseCase: execute(id_usuario)
-activate UseCase
-
-UseCase -> Repo: buscar_por_id(id_usuario)
-activate Repo
-Repo --> UseCase: (entidad_usuario)
-deactivate Repo
-
-
-alt Usuario está bloqueado
-    UseCase -> UseCase: Modificar usuario (esta_bloqueado = false)
-    UseCase -> Repo: actualizar(usuario_modificado)
-    UseCase --> API: (éxito)
-else Usuario no estaba bloqueado
-    UseCase --> API: (éxito, no se hace nada)
-end
-
-deactivate UseCase
-API --> Administrador: 200 OK
-deactivate API
-deactivate Administrador
-@enduml
-```
----
----
-### CASO DE USO 20: Eliminar Usuario (Admin)
+### CASO DE USO 19: Eliminar Usuario (Admin)
 ---
 ```plantuml
 @startuml
 !theme materia
-title Secuencia: 20. Eliminar Permanentemente a un Usuario (Admin)
+title Secuencia: 19. Eliminar Permanentemente a un Usuario (Admin)
 
 actor Administrador
 participant "Middleware Auth" as Auth
@@ -1139,12 +1069,12 @@ deactivate Administrador
 ```
 ---
 ---
-### CASO DE USO 21: Forzar Reseteo de Contraseña (Admin)
+### CASO DE USO 20: Forzar Reseteo de Contraseña (Admin)
 ---
 ```plantuml
 @startuml
 !theme materia
-title Secuencia: 21. Forzar Reseteo de Contraseña (Admin)
+title Secuencia: 20. Forzar Reseteo de Contraseña (Admin)
 
 actor Administrador
 participant "Middleware Auth" as Auth

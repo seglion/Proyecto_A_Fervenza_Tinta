@@ -32,6 +32,7 @@ async def test_refrescar_sesion_exitoso():
     from app.users.domain.entities import User
     from app.users.application.use_cases.refrescar_sesion_use_case import RefrescarSesionUseCase
     from uuid import uuid4
+    from app.users.domain.value_objects import Rol
 
     user_id = uuid4()
     refresh_token = "mock_refresh_token"
@@ -46,7 +47,8 @@ async def test_refrescar_sesion_exitoso():
         numero_telefono="123456789",
         apodo=None,
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)
@@ -64,7 +66,7 @@ async def test_refrescar_sesion_exitoso():
     # Assert
     mock_jwt_service.validar_refresh_token.assert_called_once_with(refresh_token)
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)
-    mock_jwt_service.generar_tokens.assert_called_once_with(user_id, []) # Assuming no roles for now
+    mock_jwt_service.generar_tokens.assert_called_once_with(user_id, [mock_user.rol.value])
     assert isinstance(result, TokensDTO)
     assert result.access_token == new_access_token
     assert result.refresh_token == refresh_token
@@ -111,6 +113,7 @@ async def test_refrescar_sesion_usuario_no_encontrado():
     from app.users.application.use_cases.refrescar_sesion_use_case import RefrescarSesionUseCase
     from uuid import uuid4
     from unittest.mock import AsyncMock
+    from app.users.domain.value_objects import Rol
 
     user_id = uuid4()
     refresh_token = "mock_refresh_token"
@@ -144,6 +147,7 @@ async def test_refrescar_sesion_cuenta_inactiva():
     from app.users.application.use_cases.refrescar_sesion_use_case import RefrescarSesionUseCase
     from uuid import uuid4
     from unittest.mock import AsyncMock
+    from app.users.domain.value_objects import Rol
 
     user_id = uuid4()
     refresh_token = "mock_refresh_token"
@@ -157,7 +161,8 @@ async def test_refrescar_sesion_cuenta_inactiva():
         numero_telefono="123456789",
         apodo=None,
         email_verificado=True,
-        esta_activo=False # Account is inactive
+        esta_activo=False, # Account is inactive
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)

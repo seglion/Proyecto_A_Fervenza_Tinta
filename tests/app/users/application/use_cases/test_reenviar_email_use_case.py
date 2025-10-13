@@ -1,3 +1,4 @@
+from app.users.domain.value_objects import Rol
 import pytest
 from unittest.mock import Mock, AsyncMock
 
@@ -31,7 +32,7 @@ async def test_reenviar_email_exitoso():
     from app.core.security.i_password_hasher import IPasswordHasher
     from app.core.services.i_email_service import IEmailService
     from app.users.domain.entities import User, Token
-    from app.users.domain.value_objects import TipoToken
+    from app.users.domain.value_objects import TipoToken,Rol
     from app.users.application.use_cases.reenviar_email_use_case import ReenviarEmailUseCase
     from uuid import uuid4
     from datetime import datetime, timedelta, timezone
@@ -47,6 +48,7 @@ async def test_reenviar_email_exitoso():
         contrasena_hasheada="hashed_password",
         nombre="Test",
         apellidos="User",
+        rol=Rol.USUARIO,
         numero_telefono="123456789",
         apodo=None,
         email_verificado=False
@@ -60,8 +62,8 @@ async def test_reenviar_email_exitoso():
     mock_token_repository.crear = AsyncMock(return_value=Token(
         id=uuid4(),
         usuario_id=user_id,
-        tipo_token=TipoToken.VERIFICACION_EMAIL,
         hash_token=hashed_token_value,
+        tipo_token=TipoToken.VERIFICACION_EMAIL,
         fecha_expiracion=datetime.now(timezone.utc) + timedelta(hours=24),
         es_valido=True
     ))
@@ -154,6 +156,7 @@ async def test_reenviar_email_usuario_ya_verificado():
         contrasena_hasheada="hashed_password",
         nombre="Verified",
         apellidos="User",
+        rol=Rol.USUARIO,
         numero_telefono="123456789",
         apodo=None,
         email_verificado=True # User is already verified

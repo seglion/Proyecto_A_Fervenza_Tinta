@@ -40,7 +40,8 @@ class RegistrarUsuarioUseCase:
             nombre=dto.nombre,
             apellidos=dto.apellidos,
             apodo=dto.apodo,
-            numero_telefono=dto.numero_telefono
+            numero_telefono=dto.numero_telefono,
+            rol=dto.rol
             # Default values for other fields will be set by the User dataclass
         )
 
@@ -52,6 +53,7 @@ class RegistrarUsuarioUseCase:
         hashed_verification_token = self.password_hasher.hash(verification_token_value)
         
         new_token = Token(
+            id=uuid4(),
             usuario_id=created_user.id,
             tipo_token=TipoToken.VERIFICACION_EMAIL,
             hash_token=hashed_verification_token,

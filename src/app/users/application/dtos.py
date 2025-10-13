@@ -9,10 +9,15 @@ class RegistrarUsuarioDTO(BaseModel):
     apellidos: str
     numero_telefono: str
     apodo: Optional[str] = None
+    rol: str # Default to 'usuario' in use case
 
 class UsuarioCreadoDTO(BaseModel):
     id: UUID
     email: EmailStr
+
+class IniciarSesionDTO(BaseModel):
+    email: EmailStr
+    contrasena: str
 
 class TokensDTO(BaseModel):
     access_token: str
@@ -28,7 +33,7 @@ class UsuarioResponseDTO(BaseModel):
     numero_telefono: str
     url_avatar: Optional[str] = None
     esta_activo: bool
-    roles: List[str]
+    rol: str
 
 class ActualizarMiPerfilDTO(BaseModel):
     nombre: Optional[str] = None
@@ -40,3 +45,6 @@ class ActualizarMiPerfilDTO(BaseModel):
 class CambiarContrasenaDTO(BaseModel):
     contrasena_antigua: str
     contrasena_nueva: str
+
+class ListaUsuariosResponseDTO(BaseModel):
+    usuarios: List[UsuarioResponseDTO]

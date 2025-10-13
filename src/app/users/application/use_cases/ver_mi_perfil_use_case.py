@@ -29,5 +29,5 @@ class VerMiPerfilUseCase:
             numero_telefono=user.numero_telefono,
             url_avatar=user.url_avatar,
             esta_activo=user.esta_activo,
-            roles=[]
+            rol= user.rol,
         )

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
-
+from app.users.domain.value_objects import Rol
 
 def test_actualizar_mi_perfil_use_case_file_exists():
     """
@@ -44,7 +44,8 @@ async def test_actualizar_mi_perfil_exitoso():
         numero_telefono="123456789",
         apodo="testuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     update_dto = ActualizarMiPerfilDTO(
@@ -72,6 +73,7 @@ async def test_actualizar_mi_perfil_exitoso():
     assert isinstance(result, UsuarioResponseDTO)
     assert result.nombre == "New Name"
     assert result.apellidos == "New Lastname"
+    assert result.rol == updated_user.rol.value
 
 @pytest.mark.asyncio
 async def test_actualizar_mi_perfil_no_autorizado():
@@ -98,7 +100,8 @@ async def test_actualizar_mi_perfil_no_autorizado():
         numero_telefono="123456789",
         apodo="currentuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     update_dto = ActualizarMiPerfilDTO(
@@ -109,7 +112,8 @@ async def test_actualizar_mi_perfil_no_autorizado():
     mock_user_repository.buscar_por_id = AsyncMock()
     mock_user_repository.actualizar = AsyncMock()
 
-    user_policy = UserPolicy()
+    user_policy = Mock(spec=UserPolicy)
+    user_policy.actualizar_perfil.return_value = False # Not authorized
 
     use_case = ActualizarMiPerfilUseCase(mock_user_repository, user_policy)
 
@@ -144,7 +148,8 @@ async def test_actualizar_mi_perfil_usuario_no_encontrado():
         numero_telefono="123456789",
         apodo="testuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     update_dto = ActualizarMiPerfilDTO(

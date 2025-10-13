@@ -35,6 +35,7 @@ class ReenviarEmailUseCase:
         hashed_verification_token = self.password_hasher.hash(plain_token_value)
         
         new_token = Token(
+            id=uuid4(),
             usuario_id=user.id,
             tipo_token=TipoToken.VERIFICACION_EMAIL,
             hash_token=hashed_verification_token,

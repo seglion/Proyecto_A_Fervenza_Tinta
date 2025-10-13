@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
-
+from app.users.domain.value_objects import Rol
 
 def test_ver_mi_perfil_use_case_file_exists():
     """
@@ -44,7 +44,8 @@ async def test_ver_mi_perfil_exitoso():
         numero_telefono="123456789",
         apodo="testuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)
@@ -67,7 +68,7 @@ async def test_ver_mi_perfil_exitoso():
     assert result.apodo == mock_user.apodo
     assert result.numero_telefono == mock_user.numero_telefono
     assert result.esta_activo == mock_user.esta_activo
-    assert result.roles == [] # Assuming no roles for now
+    assert result.rol == mock_user.rol.value
 
 @pytest.mark.asyncio
 async def test_ver_mi_perfil_no_autorizado():
@@ -77,6 +78,7 @@ async def test_ver_mi_perfil_no_autorizado():
     # Arrange
     from app.users.application.repositories.i_user_repository import IUserRepository
     from app.users.application.policies.user_policy import UserPolicy
+    from app.users.application.dtos import UsuarioResponseDTO
     from app.users.domain.entities import User
     from app.users.application.use_cases.ver_mi_perfil_use_case import VerMiPerfilUseCase
     from uuid import uuid4
@@ -93,13 +95,15 @@ async def test_ver_mi_perfil_no_autorizado():
         numero_telefono="123456789",
         apodo="currentuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)
     mock_user_repository.buscar_por_id = AsyncMock()
 
-    user_policy = UserPolicy()
+    user_policy = Mock(spec=UserPolicy)
+    user_policy.ver_perfil.return_value = False # Not authorized
 
     use_case = VerMiPerfilUseCase(mock_user_repository, user_policy)
 

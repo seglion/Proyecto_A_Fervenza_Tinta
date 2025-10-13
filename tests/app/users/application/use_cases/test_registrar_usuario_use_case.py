@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, call
 from app.users.application.use_cases.registrar_usuario_use_case import RegistrarUsuarioUseCase
+from app.users.domain.value_objects import Rol
 
 def test_registrar_usuario_use_case_file_exists():
     """
@@ -20,6 +21,7 @@ def test_registrar_usuario_use_case_class_exists():
     except ImportError:
         pytest.fail("RegistrarUsuarioUseCase class does not exist in registrar_usuario_use_case.py")
 
+@pytest.mark.asyncio
 async def test_registrar_usuario_exitoso():
     """
     Tests the successful registration of a user.
@@ -46,7 +48,8 @@ async def test_registrar_usuario_exitoso():
         nombre="Test",
         apellidos="User",
         numero_telefono="123456789",
-        apodo=None
+        apodo=None,
+        rol=Rol.USUARIO
     ))
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
@@ -57,6 +60,7 @@ async def test_registrar_usuario_exitoso():
 
     mock_token_repository = Mock(spec=ITokenRepository)
     mock_token_repository.crear = AsyncMock(return_value=Token(
+        id=uuid4(),
         usuario_id=created_user_id,
         tipo_token=TipoToken.VERIFICACION_EMAIL,
         hash_token="hashed_verification_token",
@@ -68,7 +72,8 @@ async def test_registrar_usuario_exitoso():
         contrasena="password123",
         nombre="Test",
         apellidos="User",
-        numero_telefono="123456789"
+        numero_telefono="123456789",
+        rol=Rol.USUARIO.value
     )
 
     use_case = RegistrarUsuarioUseCase(mock_user_repository, mock_password_hasher, mock_email_service, mock_token_repository)
@@ -92,6 +97,7 @@ async def test_registrar_usuario_exitoso():
     assert result.id == created_user_id
     assert result.email == dto.email
 
+@pytest.mark.asyncio
 async def test_registrar_usuario_email_existente():
     """
     Tests that a ValueError is raised when a user with the given email already exists.
@@ -114,7 +120,8 @@ async def test_registrar_usuario_email_existente():
         nombre="Existing",
         apellidos="User",
         numero_telefono="123456789",
-        apodo=None
+        apodo=None,
+        rol=Rol.USUARIO
     ))
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
@@ -131,7 +138,8 @@ async def test_registrar_usuario_email_existente():
         contrasena="password123",
         nombre="Existing",
         apellidos="User",
-        numero_telefono="123456789"
+        numero_telefono="123456789",
+        rol=Rol.USUARIO.value
     )
 
     use_case = RegistrarUsuarioUseCase(mock_user_repository, mock_password_hasher, mock_email_service, mock_token_repository)

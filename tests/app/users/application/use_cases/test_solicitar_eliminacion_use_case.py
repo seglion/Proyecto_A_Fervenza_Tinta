@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
-
+from app.users.domain.value_objects import Rol
 
 def test_solicitar_eliminacion_use_case_file_exists():
     """
@@ -43,7 +43,8 @@ async def test_solicitar_eliminacion_exitoso():
         numero_telefono="123456789",
         apodo=None,
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)
@@ -83,13 +84,15 @@ async def test_solicitar_eliminacion_no_autorizado():
         numero_telefono="123456789",
         apodo="currentuser",
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)
     mock_user_repository.desactivar_cuenta = AsyncMock()
 
-    user_policy = UserPolicy()
+    user_policy = Mock(spec=UserPolicy)
+    user_policy.actualizar_perfil.return_value = False # Not authorized
 
     use_case = SolicitarEliminacionUseCase(mock_user_repository, user_policy)
 

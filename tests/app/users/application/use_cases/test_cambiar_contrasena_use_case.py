@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
-
+from app.users.domain.value_objects import Rol
 
 def test_cambiar_contrasena_use_case_file_exists():
     """
@@ -49,7 +49,8 @@ async def test_cambiar_contrasena_exitoso():
         numero_telefono="123456789",
         apodo=None,
         email_verificado=True,
-        esta_activo=True
+        esta_activo=True,
+        rol=Rol.USUARIO
     )
 
     mock_user_repository = Mock(spec=IUserRepository)

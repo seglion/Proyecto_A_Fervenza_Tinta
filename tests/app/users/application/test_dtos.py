@@ -27,6 +27,7 @@ def test_registrar_usuario_dto_exists():
         assert RegistrarUsuarioDTO.model_fields['apellidos'].is_required()
         # Check for optional field
         assert not RegistrarUsuarioDTO.model_fields['apodo'].is_required()
+        assert RegistrarUsuarioDTO.model_fields['rol'].annotation == str
     except (ImportError, KeyError):
         pytest.fail("RegistrarUsuarioDTO class does not exist or is misconfigured in dtos.py")
 
@@ -70,7 +71,7 @@ def test_usuario_response_dto_exists():
         assert UsuarioResponseDTO.model_fields['numero_telefono'].annotation == str
         assert not UsuarioResponseDTO.model_fields['url_avatar'].is_required()
         assert UsuarioResponseDTO.model_fields['esta_activo'].annotation == bool
-        assert UsuarioResponseDTO.model_fields['roles'].annotation == List[str]
+        assert UsuarioResponseDTO.model_fields['rol'].annotation == str
     except (ImportError, KeyError):
         pytest.fail("UsuarioResponseDTO class does not exist or is misconfigured in dtos.py")
 
@@ -100,3 +101,14 @@ def test_cambiar_contrasena_dto_exists():
         assert CambiarContrasenaDTO.model_fields['contrasena_nueva'].is_required()
     except (ImportError, KeyError):
         pytest.fail("CambiarContrasenaDTO class does not exist or is misconfigured in dtos.py")
+
+def test_lista_usuarios_response_dto_exists():
+    """
+    Tests if the ListaUsuariosResponseDTO class exists and has the correct fields.
+    """
+    try:
+        from app.users.application.dtos import ListaUsuariosResponseDTO, UsuarioResponseDTO
+        assert issubclass(ListaUsuariosResponseDTO, BaseModel)
+        assert ListaUsuariosResponseDTO.model_fields['usuarios'].annotation == List[UsuarioResponseDTO]
+    except (ImportError, KeyError):
+        pytest.fail("ListaUsuariosResponseDTO class does not exist or is misconfigured in dtos.py")
