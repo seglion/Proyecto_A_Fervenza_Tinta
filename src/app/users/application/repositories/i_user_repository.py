@@ -34,3 +34,7 @@ class IUserRepository(ABC):
     async def buscar_todos(self) -> List[User]:
         pass
 
+    @abstractmethod
+    async def eliminar_por_id(self, user_id: UUID) -> None:
+        pass
+

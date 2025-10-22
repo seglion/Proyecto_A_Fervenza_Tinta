@@ -68,7 +68,7 @@ def test_usuario_response_dto_exists():
         assert UsuarioResponseDTO.model_fields['nombre'].annotation == str
         assert UsuarioResponseDTO.model_fields['apellidos'].annotation == str
         assert not UsuarioResponseDTO.model_fields['apodo'].is_required()
-        assert UsuarioResponseDTO.model_fields['numero_telefono'].annotation == str
+        assert UsuarioResponseDTO.model_fields['numero_telefono'].annotation == Optional[str]
         assert not UsuarioResponseDTO.model_fields['url_avatar'].is_required()
         assert UsuarioResponseDTO.model_fields['esta_activo'].annotation == bool
         assert UsuarioResponseDTO.model_fields['rol'].annotation == str

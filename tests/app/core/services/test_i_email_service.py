@@ -26,8 +26,13 @@ def test_iemailservice_has_send_verification_email_method():
     Tests if the IEmailService interface has a 'send_verification_email' abstract method.
     """
     assert hasattr(IEmailService, 'send_verification_email')
-    assert 'email' in IEmailService.send_verification_email.__annotations__
-    assert IEmailService.send_verification_email.__annotations__['email'] == str
-    assert 'token' in IEmailService.send_verification_email.__annotations__
-    assert IEmailService.send_verification_email.__annotations__['token'] == str
-    assert IEmailService.send_verification_email.__annotations__['return'] == None
+    # Check for all parameters and their types
+    annotations = IEmailService.send_verification_email.__annotations__
+    assert 'email_to' in annotations
+    assert annotations['email_to'] == str
+    assert 'name' in annotations
+    assert annotations['name'] == str
+    assert 'token' in annotations
+    assert annotations['token'] == str
+    assert 'return' in annotations
+    assert annotations['return'] is None

@@ -25,7 +25,7 @@ class UsuarioResponseDTO(BaseModel):
     nombre: str
     apellidos: str
     apodo: Optional[str] = None
-    numero_telefono: str
+    numero_telefono: Optional[str] = None
     url_avatar: Optional[str] = None
     esta_activo: bool
     rol: str

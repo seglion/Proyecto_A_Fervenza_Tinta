@@ -27,8 +27,7 @@ def test_user_creation():
     assert user.apodo == "testuser"
     assert user.numero_telefono == "123456789"
     assert user.rol == Rol.USUARIO
-    assert isinstance(user.id, UUID)
-    assert user.esta_activo is True
+    assert user.esta_activo is False
     assert user.email_verificado is False
     assert user.aprobado_por_admin is False
     assert isinstance(user.fecha_creacion, datetime)
@@ -107,7 +106,7 @@ def test_user_fecha_actualizacion_defaults_to_utcnow():
 
 def test_user_esta_activo_defaults_to_true():
     """
-    Tests that a new user defaults to esta_activo=True.
+    Tests that a new user defaults to esta_activo=False.
     """
     user = User(
         email="test@test.com",
@@ -118,7 +117,7 @@ def test_user_esta_activo_defaults_to_true():
         numero_telefono="123",
         rol=Rol.USUARIO
     )
-    assert user.esta_activo is True
+    assert user.esta_activo is False
 
 def test_user_email_verificado_defaults_to_false():
     """

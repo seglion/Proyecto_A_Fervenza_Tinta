@@ -15,7 +15,7 @@ class User:
     id: UUID = field(default_factory=uuid4)
     apodo: Optional[str] = None
     url_avatar: Optional[str] = None
-    esta_activo: bool = True
+    esta_activo: bool = False
     email_verificado: bool = False
     aprobado_por_admin: bool = False
     fecha_creacion: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

@@ -4,6 +4,8 @@ from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 
+from app.core.config import settings # Import settings
+
 class JWTService(IJWTService):
     def __init__(self, secret_key: str, algorithm: str, access_token_expire_minutes: int, refresh_token_expire_days: int):
         self.secret_key = secret_key
@@ -51,3 +53,11 @@ class JWTService(IJWTService):
             return UUID(user_id)
         except JWTError:
             raise ValueError("Invalid token")
+
+def get_jwt_service() -> IJWTService:
+    return JWTService(
+        secret_key=settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM,
+        access_token_expire_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        refresh_token_expire_days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )

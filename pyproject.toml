@@ -1,39 +1,41 @@
-[project]
+[tool.poetry]
 name = "backend"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Miguel Angel Vigo Bazm",email = "vigobaz@hotmail.com"}
-]
+authors = ["Miguel Angel Vigo Bazm <vigobaz@hotmail.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "fastapi (>=0.118.2,<0.119.0)",
-    "uvicorn (>=0.37.0,<0.38.0)",
-    "pydantic[email] (>=2.12.0,<3.0.0)",
-    "sqlalchemy (>=2.0.43,<3.0.0)",
-    "sqlmodel (>=0.0.27,<0.0.28)",
-    "asyncpg (>=0.30.0,<0.31.0)",
-    "alembic (>=1.16.5,<2.0.0)",
-    "argon2-cffi (>=25.1.0,<26.0.0)",
-    "pyjwt (>=2.10.1,<3.0.0)",
-    "python-jose (>=3.5.0,<4.0.0)",
-    "pydantic-settings (>=2.11.0,<3.0.0)"
+
+packages = [
+    { include = "src/app" },
 ]
 
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-package-mode = false
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+fastapi = "^0.119.0"
+uvicorn = ">=0.37.0,<0.38.0"
+pydantic = {version = ">=2.12.0,<3.0.0", extras = ["email"]}
+sqlalchemy = ">=2.0.43,<3.0.0"
+sqlmodel = ">=0.0.27,<0.0.28"
+asyncpg = ">=0.30.0,<0.31.0"
+alembic = ">=1.16.5,<2.0.0"
+argon2-cffi = ">=25.1.0,<26.0.0"
+pyjwt = ">=2.10.1,<3.0.0"
+python-jose = ">=3.5.0,<4.0.0"
+pydantic-settings = ">=2.11.0,<3.0.0"
+psycopg2-binary = ">=2.9.11,<3.0.0"
+python-multipart = ">=0.0.20,<0.0.21"
+fastapi-mail = "^1.5.6"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
 pytest-asyncio = "^1.2.0"
+httpx = "^0.28.1"
+aiosmtpd = "^1.4.6"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 asyncio_mode = "auto"
-

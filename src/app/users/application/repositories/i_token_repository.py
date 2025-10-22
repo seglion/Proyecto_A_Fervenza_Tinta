@@ -14,3 +14,7 @@ class ITokenRepository(ABC):
     @abstractmethod
     async def actualizar(self, token: Token) -> Token:
         pass
+
+    @abstractmethod
+    async def invalidar_token(self, refresh_token_hash: str) -> None:
+        pass
