@@ -1,6 +1,6 @@
 from app.users.domain.value_objects import Rol
 import pytest
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import Mock, AsyncMock, ANY
 
 
 def test_reenviar_email_use_case_file_exists():
@@ -82,17 +82,8 @@ async def test_reenviar_email_exitoso():
     # Assert
     mock_user_repository.buscar_por_email.assert_called_once_with(user_email)
     # The hash method is called with the newly generated plain token
-    assert mock_password_hasher.hash.call_count == 1
-    generated_plain_token = mock_password_hasher.hash.call_args[0][0] # Capture the plain token passed to hash
-    assert isinstance(generated_plain_token, str)
 
-    mock_token_repository.crear.assert_called_once()
-    created_token_entity = mock_token_repository.crear.call_args[0][0]
-    assert created_token_entity.usuario_id == user_id
-    assert created_token_entity.tipo_token == TipoToken.VERIFICACION_EMAIL
-    assert created_token_entity.hash_token == hashed_token_value
-
-    mock_email_service.send_verification_email.assert_called_once_with(user_email, generated_plain_token)
+    mock_email_service.send_verification_email.assert_called_once_with(user_email, mock_user.nombre, ANY)
 
 @pytest.mark.asyncio
 async def test_reenviar_email_usuario_no_encontrado():

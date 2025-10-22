@@ -6,6 +6,7 @@ from app.users.domain.entities import User, Token
 from app.users.domain.value_objects import TipoToken
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 class ReenviarEmailUseCase:
     def __init__(
@@ -32,7 +33,7 @@ class ReenviarEmailUseCase:
 
         # Generate new verification token
         plain_token_value = str(uuid4())
-        hashed_verification_token = self.password_hasher.hash(plain_token_value)
+        hashed_verification_token = hashlib.sha256(plain_token_value.encode()).hexdigest()
         
         new_token = Token(
             id=uuid4(),
@@ -43,4 +44,4 @@ class ReenviarEmailUseCase:
         )
         await self.token_repository.crear(new_token)
 
-        await self.email_service.send_verification_email(user.email, plain_token_value)
+        await self.email_service.send_verification_email(user.email, user.nombre, plain_token_value)
