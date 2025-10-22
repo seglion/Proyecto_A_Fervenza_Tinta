@@ -81,8 +81,7 @@ async def test_aprobar_usuario_exitoso():
     mock_user_repository.actualizar.assert_called_once()
     updated_user = mock_user_repository.actualizar.call_args[0][0]
     assert updated_user.aprobado_por_admin is True
-    mock_email_service.enviar_email_bienvenida.assert_called_once_with(user_to_approve.email)
-
+    mock_email_service.enviar_email_bienvenida.assert_called_once_with(user_to_approve.email, user_to_approve.nombre)
 @pytest.mark.asyncio
 async def test_aprobar_usuario_no_autorizado():
     """

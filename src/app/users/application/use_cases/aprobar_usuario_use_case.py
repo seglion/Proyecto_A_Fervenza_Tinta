@@ -30,4 +30,4 @@ class AprobarUsuarioUseCase:
         user.fecha_actualizacion = datetime.now(timezone.utc)
         await self.user_repository.actualizar(user)
 
-        await self.email_service.enviar_email_bienvenida(user.email)
+        await self.email_service.enviar_email_bienvenida(user.email, user.nombre)

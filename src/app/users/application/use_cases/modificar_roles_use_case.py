@@ -10,7 +10,7 @@ class ModificarRolesUseCase:
         self.user_repository = user_repository
         self.user_policy = user_policy
 
-    async def execute(self, admin_user: User, user_id: UUID, new_rol: Rol) -> None:
+    async def execute(self, admin_user: User, user_id: UUID, new_rol_str: str) -> None:
         if not self.user_policy.es_administrador(admin_user):
             raise ValueError("Not authorized to modify roles.") # TODO: Specific exception
 
@@ -18,6 +18,12 @@ class ModificarRolesUseCase:
 
         if not user:
             raise ValueError("User not found.") # TODO: Specific exception
+
+        # Convert string to Rol enum member
+        try:
+            new_rol = Rol(new_rol_str.upper())
+        except ValueError:
+            raise ValueError(f"Invalid role: {new_rol_str}")
 
         user.rol = new_rol
         user.fecha_actualizacion = datetime.now(timezone.utc)

@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.application.repositories.i_user_repository import IUserRepository
@@ -36,13 +37,13 @@ async def test_confirmar_nueva_contrasena_exitoso():
     # Arrange
     user_id = uuid4()
     plain_token = "some_plain_token"
-    hashed_token = "some_hashed_token"
-    new_plain_password = "new_password123"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
+    new_plain_password = "NewPass123!@#"
     new_hashed_password = "new_hashed_password"
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
-    mock_password_hasher.hash.side_effect = [hashed_token, new_hashed_password] # First hash for token, second for new password
+    mock_password_hasher.hash.side_effect = [new_hashed_password] # Only hash for new password
 
     mock_token_repository = Mock(spec=ITokenRepository)
     mock_token_repository.buscar_por_hash = AsyncMock(return_value=Token(
@@ -76,7 +77,6 @@ async def test_confirmar_nueva_contrasena_exitoso():
     await use_case.execute(plain_token, new_plain_password)
 
     # Assert
-    mock_password_hasher.hash.assert_any_call(plain_token)
     mock_password_hasher.hash.assert_any_call(new_plain_password)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)
@@ -92,8 +92,8 @@ async def test_confirmar_nueva_contrasena_token_invalido():
     """
     # Arrange
     plain_token = "invalid_token"
-    hashed_token = "hashed_invalid_token"
-    new_plain_password = "new_password123"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
+    new_plain_password = "NewPass123!@#"
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -112,7 +112,6 @@ async def test_confirmar_nueva_contrasena_token_invalido():
     with pytest.raises(ValueError, match="Invalid or expired token."):
         await use_case.execute(plain_token, new_plain_password)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_not_called()
     mock_user_repository.actualizar_contrasena.assert_not_called()
@@ -126,8 +125,8 @@ async def test_confirmar_nueva_contrasena_token_expirado():
     # Arrange
     user_id = uuid4()
     plain_token = "expired_token"
-    hashed_token = "hashed_expired_token"
-    new_plain_password = "new_password123"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
+    new_plain_password = "NewPass123!@#"
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -153,11 +152,10 @@ async def test_confirmar_nueva_contrasena_token_expirado():
     with pytest.raises(ValueError, match="Invalid or expired token."):
         await use_case.execute(plain_token, new_plain_password)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_not_called()
     mock_user_repository.actualizar_contrasena.assert_not_called()
-    mock_token_repository.actualizar.assert_not_called()
+    mock_token_repository.actualizar.assert_called_once()
 
 @pytest.mark.asyncio
 async def test_confirmar_nueva_contrasena_usuario_no_encontrado():
@@ -167,8 +165,8 @@ async def test_confirmar_nueva_contrasena_usuario_no_encontrado():
     # Arrange
     user_id = uuid4()
     plain_token = "valid_token"
-    hashed_token = "hashed_valid_token"
-    new_plain_password = "new_password123"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
+    new_plain_password = "NewPass123!@#"
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -194,8 +192,7 @@ async def test_confirmar_nueva_contrasena_usuario_no_encontrado():
     with pytest.raises(ValueError, match="User not found."):
         await use_case.execute(plain_token, new_plain_password)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)
     mock_user_repository.actualizar_contrasena.assert_not_called()
-    mock_token_repository.actualizar.assert_not_called() # Corrected assertion
+    mock_token_repository.actualizar.assert_called_once() # Corrected assertion

@@ -3,9 +3,11 @@ from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
 
 from app.users.application.repositories.i_user_repository import IUserRepository
+from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.core.services.i_jwt_service import IJWTService
-from app.users.application.dtos import IniciarSesionDTO, TokensDTO
+from app.users.application.dtos import IniciarSesionDTO
+from app.users.application.dtos.tokens_dto import TokensDTO
 from app.users.domain.entities import User
 from app.users.application.use_cases.iniciar_sesion_use_case import IniciarSesionUseCase
 from app.users.domain.value_objects import Rol
@@ -63,7 +65,8 @@ async def test_iniciar_sesion_exitoso():
     mock_jwt_service = Mock(spec=IJWTService)
     mock_jwt_service.generar_tokens.return_value = (access_token, refresh_token)
 
-    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service)
+    mock_token_repository = Mock(spec=ITokenRepository)
+    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service, mock_token_repository)
 
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
@@ -93,8 +96,9 @@ async def test_iniciar_sesion_usuario_no_encontrado():
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_jwt_service = Mock(spec=IJWTService)
+    mock_token_repository = Mock(spec=ITokenRepository)
 
-    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service)
+    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service, mock_token_repository)
 
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
@@ -137,8 +141,9 @@ async def test_iniciar_sesion_contrasena_incorrecta():
     mock_password_hasher.verify.return_value = False # Incorrect password
 
     mock_jwt_service = Mock(spec=IJWTService)
+    mock_token_repository = Mock(spec=ITokenRepository)
 
-    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service)
+    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service, mock_token_repository)
 
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
@@ -181,8 +186,9 @@ async def test_iniciar_sesion_email_no_verificado():
     mock_password_hasher.verify.return_value = True
 
     mock_jwt_service = Mock(spec=IJWTService)
+    mock_token_repository = Mock(spec=ITokenRepository)
 
-    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service)
+    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service, mock_token_repository)
 
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
@@ -225,8 +231,9 @@ async def test_iniciar_sesion_cuenta_inactiva():
     mock_password_hasher.verify.return_value = True
 
     mock_jwt_service = Mock(spec=IJWTService)
+    mock_token_repository = Mock(spec=ITokenRepository)
 
-    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service)
+    use_case = IniciarSesionUseCase(mock_user_repository, mock_password_hasher, mock_jwt_service, mock_token_repository)
 
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 

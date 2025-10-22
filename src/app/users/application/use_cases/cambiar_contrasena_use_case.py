@@ -3,6 +3,7 @@ from app.users.application.policies.user_policy import UserPolicy
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.users.application.dtos import CambiarContrasenaDTO
 from app.users.domain.entities import User
+from app.users.domain.value_objects import Password
 from uuid import UUID
 
 class CambiarContrasenaUseCase:
@@ -28,5 +29,8 @@ class CambiarContrasenaUseCase:
         if not self.password_hasher.verify(dto.contrasena_antigua, user.contrasena_hasheada):
             raise ValueError("Invalid old password.") # TODO: Specific exception
 
-        new_hashed_password = self.password_hasher.hash(dto.contrasena_nueva)
+        # Validate new password using Value Object
+        new_password_vo = Password.create(dto.contrasena_nueva)
+
+        new_hashed_password = self.password_hasher.hash(new_password_vo.value)
         await self.user_repository.actualizar_contrasena(user.id, new_hashed_password)

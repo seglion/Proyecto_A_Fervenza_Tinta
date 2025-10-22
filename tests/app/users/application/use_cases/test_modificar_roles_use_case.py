@@ -64,8 +64,7 @@ async def test_modificar_rol_exitoso():
     use_case = ModificarRolesUseCase(mock_user_repository, user_policy)
 
     # Act
-    await use_case.execute(admin_user, user_to_modify_id, Rol.ADMIN)
-
+    await use_case.execute(admin_user, user_to_modify_id, Rol.ADMIN.value)
     # Assert
     mock_user_repository.buscar_por_id.assert_called_once_with(user_to_modify_id)
     mock_user_repository.actualizar.assert_called_once()

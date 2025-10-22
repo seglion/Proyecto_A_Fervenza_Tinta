@@ -1,5 +1,7 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
+from app.users.application.repositories.i_token_repository import ITokenRepository
+from app.core.security.i_password_hasher import IPasswordHasher
 
 
 def test_refrescar_sesion_use_case_file_exists():
@@ -27,6 +29,8 @@ async def test_refrescar_sesion_exitoso():
     """
     # Arrange
     from app.users.application.repositories.i_user_repository import IUserRepository
+    from app.users.application.repositories.i_token_repository import ITokenRepository
+    from app.core.security.i_password_hasher import IPasswordHasher
     from app.core.services.i_jwt_service import IJWTService
     from app.users.application.dtos import TokensDTO
     from app.users.domain.entities import User
@@ -37,6 +41,7 @@ async def test_refrescar_sesion_exitoso():
     user_id = uuid4()
     refresh_token = "mock_refresh_token"
     new_access_token = "new_mock_access_token"
+    hashed_refresh_token = "hashed_mock_refresh_token"
 
     mock_user = User(
         id=user_id,
@@ -58,7 +63,12 @@ async def test_refrescar_sesion_exitoso():
     mock_jwt_service.validar_refresh_token.return_value = user_id
     mock_jwt_service.generar_tokens.return_value = (new_access_token, refresh_token) # We only care about the new access token
 
-    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service)
+    mock_token_repository = Mock(spec=ITokenRepository)
+    mock_token_repository.invalidar_token = AsyncMock()
+    mock_token_repository.crear = AsyncMock()
+
+    mock_password_hasher = Mock(spec=IPasswordHasher)
+    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
 
     # Act
     result = await use_case.execute(refresh_token)
@@ -79,6 +89,8 @@ async def test_refrescar_sesion_token_invalido():
     """
     # Arrange
     from app.users.application.repositories.i_user_repository import IUserRepository
+    from app.users.application.repositories.i_token_repository import ITokenRepository
+    from app.core.security.i_password_hasher import IPasswordHasher
     from app.core.services.i_jwt_service import IJWTService
     from app.users.application.use_cases.refrescar_sesion_use_case import RefrescarSesionUseCase
     from unittest.mock import AsyncMock
@@ -92,7 +104,10 @@ async def test_refrescar_sesion_token_invalido():
     mock_jwt_service.validar_refresh_token.side_effect = ValueError("Invalid token or inactive user.")
     mock_jwt_service.generar_tokens = Mock()
 
-    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service)
+    mock_token_repository = Mock(spec=ITokenRepository)
+    mock_password_hasher = Mock(spec=IPasswordHasher)
+
+    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
     with pytest.raises(ValueError, match="Invalid token or inactive user."):
@@ -119,14 +134,20 @@ async def test_refrescar_sesion_usuario_no_encontrado():
     refresh_token = "mock_refresh_token"
 
     mock_user_repository = Mock(spec=IUserRepository)
-    mock_user_repository.buscar_por_id = AsyncMock(return_value=None) # User not found
-
+    mock_user_repository.buscar_por_id = AsyncMock(return_value=None)
     mock_jwt_service = Mock(spec=IJWTService)
     mock_jwt_service.validar_refresh_token.return_value = user_id
-    mock_jwt_service.generar_tokens = Mock()
+    mock_jwt_service.generar_tokens.return_value = ("mock_access_token", "mock_new_refresh_token")
 
-    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service)
 
+
+    mock_token_repository = Mock(spec=ITokenRepository)
+
+    mock_password_hasher = Mock(spec=IPasswordHasher)
+
+
+
+    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
     # Act & Assert
     with pytest.raises(ValueError, match="Invalid token or inactive user."):
         await use_case.execute(refresh_token)
@@ -170,9 +191,11 @@ async def test_refrescar_sesion_cuenta_inactiva():
 
     mock_jwt_service = Mock(spec=IJWTService)
     mock_jwt_service.validar_refresh_token.return_value = user_id
-    mock_jwt_service.generar_tokens = Mock()
 
-    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service)
+    mock_token_repository = Mock(spec=ITokenRepository)
+    mock_password_hasher = Mock(spec=IPasswordHasher)
+
+    use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
     with pytest.raises(ValueError, match="Invalid token or inactive user."):

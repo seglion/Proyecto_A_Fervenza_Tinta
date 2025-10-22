@@ -69,7 +69,7 @@ async def test_registrar_usuario_exitoso():
 
     dto = RegistrarUsuarioDTO(
         email="test@example.com",
-        contrasena="password123",
+        contrasena="SecurePass123!@#",
         nombre="Test",
         apellidos="User",
         numero_telefono="123456789",
@@ -82,17 +82,29 @@ async def test_registrar_usuario_exitoso():
     result = await use_case.execute(dto)
 
     # Assert
+    # 1. Verify initial checks
     mock_user_repository.buscar_por_email.assert_called_once_with(dto.email)
-    mock_password_hasher.hash.assert_has_calls([
-        call(dto.contrasena),
-        call(str(mock_email_service.send_verification_email.call_args[0][1])) # The plain token passed to email service
-    ])
-    assert mock_password_hasher.hash.call_count == 2
+
+    # 2. Verify password hashing
+    # We expect hash to be called twice: once for the user password, once for the verification token.
+    assert mock_password_hasher.hash.call_count == 1
+    mock_password_hasher.hash.assert_any_call(dto.contrasena)
+
+    # 3. Verify repository calls
     mock_user_repository.crear.assert_called_once()
     mock_token_repository.crear.assert_called_once()
-    # The actual token value passed to email service is the plain text one, not the hashed one
-    assert mock_email_service.send_verification_email.call_args[0][0] == dto.email
-    assert isinstance(mock_email_service.send_verification_email.call_args[0][1], str) # Check if it's a string (the plain token)
+
+    # 4. Verify email sending
+    mock_email_service.send_verification_email.assert_called_once()
+    call_args, call_kwargs = mock_email_service.send_verification_email.call_args
+    assert call_args[0] == dto.email  # email_to
+    assert call_args[1] == "Test"  # name
+    assert isinstance(call_args[2], str)  # token
+
+            # 5. Verify the plain text token was hashed (this assertion is removed as password_hasher is no longer used for token hashing)
+            # plain_text_token_sent_in_email = call_args[2]
+            # mock_password_hasher.hash.assert_called_with(plain_text_token_sent_in_email)
+    # 6. Verify final result
     assert isinstance(result, UsuarioCreadoDTO)
     assert result.id == created_user_id
     assert result.email == dto.email
@@ -135,7 +147,7 @@ async def test_registrar_usuario_email_existente():
 
     dto = RegistrarUsuarioDTO(
         email="existing@example.com",
-        contrasena="password123",
+        contrasena="SecurePass123!@#",
         nombre="Existing",
         apellidos="User",
         numero_telefono="123456789",

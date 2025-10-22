@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.core.security.i_password_hasher import IPasswordHasher
@@ -7,6 +7,7 @@ from app.core.services.i_email_service import IEmailService
 from app.users.domain.entities import User, Token
 from app.users.domain.value_objects import TipoToken
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 class ForzarReseteoUseCase:
     def __init__(self, user_repository: IUserRepository, token_repository: ITokenRepository, password_hasher: IPasswordHasher, user_policy: UserPolicy, email_service: IEmailService):
@@ -25,11 +26,11 @@ class ForzarReseteoUseCase:
         if not user:
             raise ValueError("User not found.") # TODO: Specific exception
 
-        plain_token_value = str(UUID(int=0))
-        hashed_reset_token = self.password_hasher.hash(plain_token_value)
+        plain_token_value = str(uuid4())
+        hashed_reset_token = hashlib.sha256(plain_token_value.encode()).hexdigest()
         
         new_token = Token(
-            id=UUID(int=0),
+            id=uuid4(),
             usuario_id=user.id,
             tipo_token=TipoToken.RESETEO_CONTRASENA,
             hash_token=hashed_reset_token,

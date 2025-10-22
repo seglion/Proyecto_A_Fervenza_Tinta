@@ -1,6 +1,10 @@
 import pytest
 from unittest.mock import Mock, AsyncMock
 
+from app.users.application.repositories.i_token_repository import ITokenRepository
+from app.core.security.i_password_hasher import IPasswordHasher
+from app.users.application.use_cases.cerrar_sesion_use_case import CerrarSesionUseCase
+
 def test_cerrar_sesion_use_case_file_exists():
     """
     Tests if the cerrar sesion use case file exists.
@@ -25,18 +29,20 @@ async def test_cerrar_sesion_exitoso():
     Tests the successful session logout.
     """
     # Arrange
-    from app.users.application.repositories.i_refresh_token_repository import IRefreshTokenRepository
-    from app.users.application.use_cases.cerrar_sesion_use_case import CerrarSesionUseCase
-
     refresh_token = "mock_refresh_token"
+    hashed_refresh_token = "hashed_mock_refresh_token"
 
-    mock_refresh_token_repository = Mock(spec=IRefreshTokenRepository)
-    mock_refresh_token_repository.invalidar_token = AsyncMock()
+    mock_token_repository = Mock(spec=ITokenRepository)
+    mock_token_repository.invalidar_token = AsyncMock()
 
-    use_case = CerrarSesionUseCase(mock_refresh_token_repository)
+    mock_password_hasher = Mock(spec=IPasswordHasher)
+    mock_password_hasher.hash.return_value = hashed_refresh_token
+
+    use_case = CerrarSesionUseCase(mock_token_repository, mock_password_hasher)
 
     # Act
     await use_case.execute(refresh_token)
 
     # Assert
-    mock_refresh_token_repository.invalidar_token.assert_called_once_with(refresh_token)
+    mock_password_hasher.hash.assert_called_once_with(refresh_token)
+    mock_token_repository.invalidar_token.assert_called_once_with(hashed_refresh_token)

@@ -36,7 +36,7 @@ async def test_cambiar_contrasena_exitoso():
 
     user_id = uuid4()
     old_password = "old_password"
-    new_password = "new_password"
+    new_password = "NewPass123!@#"
     hashed_old_password = "hashed_old_password"
     hashed_new_password = "hashed_new_password"
 

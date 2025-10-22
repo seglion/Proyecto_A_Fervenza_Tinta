@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.application.repositories.i_user_repository import IUserRepository
@@ -36,7 +37,7 @@ async def test_confirmar_email_exitoso():
     # Arrange
     user_id = uuid4()
     plain_token = "some_plain_token"
-    hashed_token = "some_hashed_token"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -72,7 +73,6 @@ async def test_confirmar_email_exitoso():
     await use_case.execute(plain_token)
 
     # Assert
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)
     mock_user_repository.actualizar.assert_called_once()
@@ -89,7 +89,7 @@ async def test_confirmar_email_token_invalido():
     """
     # Arrange
     plain_token = "invalid_token"
-    hashed_token = "hashed_invalid_token"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -108,7 +108,6 @@ async def test_confirmar_email_token_invalido():
     with pytest.raises(ValueError, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_not_called()
     mock_user_repository.actualizar.assert_not_called()
@@ -122,7 +121,7 @@ async def test_confirmar_email_token_expirado():
     # Arrange
     user_id = uuid4()
     plain_token = "expired_token"
-    hashed_token = "hashed_expired_token"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -148,7 +147,6 @@ async def test_confirmar_email_token_expirado():
     with pytest.raises(ValueError, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_not_called()
     mock_user_repository.actualizar.assert_not_called()
@@ -164,7 +162,7 @@ async def test_confirmar_email_token_ya_usado():
     # Arrange
     user_id = uuid4()
     plain_token = "used_token"
-    hashed_token = "hashed_used_token"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -190,7 +188,6 @@ async def test_confirmar_email_token_ya_usado():
     with pytest.raises(ValueError, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_not_called()
     mock_user_repository.actualizar.assert_not_called()
@@ -204,7 +201,7 @@ async def test_confirmar_email_usuario_no_encontrado():
     # Arrange
     user_id = uuid4()
     plain_token = "valid_token"
-    hashed_token = "hashed_valid_token"
+    hashed_token = hashlib.sha256(plain_token.encode()).hexdigest()
 
     mock_password_hasher = Mock(spec=IPasswordHasher)
     mock_password_hasher.hash.return_value = hashed_token
@@ -230,7 +227,6 @@ async def test_confirmar_email_usuario_no_encontrado():
     with pytest.raises(ValueError, match="User not found."):
         await use_case.execute(plain_token)
 
-    mock_password_hasher.hash.assert_called_once_with(plain_token)
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)
     mock_user_repository.actualizar.assert_not_called()
