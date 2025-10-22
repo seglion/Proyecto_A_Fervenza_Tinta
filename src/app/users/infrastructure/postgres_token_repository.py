@@ -1,5 +1,6 @@
 from typing import Optional
 import asyncpg
+from uuid import UUID
 
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.domain.entities import Token
@@ -58,3 +59,11 @@ class PostgresTokenRepository(ITokenRepository):
         WHERE hash_token = $1
         """
         await self.db_connection.execute(query, refresh_token_hash)
+
+    async def invalidar_tokens_por_usuario_y_tipo(self, user_id: UUID, token_type: TipoToken) -> None:
+        query = """
+        UPDATE tokens
+        SET es_valido = FALSE
+        WHERE usuario_id = $1 AND tipo_token = $2::tipotoken
+        """
+        await self.db_connection.execute(query, user_id, token_type.value)

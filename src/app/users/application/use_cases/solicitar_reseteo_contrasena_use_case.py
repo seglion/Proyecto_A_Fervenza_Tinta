@@ -28,7 +28,7 @@ class SolicitarReseteoContrasenaUseCase:
             return
 
         # Invalidate existing password reset tokens for this user
-        # TODO: Implement a method in ITokenRepository to invalidate all tokens for a user/type
+        await self.token_repository.invalidar_tokens_por_usuario_y_tipo(user.id, TipoToken.RESETEO_CONTRASENA)
 
         # Generate new password reset token
         plain_token_value = str(uuid4())
