@@ -3,6 +3,7 @@ import sendgrid
 from sendgrid.helpers.mail import Mail, Email, To, Content
 from app.core.services.i_email_service import IEmailService
 from app.core.config import settings
+from pathlib import Path
 
 class SendGridEmailService(IEmailService):
     def __init__(self):
@@ -12,9 +13,21 @@ class SendGridEmailService(IEmailService):
         self.sg = sendgrid.SendGridAPIClient(api_key)
         self.sender_email = settings.MAIL_USERNAME
 
+        # Load templates
+        template_dir = Path(__file__).parent / "email_templates" / "sendgrid"
+        self.verification_template = (template_dir / "verification_email.html").read_text()
+        self.welcome_template = (template_dir / "welcome_email.html").read_text()
+        self.reset_password_template = (template_dir / "reset_password_email.html").read_text()
+        self.rejection_template = (template_dir / "rejection_email.html").read_text()
+        self.button_template = (template_dir / "button_section.html").read_text()
+
     async def send_verification_email(self, email_to: str, name: str, token: str) -> None:
         subject = "Verify your email"
-        html_content = f"Hello {name}, please verify your email by clicking on this link: http://localhost:8000/users/verificar-email?token={token}"
+        verification_link = f"http://localhost:8000/users/verificar-email?token={token}"
+        
+        button_html = self.button_template.replace("{{link}}", verification_link).replace("{{button_text}}", "Verify Email")
+        html_content = self.verification_template.replace("{{name}}", name).replace("{{button_section}}", button_html)
+
         message = Mail(
             from_email=Email(self.sender_email),
             to_emails=To(email_to),
@@ -22,7 +35,7 @@ class SendGridEmailService(IEmailService):
             html_content=Content("text/html", html_content)
         )
         try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
+            response = await self.sg.client.mail.send.post(request_body=message.get())
             print(response.status_code)
             print(response.body)
             print(response.headers)
@@ -32,7 +45,7 @@ class SendGridEmailService(IEmailService):
 
     async def enviar_email_bienvenida(self, email_to: str, name: str) -> None:
         subject = "Welcome!"
-        html_content = f"Hello {name}, welcome to our platform!"
+        html_content = self.welcome_template.replace("{{name}}", name).replace("{{button_section}}", "")
         message = Mail(
             from_email=Email(self.sender_email),
             to_emails=To(email_to),
@@ -40,7 +53,7 @@ class SendGridEmailService(IEmailService):
             html_content=Content("text/html", html_content)
         )
         try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
+            response = await self.sg.client.mail.send.post(request_body=message.get())
             print(response.status_code)
             print(response.body)
             print(response.headers)
@@ -50,7 +63,10 @@ class SendGridEmailService(IEmailService):
 
     async def send_reset_password_email(self, email_to: str, token: str) -> None:
         subject = "Reset your password"
-        html_content = f"You requested a password reset. Please click on this link to reset your password: http://localhost:8000/users/confirmar-reseteo?token={token}"
+        reset_link = f"http://localhost:8000/users/confirmar-reseteo?token={token}"
+        
+        button_html = self.button_template.replace("{{link}}", reset_link).replace("{{button_text}}", "Reset Password")
+        html_content = self.reset_password_template.replace("{{name}}", "there").replace("{{button_section}}", button_html)
         message = Mail(
             from_email=Email(self.sender_email),
             to_emails=To(email_to),
@@ -58,7 +74,7 @@ class SendGridEmailService(IEmailService):
             html_content=Content("text/html", html_content)
         )
         try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
+            response = await self.sg.client.mail.send.post(request_body=message.get())
             print(response.status_code)
             print(response.body)
             print(response.headers)
@@ -68,7 +84,7 @@ class SendGridEmailService(IEmailService):
 
     async def enviar_email_rechazo(self, email_to: str) -> None:
         subject = "Your registration was rejected"
-        html_content = "We regret to inform you that your registration has been rejected."
+        html_content = self.rejection_template.replace("{{name}}", "there").replace("{{button_section}}", "")
         message = Mail(
             from_email=Email(self.sender_email),
             to_emails=To(email_to),
@@ -76,7 +92,7 @@ class SendGridEmailService(IEmailService):
             html_content=Content("text/html", html_content)
         )
         try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
+            response = await self.sg.client.mail.send.post(request_body=message.get())
             print(response.status_code)
             print(response.body)
             print(response.headers)

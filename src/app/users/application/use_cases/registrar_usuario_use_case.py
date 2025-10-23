@@ -28,7 +28,6 @@ class RegistrarUsuarioUseCase:
         # 1. Check if user with email already exists
         existing_user = await self.user_repository.buscar_por_email(dto.email)
         if existing_user:
-            # TODO: Raise a specific exception for existing user
             raise UserAlreadyExistsException("User with this email already exists.")
 
         # 2. Validate password using Value Object
