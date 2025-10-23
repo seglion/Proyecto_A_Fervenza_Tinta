@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from app.users.domain.value_objects import Rol
@@ -97,7 +98,7 @@ async def test_solicitar_eliminacion_no_autorizado():
     use_case = SolicitarEliminacionUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to delete this account."):
+    with pytest.raises(UnauthorizedException):
         await use_case.execute(mock_current_user, target_user_id)
 
     mock_user_repository.desactivar_cuenta.assert_not_called()

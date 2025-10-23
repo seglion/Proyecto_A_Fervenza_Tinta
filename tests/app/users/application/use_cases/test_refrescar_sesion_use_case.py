@@ -1,3 +1,4 @@
+from app.users.application.exceptions import InvalidTokenException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from app.users.application.repositories.i_token_repository import ITokenRepository
@@ -149,7 +150,7 @@ async def test_refrescar_sesion_usuario_no_encontrado():
 
     use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid token or inactive user."):
+    with pytest.raises(InvalidTokenException):
         await use_case.execute(refresh_token)
 
     mock_jwt_service.validar_refresh_token.assert_called_once_with(refresh_token)
@@ -198,7 +199,7 @@ async def test_refrescar_sesion_cuenta_inactiva():
     use_case = RefrescarSesionUseCase(mock_user_repository, mock_jwt_service, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid token or inactive user."):
+    with pytest.raises(InvalidTokenException):
         await use_case.execute(refresh_token)
 
     mock_jwt_service.validar_refresh_token.assert_called_once_with(refresh_token)

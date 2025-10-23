@@ -8,6 +8,7 @@ from app.users.domain.value_objects import TipoToken
 from datetime import datetime, timedelta, timezone
 import hashlib
 from uuid import uuid4
+from app.users.application.exceptions import InvalidTokenException
 
 class RefrescarSesionUseCase:
     def __init__(
@@ -28,7 +29,7 @@ class RefrescarSesionUseCase:
         user = await self.user_repository.buscar_por_id(user_id)
 
         if not user or not user.esta_activo:
-            raise ValueError("Invalid token or inactive user.") # TODO: Specific exception
+            raise InvalidTokenException("Invalid token or inactive user.")
 
         # Invalidate the old refresh token
         hashed_old_refresh_token = hashlib.sha256(refresh_token.encode()).hexdigest()

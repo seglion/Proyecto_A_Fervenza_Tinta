@@ -4,6 +4,7 @@ from app.users.application.policies.user_policy import UserPolicy
 from app.users.domain.entities import User
 from app.users.domain.value_objects import Rol
 from datetime import datetime, timezone
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 class ModificarRolesUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy):
@@ -12,12 +13,12 @@ class ModificarRolesUseCase:
 
     async def execute(self, admin_user: User, user_id: UUID, new_rol_str: str) -> None:
         if not self.user_policy.es_administrador(admin_user):
-            raise ValueError("Not authorized to modify roles.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to modify roles.")
 
         user = await self.user_repository.buscar_por_id(user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         # Convert string to Rol enum member
         try:

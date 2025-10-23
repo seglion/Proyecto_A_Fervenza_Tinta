@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
@@ -75,7 +76,7 @@ async def test_no_admin_no_puede_ver_perfil_de_otro_usuario():
     use_case = VerPerfilOtroUsuarioUseCase(mock_user_repository, mock_user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to view other user's profile."):
+    with pytest.raises(UnauthorizedException):
         await use_case.execute(non_admin_user, target_user_id)
 
     mock_user_policy.es_administrador.assert_called_once_with(non_admin_user)
@@ -99,7 +100,7 @@ async def test_admin_intenta_ver_perfil_de_usuario_no_existente():
     use_case = VerPerfilOtroUsuarioUseCase(mock_user_repository, mock_user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException):
         await use_case.execute(admin_user, non_existent_user_id)
 
     mock_user_policy.es_administrador.assert_called_once_with(admin_user)

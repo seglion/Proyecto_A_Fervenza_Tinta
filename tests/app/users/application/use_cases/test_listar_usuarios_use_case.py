@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
@@ -73,7 +74,7 @@ async def test_listar_usuarios_no_autorizado():
     use_case = ListarUsuariosUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to list users."):
+    with pytest.raises(UnauthorizedException):
         await use_case.execute(mock_user)
 
     mock_user_repository.buscar_todos.assert_not_called()

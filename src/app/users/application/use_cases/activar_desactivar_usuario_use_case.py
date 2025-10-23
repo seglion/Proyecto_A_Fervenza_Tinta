@@ -3,6 +3,7 @@ from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.policies.user_policy import UserPolicy
 from app.users.domain.entities import User
 from datetime import datetime, timezone
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 class ActivarDesactivarUsuarioUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy):
@@ -11,12 +12,12 @@ class ActivarDesactivarUsuarioUseCase:
 
     async def execute(self, admin_user: User, user_id: UUID, new_status: bool) -> None:
         if not self.user_policy.es_administrador(admin_user):
-            raise ValueError("Not authorized to change user status.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to change user status.")
 
         user = await self.user_repository.buscar_por_id(user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         user.esta_activo = new_status
         user.fecha_actualizacion = datetime.now(timezone.utc)

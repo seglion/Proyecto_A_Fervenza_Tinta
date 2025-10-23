@@ -8,6 +8,7 @@ from app.users.domain.entities import User, Token
 from app.users.domain.value_objects import TipoToken
 from datetime import datetime, timedelta, timezone
 import hashlib
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 class ForzarReseteoUseCase:
     def __init__(self, user_repository: IUserRepository, token_repository: ITokenRepository, password_hasher: IPasswordHasher, user_policy: UserPolicy, email_service: IEmailService):
@@ -19,12 +20,12 @@ class ForzarReseteoUseCase:
 
     async def execute(self, admin_user: User, user_id: UUID) -> None:
         if not self.user_policy.es_administrador(admin_user):
-            raise ValueError("Not authorized to force password reset.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to force password reset.")
 
         user = await self.user_repository.buscar_por_id(user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         plain_token_value = str(uuid4())
         hashed_reset_token = hashlib.sha256(plain_token_value.encode()).hexdigest()

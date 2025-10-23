@@ -12,6 +12,7 @@ from app.users.application.dtos import (
     ConfirmarNuevaContrasenaDTO
 )
 from app.users.application.dtos.tokens_dto import TokensDTO
+from app.users.application.exceptions import UserException, UnauthorizedException, UserNotFoundException, EmailAlreadyVerifiedException, InvalidCredentialsException, AccountInactiveException, EmailNotVerifiedException, UserAlreadyExistsException, InvalidOldPasswordException, InvalidTokenException
 
 
 from app.users.application.repositories.i_user_repository import IUserRepository
@@ -115,8 +116,8 @@ async def confirmar_email(
     try:
         await use_case.execute(token)
         return {"message": "Email verified successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except InvalidTokenException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
@@ -135,11 +136,12 @@ async def ver_mi_perfil(
 ):
     try:
         return await use_case.execute(current_user, current_user.id)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-
 def get_actualizar_mi_perfil_use_case(
     db_connection: typing.Any = Depends(get_db),
 ) -> "ActualizarMiPerfilUseCase":
@@ -155,8 +157,10 @@ async def actualizar_mi_perfil(
 ):
     try:
         return await use_case.execute(current_user, current_user.id, dto)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
  
@@ -177,8 +181,12 @@ async def cambiar_contrasena(
     try:
         await use_case.execute(current_user, current_user.id, dto)
         return {"message": "Password updated successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except InvalidOldPasswordException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
@@ -197,8 +205,8 @@ async def solicitar_eliminacion(
     try:
         await use_case.execute(current_user, current_user.id)
         return {"message": "Deletion request sent successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
@@ -262,8 +270,8 @@ async def confirmar_nueva_contrasena(
     try:
         await use_case.execute(dto.token, dto.nueva_contrasena)
         return {"message": "Password has been reset successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except InvalidTokenException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 def get_refrescar_sesion_use_case(
@@ -283,8 +291,12 @@ async def refrescar_sesion(
 ) -> TokensDTO:
     try:
         return await use_case.execute(request.refresh_token)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except InvalidCredentialsException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except EmailNotVerifiedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except AccountInactiveException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 @router.post("/auth/token", response_model=TokensDTO, status_code=status.HTTP_200_OK)
@@ -295,7 +307,11 @@ async def login_user(
     dto = IniciarSesionDTO(email=form_data.username, contrasena=form_data.password)
     try:
         return await use_case.execute(dto)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except InvalidCredentialsException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except EmailNotVerifiedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except AccountInactiveException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")

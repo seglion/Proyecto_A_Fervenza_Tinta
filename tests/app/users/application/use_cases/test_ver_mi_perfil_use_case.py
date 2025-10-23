@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from app.users.domain.value_objects import Rol
@@ -108,7 +109,7 @@ async def test_ver_mi_perfil_no_autorizado():
     use_case = VerMiPerfilUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to view this profile."):
+    with pytest.raises(UnauthorizedException):
         await use_case.execute(mock_current_user, target_user_id)
 
     mock_user_repository.buscar_por_id.assert_not_called()

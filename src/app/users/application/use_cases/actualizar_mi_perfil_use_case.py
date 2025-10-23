@@ -3,6 +3,7 @@ from app.users.application.policies.user_policy import UserPolicy
 from app.users.application.dtos import ActualizarMiPerfilDTO, UsuarioResponseDTO
 from app.users.domain.entities import User
 from uuid import UUID
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 class ActualizarMiPerfilUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy):
@@ -11,12 +12,12 @@ class ActualizarMiPerfilUseCase:
 
     async def execute(self, current_user: User, target_user_id: UUID, dto: ActualizarMiPerfilDTO) -> UsuarioResponseDTO:
         if not self.user_policy.actualizar_perfil(current_user, target_user_id):
-            raise ValueError("Not authorized to update this profile.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to update this profile.")
 
         user = await self.user_repository.buscar_por_id(target_user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         update_data = dto.model_dump(exclude_unset=True)
         for key, value in update_data.items():

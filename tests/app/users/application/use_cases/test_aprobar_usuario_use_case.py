@@ -7,6 +7,7 @@ from app.users.domain.value_objects import Rol
 from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.policies.user_policy import UserPolicy
 from app.core.services.i_email_service import IEmailService
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, UserAlreadyApprovedException, EmailNotVerifiedException
 
 def test_aprobar_usuario_use_case_file_exists():
     """
@@ -117,7 +118,7 @@ async def test_aprobar_usuario_no_autorizado():
     use_case = AprobarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to approve users."):
+    with pytest.raises(UnauthorizedException, match="Not authorized to approve users."):
         await use_case.execute(non_admin_user, user_to_approve_id)
 
     mock_user_repository.buscar_por_id.assert_not_called()
@@ -159,7 +160,7 @@ async def test_aprobar_usuario_no_encontrado():
     use_case = AprobarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException, match="User not found."):
         await use_case.execute(admin_user, non_existent_user_id)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(non_existent_user_id)
@@ -214,7 +215,7 @@ async def test_aprobar_usuario_ya_aprobado():
     use_case = AprobarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User is already approved."):
+    with pytest.raises(UserAlreadyApprovedException, match="User is already approved."):
         await use_case.execute(admin_user, already_approved_user_id)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(already_approved_user_id)
@@ -269,7 +270,7 @@ async def test_aprobar_usuario_email_no_verificado():
     use_case = AprobarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User email not verified."):
+    with pytest.raises(EmailNotVerifiedException, match="User email not verified."):
         await use_case.execute(admin_user, unverified_user_id)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(unverified_user_id)

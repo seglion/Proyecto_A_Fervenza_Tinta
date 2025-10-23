@@ -7,6 +7,7 @@ from app.users.domain.value_objects import Rol
 from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.policies.user_policy import UserPolicy
 from app.users.application.use_cases.activar_desactivar_usuario_use_case import ActivarDesactivarUsuarioUseCase
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 def test_activar_desactivar_usuario_use_case_file_exists():
     """
@@ -145,7 +146,7 @@ async def test_activar_desactivar_usuario_no_autorizado():
     use_case = ActivarDesactivarUsuarioUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to change user status."):
+    with pytest.raises(UnauthorizedException, match="Not authorized to change user status."):
         await use_case.execute(non_admin_user, target_user_id, False)
 
 @pytest.mark.asyncio
@@ -175,5 +176,5 @@ async def test_activar_desactivar_usuario_no_encontrado():
     use_case = ActivarDesactivarUsuarioUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException, match="User not found."):
         await use_case.execute(admin_user, non_existent_user_id, True)

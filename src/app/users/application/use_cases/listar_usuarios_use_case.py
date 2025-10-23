@@ -2,6 +2,7 @@ from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.policies.user_policy import UserPolicy
 from app.users.application.dtos import ListaUsuariosResponseDTO, UsuarioResponseDTO
 from app.users.domain.entities import User
+from app.users.application.exceptions import UnauthorizedException
 
 class ListarUsuariosUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy):
@@ -10,7 +11,7 @@ class ListarUsuariosUseCase:
 
     async def execute(self, current_user: User) -> ListaUsuariosResponseDTO:
         if not self.user_policy.es_administrador(current_user):
-            raise ValueError("Not authorized to list users.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to list users.")
 
         users = await self.user_repository.buscar_todos()
 

@@ -9,6 +9,7 @@ from app.users.domain.value_objects import TipoToken, Password, Rol
 from uuid import uuid4 # For generating UUID for new user
 from datetime import datetime, timedelta, timezone
 import hashlib
+from app.users.application.exceptions import UserAlreadyExistsException
 
 class RegistrarUsuarioUseCase:
     def __init__(
@@ -28,7 +29,7 @@ class RegistrarUsuarioUseCase:
         existing_user = await self.user_repository.buscar_por_email(dto.email)
         if existing_user:
             # TODO: Raise a specific exception for existing user
-            raise ValueError("User with this email already exists.")
+            raise UserAlreadyExistsException("User with this email already exists.")
 
         # 2. Validate password using Value Object
         password_vo = Password.create(dto.contrasena)

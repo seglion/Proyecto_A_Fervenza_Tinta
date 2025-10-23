@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, UserAlreadyApprovedException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
@@ -116,7 +117,7 @@ async def test_rechazar_usuario_no_autorizado():
     use_case = RechazarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to reject users."):
+    with pytest.raises(UnauthorizedException):
         await use_case.execute(non_admin_user, user_to_reject_id)
 
     mock_user_repository.buscar_por_id.assert_not_called()
@@ -158,7 +159,7 @@ async def test_rechazar_usuario_no_encontrado():
     use_case = RechazarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException):
         await use_case.execute(admin_user, non_existent_user_id)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(non_existent_user_id)
@@ -213,7 +214,7 @@ async def test_rechazar_usuario_ya_aprobado():
     use_case = RechazarUsuarioUseCase(mock_user_repository, user_policy, mock_email_service)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User is already approved."):
+    with pytest.raises(UserAlreadyApprovedException):
         await use_case.execute(admin_user, already_approved_user_id)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(already_approved_user_id)

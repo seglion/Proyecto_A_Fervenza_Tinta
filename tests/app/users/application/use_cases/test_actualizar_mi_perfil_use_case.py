@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from app.users.domain.value_objects import Rol
@@ -17,6 +18,7 @@ def test_actualizar_mi_perfil_use_case_class_exists():
     """
     try:
         from app.users.application.use_cases.actualizar_mi_perfil_use_case import ActualizarMiPerfilUseCase
+        from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
     except ImportError:
         pytest.fail("ActualizarMiPerfilUseCase class does not exist in actualizar_mi_perfil_use_case.py")
 
@@ -118,7 +120,7 @@ async def test_actualizar_mi_perfil_no_autorizado():
     use_case = ActualizarMiPerfilUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Not authorized to update this profile."):
+    with pytest.raises(UnauthorizedException, match="Not authorized to update this profile."):
         await use_case.execute(mock_current_user, target_user_id, update_dto)
 
     mock_user_repository.buscar_por_id.assert_not_called()
@@ -165,7 +167,7 @@ async def test_actualizar_mi_perfil_usuario_no_encontrado():
     use_case = ActualizarMiPerfilUseCase(mock_user_repository, user_policy)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException, match="User not found."):
         await use_case.execute(mock_user, user_id, update_dto)
 
     mock_user_repository.buscar_por_id.assert_called_once_with(user_id)

@@ -3,6 +3,7 @@ from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.application.policies.user_policy import UserPolicy
 from app.users.application.dtos import UsuarioResponseDTO
 from app.users.domain.entities import User
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 
 class VerPerfilOtroUsuarioUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy):
@@ -11,12 +12,12 @@ class VerPerfilOtroUsuarioUseCase:
 
     async def execute(self, admin_user: User, user_id: UUID) -> UsuarioResponseDTO:
         if not self.user_policy.es_administrador(admin_user):
-            raise ValueError("Not authorized to view other user's profile.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to view other user's profile.")
 
         user = await self.user_repository.buscar_por_id(user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         return UsuarioResponseDTO(
             id=user.id,

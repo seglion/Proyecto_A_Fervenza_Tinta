@@ -1,3 +1,4 @@
+from app.users.application.exceptions import InvalidCredentialsException, EmailNotVerifiedException, AccountInactiveException
 import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
@@ -103,7 +104,7 @@ async def test_iniciar_sesion_usuario_no_encontrado():
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid credentials."):
+    with pytest.raises(InvalidCredentialsException, match="Invalid credentials."):
         await use_case.execute(dto)
 
     mock_user_repository.buscar_por_email.assert_called_once_with(user_email)
@@ -148,7 +149,7 @@ async def test_iniciar_sesion_contrasena_incorrecta():
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid credentials."):
+    with pytest.raises(InvalidCredentialsException):
         await use_case.execute(dto)
 
     mock_user_repository.buscar_por_email.assert_called_once_with(user_email)
@@ -193,7 +194,7 @@ async def test_iniciar_sesion_email_no_verificado():
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Email not verified."):
+    with pytest.raises(EmailNotVerifiedException):
         await use_case.execute(dto)
 
     mock_user_repository.buscar_por_email.assert_called_once_with(user_email)
@@ -238,7 +239,7 @@ async def test_iniciar_sesion_cuenta_inactiva():
     dto = IniciarSesionDTO(email=user_email, contrasena=plain_password)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Account is inactive."):
+    with pytest.raises(AccountInactiveException):
         await use_case.execute(dto)
 
     mock_user_repository.buscar_por_email.assert_called_once_with(user_email)

@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UserAlreadyExistsException
 import pytest
 from unittest.mock import Mock, AsyncMock, call
 from app.users.application.use_cases.registrar_usuario_use_case import RegistrarUsuarioUseCase
@@ -157,7 +158,7 @@ async def test_registrar_usuario_email_existente():
     use_case = RegistrarUsuarioUseCase(mock_user_repository, mock_password_hasher, mock_email_service, mock_token_repository)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User with this email already exists."):
+    with pytest.raises(UserAlreadyExistsException):
         await use_case.execute(dto)
 
     mock_user_repository.buscar_por_email.assert_called_once_with(dto.email)

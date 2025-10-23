@@ -9,6 +9,7 @@ from app.users.domain.value_objects import TipoToken
 from datetime import datetime, timedelta, timezone
 import hashlib
 from uuid import uuid4
+from app.users.application.exceptions import InvalidCredentialsException, EmailNotVerifiedException, AccountInactiveException
 
 class IniciarSesionUseCase:
     def __init__(
@@ -27,13 +28,13 @@ class IniciarSesionUseCase:
         user = await self.user_repository.buscar_por_email(dto.email)
 
         if not user or not self.password_hasher.verify(dto.contrasena, user.contrasena_hasheada):
-            raise ValueError("Invalid credentials.") # TODO: Specific exception
+            raise InvalidCredentialsException("Invalid credentials.")
 
         if not user.email_verificado:
-            raise ValueError("Email not verified.") # TODO: Specific exception
+            raise EmailNotVerifiedException("Email not verified.")
 
         if not user.esta_activo:
-            raise ValueError("Account is inactive.") # TODO: Specific exception
+            raise AccountInactiveException("Account is inactive.")
 
         access_token, refresh_token = self.jwt_service.generar_tokens(user.id, [user.rol.value])
 

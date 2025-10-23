@@ -5,6 +5,7 @@ from app.users.application.dtos import CambiarContrasenaDTO
 from app.users.domain.entities import User
 from app.users.domain.value_objects import Password
 from uuid import UUID
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, InvalidOldPasswordException
 
 class CambiarContrasenaUseCase:
     def __init__(
@@ -19,15 +20,15 @@ class CambiarContrasenaUseCase:
 
     async def execute(self, current_user: User, target_user_id: UUID, dto: CambiarContrasenaDTO) -> None:
         if not self.user_policy.actualizar_perfil(current_user, target_user_id):
-            raise ValueError("Not authorized to change this password.") # TODO: Specific exception
+            raise UnauthorizedException("Not authorized to change this password.")
 
         user = await self.user_repository.buscar_por_id(target_user_id)
 
         if not user:
-            raise ValueError("User not found.") # TODO: Specific exception
+            raise UserNotFoundException("User not found.")
 
         if not self.password_hasher.verify(dto.contrasena_antigua, user.contrasena_hasheada):
-            raise ValueError("Invalid old password.") # TODO: Specific exception
+            raise InvalidOldPasswordException("Invalid old password.")
 
         # Validate new password using Value Object
         new_password_vo = Password.create(dto.contrasena_nueva)
