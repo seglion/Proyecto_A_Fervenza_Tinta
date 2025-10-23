@@ -10,6 +10,7 @@ from uuid import uuid4 # For generating UUID for new user
 from datetime import datetime, timedelta, timezone
 import hashlib
 from app.users.application.exceptions import UserAlreadyExistsException
+import asyncio
 
 class RegistrarUsuarioUseCase:
     def __init__(
@@ -28,7 +29,6 @@ class RegistrarUsuarioUseCase:
         # 1. Check if user with email already exists
         existing_user = await self.user_repository.buscar_por_email(dto.email)
         if existing_user:
-            # TODO: Raise a specific exception for existing user
             raise UserAlreadyExistsException("User with this email already exists.")
 
         # 2. Validate password using Value Object
@@ -66,7 +66,7 @@ class RegistrarUsuarioUseCase:
         )
         await self.token_repository.crear(new_token)
 
-        await self.email_service.send_verification_email(created_user.email, created_user.nombre, verification_token_value)
+        await asyncio.to_thread(self.email_service.send_verification_email, created_user.email, created_user.nombre, verification_token_value)
 
         # 7. Return UsuarioCreadoDTO
         return UsuarioCreadoDTO(id=created_user.id, email=created_user.email)

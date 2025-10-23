@@ -14,7 +14,7 @@ class UserNotFoundException(UserException):
 
 class EmailAlreadyVerifiedException(UserException):
     def __init__(self, detail: str = "Email already verified."):
-        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
 
 class InvalidCredentialsException(UserException):
     def __init__(self, detail: str = "Invalid credentials."):

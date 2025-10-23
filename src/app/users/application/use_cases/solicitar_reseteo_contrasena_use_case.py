@@ -6,6 +6,7 @@ from app.users.domain.entities import User, Token
 from app.users.domain.value_objects import TipoToken
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
+import asyncio
 
 class SolicitarReseteoContrasenaUseCase:
     def __init__(
@@ -43,4 +44,4 @@ class SolicitarReseteoContrasenaUseCase:
         )
         await self.token_repository.crear(new_token)
 
-        await self.email_service.send_reset_password_email(user.email, plain_token_value)
+        await asyncio.to_thread(self.email_service.send_reset_password_email, user.email, plain_token_value)

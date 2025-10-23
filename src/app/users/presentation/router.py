@@ -117,6 +117,8 @@ async def confirmar_email(
         return {"message": "Email verified successfully."}
     except InvalidTokenException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except EmailAlreadyVerifiedException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 

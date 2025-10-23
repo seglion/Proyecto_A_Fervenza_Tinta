@@ -7,6 +7,7 @@ from app.users.domain.value_objects import TipoToken
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 import hashlib
+import asyncio
 
 class ReenviarEmailUseCase:
     def __init__(
@@ -44,4 +45,4 @@ class ReenviarEmailUseCase:
         )
         await self.token_repository.crear(new_token)
 
-        await self.email_service.send_verification_email(user.email, user.nombre, plain_token_value)
+        await asyncio.to_thread(self.email_service.send_verification_email, user.email, user.nombre, plain_token_value)

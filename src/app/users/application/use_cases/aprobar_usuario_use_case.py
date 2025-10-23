@@ -5,6 +5,7 @@ from app.core.services.i_email_service import IEmailService
 from app.users.domain.entities import User
 from datetime import datetime, timezone
 from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, UserAlreadyApprovedException, EmailNotVerifiedException
+import asyncio
 
 class AprobarUsuarioUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy, email_service: IEmailService):
@@ -31,4 +32,4 @@ class AprobarUsuarioUseCase:
         user.fecha_actualizacion = datetime.now(timezone.utc)
         await self.user_repository.actualizar(user)
 
-        await self.email_service.enviar_email_bienvenida(user.email, user.nombre)
+        await asyncio.to_thread(self.email_service.enviar_email_bienvenida, user.email, user.nombre)

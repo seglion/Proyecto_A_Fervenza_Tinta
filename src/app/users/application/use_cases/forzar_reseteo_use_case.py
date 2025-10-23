@@ -9,6 +9,7 @@ from app.users.domain.value_objects import TipoToken
 from datetime import datetime, timedelta, timezone
 import hashlib
 from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
+import asyncio
 
 class ForzarReseteoUseCase:
     def __init__(self, user_repository: IUserRepository, token_repository: ITokenRepository, password_hasher: IPasswordHasher, user_policy: UserPolicy, email_service: IEmailService):
@@ -39,4 +40,4 @@ class ForzarReseteoUseCase:
         )
         await self.token_repository.crear(new_token)
 
-        await self.email_service.send_reset_password_email(user.email, plain_token_value)
+        await asyncio.to_thread(self.email_service.send_reset_password_email, user.email, plain_token_value)

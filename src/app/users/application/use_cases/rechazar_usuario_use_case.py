@@ -4,6 +4,7 @@ from app.users.application.policies.user_policy import UserPolicy
 from app.core.services.i_email_service import IEmailService
 from app.users.domain.entities import User
 from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, UserAlreadyApprovedException
+import asyncio
 
 class RechazarUsuarioUseCase:
     def __init__(self, user_repository: IUserRepository, user_policy: UserPolicy, email_service: IEmailService):
@@ -24,4 +25,4 @@ class RechazarUsuarioUseCase:
             raise UserAlreadyApprovedException("User is already approved.")
 
         await self.user_repository.eliminar_por_id(user_id)
-        await self.email_service.enviar_email_rechazo(user.email)
+        await asyncio.to_thread(self.email_service.enviar_email_rechazo, user.email)

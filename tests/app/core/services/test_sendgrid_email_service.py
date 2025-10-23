@@ -21,12 +21,14 @@ async def test_sendgrid_email_service_initialization(MockSettings, MockSendGridA
     assert service.sg is not None
     assert service.sender_email == MockSettings.MAIL_USERNAME
 
-@pytest.mark.asyncio
 @patch('sendgrid.SendGridAPIClient')
-async def test_send_verification_email(MockSendGridAPIClient):
+@patch('app.core.services.sendgrid_email_service.settings')
+def test_send_verification_email(MockSettings, MockSendGridAPIClient):
+    MockSettings.SENDGRID_API_KEY = "SG.test_api_key"
+    MockSettings.MAIL_USERNAME = "test@example.com"
     # Configure the mock client
     mock_sg_instance = MockSendGridAPIClient.return_value
-    mock_sg_instance.client.mail.send.post = AsyncMock(return_value=Mock(status_code=202, body=b'', headers={}))
+    mock_sg_instance.client.mail.send.post = Mock(return_value=Mock(status_code=202, body=b'', headers={}))
 
     service = SendGridEmailService()
 
@@ -34,7 +36,7 @@ async def test_send_verification_email(MockSendGridAPIClient):
     name = "Test User"
     token = "test_token"
 
-    await service.send_verification_email(email_to, name, token)
+    service.send_verification_email(email_to, name, token)
 
     mock_sg_instance.client.mail.send.post.assert_called_once()
     call_args = mock_sg_instance.client.mail.send.post.call_args[1]['request_body']
@@ -45,19 +47,21 @@ async def test_send_verification_email(MockSendGridAPIClient):
     assert name in call_args['content'][0]['value']
     assert f"http://localhost:8000/users/verificar-email?token={token}" in call_args['content'][0]['value']
 
-@pytest.mark.asyncio
 @patch('sendgrid.SendGridAPIClient')
-async def test_enviar_email_bienvenida(MockSendGridAPIClient):
+@patch('app.core.services.sendgrid_email_service.settings')
+def test_enviar_email_bienvenida(MockSettings, MockSendGridAPIClient):
+    MockSettings.SENDGRID_API_KEY = "SG.test_api_key"
+    MockSettings.MAIL_USERNAME = "test@example.com"
     # Configure the mock client
     mock_sg_instance = MockSendGridAPIClient.return_value
-    mock_sg_instance.client.mail.send.post = AsyncMock(return_value=Mock(status_code=202, body=b'', headers={}))
+    mock_sg_instance.client.mail.send.post = Mock(return_value=Mock(status_code=202, body=b'', headers={}))
 
     service = SendGridEmailService()
 
     email_to = "test@example.com"
     name = "Test User"
 
-    await service.enviar_email_bienvenida(email_to, name)
+    service.enviar_email_bienvenida(email_to, name)
 
     mock_sg_instance.client.mail.send.post.assert_called_once()
     call_args = mock_sg_instance.client.mail.send.post.call_args[1]['request_body']
@@ -68,19 +72,21 @@ async def test_enviar_email_bienvenida(MockSendGridAPIClient):
     assert name in call_args['content'][0]['value']
     assert "Call To Action" not in call_args['content'][0]['value'] # Ensure button is removed
 
-@pytest.mark.asyncio
 @patch('sendgrid.SendGridAPIClient')
-async def test_send_reset_password_email(MockSendGridAPIClient):
+@patch('app.core.services.sendgrid_email_service.settings')
+def test_send_reset_password_email(MockSettings, MockSendGridAPIClient):
+    MockSettings.SENDGRID_API_KEY = "SG.test_api_key"
+    MockSettings.MAIL_USERNAME = "test@example.com"
     # Configure the mock client
     mock_sg_instance = MockSendGridAPIClient.return_value
-    mock_sg_instance.client.mail.send.post = AsyncMock(return_value=Mock(status_code=202, body=b'', headers={}))
+    mock_sg_instance.client.mail.send.post = Mock(return_value=Mock(status_code=202, body=b'', headers={}))
 
     service = SendGridEmailService()
 
     email_to = "test@example.com"
     token = "reset_token"
 
-    await service.send_reset_password_email(email_to, token)
+    service.send_reset_password_email(email_to, token)
 
     mock_sg_instance.client.mail.send.post.assert_called_once()
     call_args = mock_sg_instance.client.mail.send.post.call_args[1]['request_body']
@@ -91,18 +97,20 @@ async def test_send_reset_password_email(MockSendGridAPIClient):
     assert f"http://localhost:8000/users/confirmar-reseteo?token={token}" in call_args['content'][0]['value']
     assert "Reset Password" in call_args['content'][0]['value']
 
-@pytest.mark.asyncio
 @patch('sendgrid.SendGridAPIClient')
-async def test_enviar_email_rechazo(MockSendGridAPIClient):
+@patch('app.core.services.sendgrid_email_service.settings')
+def test_enviar_email_rechazo(MockSettings, MockSendGridAPIClient):
+    MockSettings.SENDGRID_API_KEY = "SG.test_api_key"
+    MockSettings.MAIL_USERNAME = "test@example.com"
     # Configure the mock client
     mock_sg_instance = MockSendGridAPIClient.return_value
-    mock_sg_instance.client.mail.send.post = AsyncMock(return_value=Mock(status_code=202, body=b'', headers={}))
+    mock_sg_instance.client.mail.send.post = Mock(return_value=Mock(status_code=202, body=b'', headers={}))
 
     service = SendGridEmailService()
 
     email_to = "test@example.com"
 
-    await service.enviar_email_rechazo(email_to)
+    service.enviar_email_rechazo(email_to)
 
     mock_sg_instance.client.mail.send.post.assert_called_once()
     call_args = mock_sg_instance.client.mail.send.post.call_args[1]['request_body']

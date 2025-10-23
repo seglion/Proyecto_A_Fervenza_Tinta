@@ -10,6 +10,7 @@ from app.core.security.i_password_hasher import IPasswordHasher
 from app.users.domain.entities import Token, User
 from app.users.domain.value_objects import TipoToken, Rol
 from app.users.application.use_cases.confirmar_email_use_case import ConfirmarEmailUseCase
+from app.users.application.exceptions import InvalidTokenException, UserNotFoundException
 
 def test_confirmar_email_use_case_file_exists():
     """
@@ -85,7 +86,7 @@ async def test_confirmar_email_exitoso():
 @pytest.mark.asyncio
 async def test_confirmar_email_token_invalido():
     """
-    Tests that a ValueError is raised when the token is invalid (not found, expired, or already used).
+    Tests that a InvalidTokenException is raised when the token is invalid (not found, expired, or already used).
     """
     # Arrange
     plain_token = "invalid_token"
@@ -105,7 +106,7 @@ async def test_confirmar_email_token_invalido():
     use_case = ConfirmarEmailUseCase(mock_user_repository, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid or expired token."):
+    with pytest.raises(InvalidTokenException, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
@@ -116,7 +117,7 @@ async def test_confirmar_email_token_invalido():
 @pytest.mark.asyncio
 async def test_confirmar_email_token_expirado():
     """
-    Tests that a ValueError is raised when the token is expired.
+    Tests that a InvalidTokenException is raised when the token is expired.
     """
     # Arrange
     user_id = uuid4()
@@ -144,7 +145,7 @@ async def test_confirmar_email_token_expirado():
     use_case = ConfirmarEmailUseCase(mock_user_repository, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid or expired token."):
+    with pytest.raises(InvalidTokenException, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
@@ -157,7 +158,7 @@ async def test_confirmar_email_token_expirado():
 @pytest.mark.asyncio
 async def test_confirmar_email_token_ya_usado():
     """
-    Tests that a ValueError is raised when the token has already been used.
+    Tests that a InvalidTokenException is raised when the token has already been used.
     """
     # Arrange
     user_id = uuid4()
@@ -185,7 +186,7 @@ async def test_confirmar_email_token_ya_usado():
     use_case = ConfirmarEmailUseCase(mock_user_repository, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Invalid or expired token."):
+    with pytest.raises(InvalidTokenException, match="Invalid or expired token."):
         await use_case.execute(plain_token)
 
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
@@ -196,7 +197,7 @@ async def test_confirmar_email_token_ya_usado():
 @pytest.mark.asyncio
 async def test_confirmar_email_usuario_no_encontrado():
     """
-    Tests that a ValueError is raised if the user associated with the token is not found.
+    Tests that a UserNotFoundException is raised if the user associated with the token is not found.
     """
     # Arrange
     user_id = uuid4()
@@ -224,7 +225,7 @@ async def test_confirmar_email_usuario_no_encontrado():
     use_case = ConfirmarEmailUseCase(mock_user_repository, mock_token_repository, mock_password_hasher)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="User not found."):
+    with pytest.raises(UserNotFoundException, match="User not found."):
         await use_case.execute(plain_token)
 
     mock_token_repository.buscar_por_hash.assert_called_once_with(hashed_token)
