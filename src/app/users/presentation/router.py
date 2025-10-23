@@ -11,22 +11,21 @@ from app.users.application.dtos import (
     UsuarioResponseDTO, ActualizarMiPerfilDTO, CambiarContrasenaDTO,
     ConfirmarNuevaContrasenaDTO
 )
-from app.users.application.dtos.tokens_dto import TokensDTO
 from app.users.application.exceptions import UserException, UnauthorizedException, UserNotFoundException, EmailAlreadyVerifiedException, InvalidCredentialsException, AccountInactiveException, EmailNotVerifiedException, UserAlreadyExistsException, InvalidOldPasswordException, InvalidTokenException
 
 
 from app.users.application.repositories.i_user_repository import IUserRepository
-from app.users.application.repositories.i_token_repository import ITokenRepository
+
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.core.services.i_jwt_service import IJWTService
 from app.infrastructure.security.argon2_password_hasher import Argon2PasswordHasher
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
-from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
+
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
 
 
-from app.core.services.email_service import EmailService
+from app.core.services.sendgrid_email_service import SendGridEmailService as EmailService
 from app.infrastructure.security.jwt_service import get_jwt_service
 from app.core.database import get_db
 

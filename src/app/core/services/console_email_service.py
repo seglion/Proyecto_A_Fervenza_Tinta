@@ -20,7 +20,7 @@ conf = ConnectionConfig(
     TEMPLATE_FOLDER=Path(settings.TEMPLATE_FOLDER) if settings.TEMPLATE_FOLDER else None
 )
 
-class EmailService(IEmailService):
+class ConsoleEmailService(IEmailService):
     async def send_verification_email(self, email_to: str, name: str, token: str) -> None:
         """
         Envía un correo de verificación al usuario.

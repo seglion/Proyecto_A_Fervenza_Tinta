@@ -25,12 +25,14 @@ pydantic-settings = ">=2.11.0,<3.0.0"
 psycopg2-binary = ">=2.9.11,<3.0.0"
 python-multipart = ">=0.0.20,<0.0.21"
 fastapi-mail = "^1.5.6"
+sendgrid = "^6.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
 pytest-asyncio = "^1.2.0"
 httpx = "^0.28.1"
 aiosmtpd = "^1.4.6"
+python-dotenv = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

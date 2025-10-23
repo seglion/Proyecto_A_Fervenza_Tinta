@@ -1,3 +1,5 @@
+from dotenv import load_dotenv; load_dotenv()
+
 from fastapi import FastAPI, Depends
 from app.core.database import Database, get_db
 import asyncpg

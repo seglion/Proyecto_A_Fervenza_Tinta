@@ -21,7 +21,7 @@ from app.users.domain.entities import User
 from app.users.domain.value_objects import Rol
 from app.users.application.policies.user_policy import UserPolicy
 from app.core.services.i_email_service import IEmailService
-from app.core.services.email_service import EmailService
+from app.core.services.sendgrid_email_service import SendGridEmailService as EmailService
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
 from app.core.security.i_password_hasher import IPasswordHasher
