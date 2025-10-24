@@ -7,6 +7,7 @@ from uuid import UUID
 
 from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
 from src.app.users.application.dtos import UsuarioResponseDTO
+from src.app.users.domain.value_objects import Rol
 
 def test_dtos_file_exists():
     """
@@ -125,3 +126,10 @@ def test_informe_pendientes_dto():
     assert issubclass(InformePendientesDTO, BaseModel)
     fields = InformePendientesDTO.__annotations__
     assert fields['pendientes'] == List[UsuarioResponseDTO]
+
+def test_usuario_policy_dto():
+    from src.app.cuotas.application.dtos import UsuarioPolicyDTO
+    assert issubclass(UsuarioPolicyDTO, BaseModel)
+    fields = UsuarioPolicyDTO.__annotations__
+    assert fields['rol'] == Rol
+    assert fields['esta_activo'] == bool
