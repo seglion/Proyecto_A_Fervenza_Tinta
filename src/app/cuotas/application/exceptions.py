@@ -4,6 +4,10 @@ class CuotaException(HTTPException):
     def __init__(self, status_code: int, detail: str):
         super().__init__(status_code=status_code, detail=detail)
 
+class UnauthorizedException(CuotaException):
+    def __init__(self, detail: str = "Not authorized."):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
+
 class TemporadaNoEncontrada(CuotaException):
     def __init__(self, detail: str = "Season not found."):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
