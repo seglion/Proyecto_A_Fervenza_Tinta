@@ -6,6 +6,7 @@ from uuid import UUID
 
 from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
 from src.app.users.application.dtos import UsuarioResponseDTO
+from src.app.users.domain.value_objects import Rol
 
 class TipoCuotaDTO(BaseModel):
     nombre: str
@@ -73,3 +74,7 @@ class RegistrarCuotaManualDTO(BaseModel):
 
 class InformePendientesDTO(BaseModel):
     pendientes: List[UsuarioResponseDTO]
+
+class UsuarioPolicyDTO(BaseModel):
+    rol: Rol
+    esta_activo: bool
