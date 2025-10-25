@@ -22,8 +22,10 @@ def test_tipo_cuota_dto():
     from src.app.cuotas.application.dtos import TipoCuotaDTO
     assert issubclass(TipoCuotaDTO, BaseModel)
     fields = TipoCuotaDTO.__annotations__
+    assert fields['id'] == int
     assert fields['nombre'] == str
     assert fields['importe'] == Decimal
+    assert fields['fecha_creacion'] == datetime
 
 def test_crear_temporada_dto():
     from src.app.cuotas.application.dtos import CrearTemporadaDTO, TipoCuotaDTO

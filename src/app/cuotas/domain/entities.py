@@ -1,17 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
+from typing import List
 from uuid import UUID, uuid4
 
 from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
-
-@dataclass
-class TemporadaCuota:
-    id: int
-    nombre_temporada: str
-    fecha_inicio: date
-    fecha_fin: date
-    fecha_creacion: datetime
 
 @dataclass
 class TipoCuota:
@@ -20,6 +13,15 @@ class TipoCuota:
     nombre: str
     importe: Decimal
     fecha_creacion: datetime
+
+@dataclass
+class TemporadaCuota:
+    id: int
+    nombre_temporada: str
+    fecha_inicio: date
+    fecha_fin: date
+    fecha_creacion: datetime
+    tipos_cuota: List[TipoCuota] = field(default_factory=list)
 
 @dataclass
 class Cuota:

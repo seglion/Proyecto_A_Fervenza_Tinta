@@ -8,7 +8,18 @@ from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
 from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.users.domain.value_objects import Rol
 
+from pydantic import ConfigDict
+
+
 class TipoCuotaDTO(BaseModel):
+    id: int
+    nombre: str
+    importe: Decimal
+    fecha_creacion: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class TipoCuotaCrearDTO(BaseModel):
     nombre: str
     importe: Decimal
 
@@ -16,7 +27,7 @@ class CrearTemporadaDTO(BaseModel):
     nombre_temporada: str
     fecha_inicio: date
     fecha_fin: date
-    tipos_cuota: List[TipoCuotaDTO]
+    tipos_cuota: List[TipoCuotaCrearDTO]
 
 class TemporadaCreadaDTO(BaseModel):
     id: int
@@ -27,6 +38,8 @@ class TemporadaDTO(BaseModel):
     fecha_inicio: date
     fecha_fin: date
     tipos_cuota: List[TipoCuotaDTO]
+
+    model_config = ConfigDict(from_attributes=True)
 
 class ListaTemporadasDTO(BaseModel):
     temporadas: List[TemporadaDTO]

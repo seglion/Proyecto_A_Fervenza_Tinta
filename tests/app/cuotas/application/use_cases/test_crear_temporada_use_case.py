@@ -7,7 +7,7 @@ from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.cuotas.application.exceptions import UnauthorizedException
-from src.app.cuotas.application.dtos import CrearTemporadaDTO, TipoCuotaDTO, TemporadaCreadaDTO
+from src.app.cuotas.application.dtos import CrearTemporadaDTO, TipoCuotaCrearDTO, TemporadaCreadaDTO
 from src.app.cuotas.domain.entities import TemporadaCuota
 
 @pytest.fixture
@@ -48,7 +48,7 @@ async def test_crear_temporada_success():
 
     admin_user = User(rol=Rol.ADMIN, email="admin@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="", esta_activo=True)
     
-    tipos_cuota_dto = [TipoCuotaDTO(nombre="General", importe=50)]
+    tipos_cuota_dto = [TipoCuotaCrearDTO(nombre="General", importe=50)]
     crear_temporada_dto = CrearTemporadaDTO(nombre_temporada="2025-2026", fecha_inicio=date(2025, 9, 1), fecha_fin=date(2026, 6, 30), tipos_cuota=tipos_cuota_dto)
 
     result = await use_case.execute(admin_user, crear_temporada_dto)
