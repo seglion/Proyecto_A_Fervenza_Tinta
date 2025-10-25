@@ -61,6 +61,8 @@ class CuotaDTO(BaseModel):
     id_transaccion_externa: Optional[str] = None
     notas_admin: Optional[str] = None
 
+    model_config = ConfigDict(from_attributes=True)
+
 class ListaCuotasDTO(BaseModel):
     cuotas: List[CuotaDTO]
 

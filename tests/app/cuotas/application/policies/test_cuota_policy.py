@@ -1,21 +1,25 @@
 import pytest
 from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
-from src.app.users.domain.entities import User
+from src.app.cuotas.application.dtos import UsuarioPolicyDTO
 from src.app.users.domain.value_objects import Rol
 
-def test_cuota_policy_file_exists():
-    """
-    Tests if the cuota policy file exists.
-    """
-    try:
-        from src.app.cuotas.application.policies import cuota_policy
-    except ImportError:
-        pytest.fail("Policy file does not exist: src/app/cuotas/application/policies/cuota_policy.py")
+@pytest.fixture
+def cuota_policy():
+    return CuotaPolicy()
 
-def test_es_administrador():
-    policy = CuotaPolicy()
-    admin_user = User(rol=Rol.ADMIN, email="admin@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="")
-    regular_user = User(rol=Rol.USUARIO, email="user@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="")
+def test_es_administrador_true(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.ADMIN, esta_activo=True)
+    assert cuota_policy.es_administrador(user) is True
 
-    assert policy.es_administrador(admin_user) is True
-    assert policy.es_administrador(regular_user) is False
+def test_es_administrador_false(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=True)
+    assert cuota_policy.es_administrador(user) is False
+
+def test_puede_ver_estado_pago_usuario_activo(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=True)
+    assert cuota_policy.puede_ver_estado_pago(user) is True
+
+def test_puede_ver_estado_pago_usuario_inactivo(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=False)
+    assert cuota_policy.puede_ver_estado_pago(user) is False
+
