@@ -23,3 +23,10 @@ def test_puede_ver_estado_pago_usuario_inactivo(cuota_policy):
     user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=False)
     assert cuota_policy.puede_ver_estado_pago(user) is False
 
+def test_puede_crear_intento_pago_usuario_activo(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=True)
+    assert cuota_policy.puede_crear_intento_pago(user) is True
+
+def test_puede_crear_intento_pago_usuario_inactivo(cuota_policy):
+    user = UsuarioPolicyDTO(rol=Rol.USUARIO, esta_activo=False)
+    assert cuota_policy.puede_crear_intento_pago(user) is False

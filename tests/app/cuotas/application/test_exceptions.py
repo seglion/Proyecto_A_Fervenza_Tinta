@@ -40,9 +40,21 @@ def test_intento_de_pago_fallido_exception():
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
     assert exc_info.value.detail == "Payment attempt failed."
 
-def test_estado_de_pago_no_valido_exception():
-    from src.app.cuotas.application.exceptions import EstadoDePagoNoValido
-    with pytest.raises(EstadoDePagoNoValido) as exc_info:
-        raise EstadoDePagoNoValido()
-    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
-    assert exc_info.value.detail == "Invalid payment state."
+import pytest
+from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, UnauthorizedException, CuotaYaPagadaException
+
+def test_temporada_no_encontrada_exception():
+    with pytest.raises(TemporadaNoEncontrada) as exc_info:
+        raise TemporadaNoEncontrada("Temporada no encontrada")
+    assert exc_info.value.detail == "Temporada no encontrada"
+
+def test_unauthorized_exception():
+    with pytest.raises(UnauthorizedException) as exc_info:
+        raise UnauthorizedException("No autorizado")
+    assert exc_info.value.detail == "No autorizado"
+
+def test_cuota_ya_pagada_exception():
+    with pytest.raises(CuotaYaPagadaException) as exc_info:
+        raise CuotaYaPagadaException("La cuota ya ha sido pagada.")
+    assert exc_info.value.detail == "La cuota ya ha sido pagada."
+

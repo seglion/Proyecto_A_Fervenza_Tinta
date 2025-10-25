@@ -7,3 +7,6 @@ class CuotaPolicy:
 
     def puede_ver_estado_pago(self, current_user: UsuarioPolicyDTO) -> bool:
         return current_user.esta_activo
+
+    def puede_crear_intento_pago(self, current_user: UsuarioPolicyDTO) -> bool:
+        return current_user.esta_activo
