@@ -1,7 +1,8 @@
 import pytest
 from datetime import date, datetime, timezone
+from typing import List
 
-from src.app.cuotas.domain.entities import TemporadaCuota
+from src.app.cuotas.domain.entities import TemporadaCuota, TipoCuota
 
 def test_temporada_cuota_creation():
     """
@@ -12,7 +13,8 @@ def test_temporada_cuota_creation():
         nombre_temporada="Temporada 2025-2026",
         fecha_inicio=date(2025, 10, 1),
         fecha_fin=date(2026, 7, 25),
-        fecha_creacion=datetime.now(timezone.utc)
+        fecha_creacion=datetime.now(timezone.utc),
+        tipos_cuota=[]
     )
     assert isinstance(temporada, TemporadaCuota)
     assert temporada.id == 1
@@ -20,6 +22,7 @@ def test_temporada_cuota_creation():
     assert temporada.fecha_inicio == date(2025, 10, 1)
     assert temporada.fecha_fin == date(2026, 7, 25)
     assert isinstance(temporada.fecha_creacion, datetime)
+    assert temporada.tipos_cuota == []
 
 def test_temporada_cuota_has_id_attribute():
     """
@@ -55,3 +58,10 @@ def test_temporada_cuota_has_fecha_creacion_attribute():
     """
     assert 'fecha_creacion' in TemporadaCuota.__annotations__
     assert TemporadaCuota.__annotations__['fecha_creacion'] == datetime
+
+def test_temporada_cuota_has_tipos_cuota_attribute():
+    """
+    Tests if the TemporadaCuota class has a 'tipos_cuota' attribute with the correct type.
+    """
+    assert 'tipos_cuota' in TemporadaCuota.__annotations__
+    assert TemporadaCuota.__annotations__['tipos_cuota'] == List[TipoCuota]
