@@ -19,5 +19,15 @@ def test_crear_sesion_pago_is_abstract_method():
 
     with pytest.raises(TypeError):
         class ConcretePaymentGateway(IPaymentGateway):
-            pass
+            async def validar_webhook(self, payload: bytes, sig_header: str) -> object:
+                pass
+        ConcretePaymentGateway()
+
+def test_validar_webhook_is_abstract_method():
+    from src.app.core.services.i_payment_gateway import IPaymentGateway
+
+    with pytest.raises(TypeError):
+        class ConcretePaymentGateway(IPaymentGateway):
+            async def crear_sesion_pago(self, user_id: int, amount: int, currency: str) -> str:
+                pass
         ConcretePaymentGateway()
