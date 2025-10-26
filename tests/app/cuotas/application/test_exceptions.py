@@ -41,7 +41,7 @@ def test_intento_de_pago_fallido_exception():
     assert exc_info.value.detail == "Payment attempt failed."
 
 import pytest
-from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, UnauthorizedException, CuotaYaPagadaException
+from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, UnauthorizedException, CuotaYaPagadaException, CuotaNoEncontrada
 
 def test_temporada_no_encontrada_exception():
     with pytest.raises(TemporadaNoEncontrada) as exc_info:
@@ -57,4 +57,9 @@ def test_cuota_ya_pagada_exception():
     with pytest.raises(CuotaYaPagadaException) as exc_info:
         raise CuotaYaPagadaException("La cuota ya ha sido pagada.")
     assert exc_info.value.detail == "La cuota ya ha sido pagada."
+
+def test_cuota_no_encontrada_exception():
+    with pytest.raises(CuotaNoEncontrada) as exc_info:
+        raise CuotaNoEncontrada("La cuota no existe.")
+    assert exc_info.value.detail == "La cuota no existe."
 
