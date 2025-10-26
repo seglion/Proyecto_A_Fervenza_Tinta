@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from src.app.cuotas.domain.entities import Cuota
+from src.app.users.domain.entities import User
 
 class ICuotaRepository(ABC):
     @abstractmethod
@@ -35,4 +36,8 @@ class ICuotaRepository(ABC):
 
     @abstractmethod
     async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
+        pass
+
+    @abstractmethod
+    async def get_usuarios_pendientes_por_temporada(self, temporada_id: int) -> List[User]:
         pass
