@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 from uuid import UUID
+from datetime import date
 
 from src.app.cuotas.domain.entities import Cuota
 from src.app.users.domain.entities import User
@@ -40,4 +41,8 @@ class ICuotaRepository(ABC):
 
     @abstractmethod
     async def get_usuarios_pendientes_por_temporada(self, temporada_id: int) -> List[User]:
+        pass
+
+    @abstractmethod
+    async def get_usuarios_inactivos_desde(self, fecha_limite: date) -> List[UUID]:
         pass
