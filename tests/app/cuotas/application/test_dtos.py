@@ -28,13 +28,13 @@ def test_tipo_cuota_dto():
     assert fields['fecha_creacion'] == datetime
 
 def test_crear_temporada_dto():
-    from src.app.cuotas.application.dtos import CrearTemporadaDTO, TipoCuotaDTO
+    from src.app.cuotas.application.dtos import CrearTemporadaDTO, TipoCuotaCrearDTO
     assert issubclass(CrearTemporadaDTO, BaseModel)
     fields = CrearTemporadaDTO.__annotations__
     assert fields['nombre_temporada'] == str
     assert fields['fecha_inicio'] == date
     assert fields['fecha_fin'] == date
-    assert fields['tipos_cuota'] == List[TipoCuotaDTO]
+    assert fields['tipos_cuota'] == List[TipoCuotaCrearDTO]
 
 def test_temporada_creada_dto():
     from src.app.cuotas.application.dtos import TemporadaCreadaDTO

@@ -28,3 +28,11 @@ class ICuotaRepository(ABC):
     @abstractmethod
     async def actualizar(self, cuota: Cuota) -> Cuota:
         pass
+
+    @abstractmethod
+    async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
+        pass
+
+    @abstractmethod
+    async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
+        pass
