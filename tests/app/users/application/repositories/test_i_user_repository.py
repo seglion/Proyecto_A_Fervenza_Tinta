@@ -85,9 +85,63 @@ def test_iuserrepository_has_desactivar_cuenta_method():
     assert IUserRepository.desactivar_cuenta.__annotations__['return'] == None
 
 def test_iuserrepository_has_buscar_todos_method():
+
     """
+
     Tests if the IUserRepository interface has a 'buscar_todos' abstract method.
+
     """
+
     from app.users.application.repositories.i_user_repository import IUserRepository
+
     assert hasattr(IUserRepository, 'buscar_todos')
+
     assert IUserRepository.buscar_todos.__annotations__['return'] == List[User]
+
+
+
+def test_desactivar_usuarios_is_abstract_method():
+
+        from src.app.users.application.repositories.i_user_repository import IUserRepository
+
+        with pytest.raises(TypeError):
+
+            class ConcreteUserRepository(IUserRepository):
+
+                async def crear(self, user):
+
+                    pass
+
+                async def buscar_por_email(self, email):
+
+                    pass
+
+                async def buscar_por_id(self, user_id):
+
+                    pass
+
+                async def actualizar(self, user):
+
+                    pass
+
+                async def actualizar_contrasena(self, user_id, contrasena_hasheada):
+
+                    pass
+
+                async def desactivar_cuenta(self, user_id):
+
+                    pass
+
+                async def buscar_todos(self):
+
+                    pass
+
+                async def eliminar_por_id(self, user_id):
+
+                    pass
+
+            ConcreteUserRepository()
+
+    
+
+
