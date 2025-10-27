@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import List, Optional
 
 class RegistrarUsuarioDTO(BaseModel):
@@ -29,6 +29,8 @@ class UsuarioResponseDTO(BaseModel):
     url_avatar: Optional[str] = None
     esta_activo: bool
     rol: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 class ActualizarMiPerfilDTO(BaseModel):
     nombre: Optional[str] = None

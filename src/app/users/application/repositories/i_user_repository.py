@@ -38,3 +38,6 @@ class IUserRepository(ABC):
     async def eliminar_por_id(self, user_id: UUID) -> None:
         pass
 
+    @abstractmethod
+    async def desactivar_usuarios(self, user_ids: List[UUID]) -> None:
+        pass
