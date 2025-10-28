@@ -76,6 +76,12 @@ class IntentoPagoDTO(BaseModel):
 class HistorialCuotasDTO(BaseModel):
     historial: List[CuotaDTO]
 
+class CuotaDetalleResponseDTO(CuotaDTO):
+    usuario_nombre: str
+    usuario_apellidos: str
+    tipo_cuota_nombre: str
+    temporada_nombre: str
+
 class DetalleCuotaDTO(BaseModel):
     cuota: CuotaDTO
     temporada: TemporadaDTO

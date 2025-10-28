@@ -8,3 +8,4 @@ class EstadoPago(Enum):
 class MetodoPago(Enum):
     STRIPE = "stripe"
     EFECTIVO = "efectivo"
+    TRANSFERENCIA_MANUAL = "transferencia_manual"
