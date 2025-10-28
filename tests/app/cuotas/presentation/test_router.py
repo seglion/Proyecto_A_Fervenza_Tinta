@@ -90,6 +90,23 @@ async def test_listar_cuotas_endpoint_success(app_client, mock_listar_cuotas_use
     # Assert
     assert response.status_code == 200
     assert len(response.json()["cuotas"]) == 1
+    # Clear overrides after the test
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_listar_cuotas_endpoint_empty_list(app_client, mock_listar_cuotas_use_case, admin_user):
+    # Arrange
+    mock_listar_cuotas_use_case.execute.return_value = ListaCuotasDTO(cuotas=[])
+    app_client.app.dependency_overrides[get_listar_cuotas_use_case] = lambda: mock_listar_cuotas_use_case
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_admin_user] = lambda: admin_user
+
+    # Act
+    response = app_client.get("/cuotas")
+
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == {"cuotas": []}
     mock_listar_cuotas_use_case.execute.assert_called_once_with(admin_user)
 
     # Clear overrides after the test
@@ -100,7 +117,6 @@ async def test_listar_cuotas_endpoint_unauthorized(app_client, mock_listar_cuota
     # Arrange
     app_client.app.dependency_overrides[get_listar_cuotas_use_case] = lambda: mock_listar_cuotas_use_case
     app_client.app.dependency_overrides[get_current_user] = lambda: non_admin_user
-    app_client.app.dependency_overrides[get_admin_user] = lambda: non_admin_user
 
     # Act
     response = app_client.get("/cuotas")
