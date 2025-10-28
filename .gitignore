@@ -116,3 +116,6 @@ docker-compose.yml
 .gemini/
 
 gemini.md
+
+test_sendgrid.py
+temp_test_session.py

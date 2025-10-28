@@ -38,4 +38,22 @@ class StripePaymentGateway(IPaymentGateway):
             raise
 
     async def validar_webhook(self, payload: bytes, sig_header: str) -> object:
-        pass
+        try:
+            event = stripe.Webhook.construct_event(
+                payload,
+                sig_header,
+                settings.STRIPE_WEBHOOK_SECRET
+            )
+            return event
+        except ValueError as e:
+            # Invalid payload
+            print(f"Error de valor en el payload del webhook: {e}")
+            raise
+        except stripe.SignatureVerificationError as e:
+            # Invalid signature
+            print(f"Error de verificación de firma del webhook: {e}")
+            raise
+        except Exception as e:
+            # Otros errores inesperados
+            print(f"Error inesperado al validar webhook: {e}")
+            raise

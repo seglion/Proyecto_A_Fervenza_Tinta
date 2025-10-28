@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     SENDGRID_API_KEY: Optional[str] = None
     STRIPE_SECRET_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
 
 
     POSTGRES_DB: str
