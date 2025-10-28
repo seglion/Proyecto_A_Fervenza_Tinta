@@ -6,7 +6,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import date, datetime
 from src.app.cuotas.application.dtos import CuotaDetalleResponseDTO
-from src.app.cuotas.domain.value_objects import MetodoPago # Import MetodoPago from domain
+from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago # Import MetodoPago from domain
 
 class PostgresCuotaRepository(ICuotaRepository):
     def __init__(self, db_connection: asyncpg.Connection):
@@ -21,7 +21,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 usuario_id=row['usuario_id'],
                 tipo_de_cuota_id=row['tipo_de_cuota_id'],
                 importe_pagado=row['importe_pagado'],
-                estado_pago=row['estado_pago'],
+                estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
                 metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
                 id_transaccion_externa=row['id_transaccion_externa'],
@@ -39,7 +39,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 usuario_id=row['usuario_id'],
                 tipo_de_cuota_id=row['tipo_de_cuota_id'],
                 importe_pagado=row['importe_pagado'],
-                estado_pago=row['estado_pago'],
+                estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
                 metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
                 id_transaccion_externa=row['id_transaccion_externa'],
@@ -88,7 +88,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 usuario_id=row['usuario_id'],
                 tipo_de_cuota_id=row['tipo_de_cuota_id'],
                 importe_pagado=row['importe_pagado'],
-                estado_pago=row['estado_pago'],
+                estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
                 metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
                 id_transaccion_externa=row['id_transaccion_externa'],
@@ -110,7 +110,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 usuario_id=row['usuario_id'],
                 tipo_de_cuota_id=row['tipo_de_cuota_id'],
                 importe_pagado=row['importe_pagado'],
-                estado_pago=row['estado_pago'],
+                estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
                 metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
                 id_transaccion_externa=row['id_transaccion_externa'],
@@ -144,7 +144,22 @@ class PostgresCuotaRepository(ICuotaRepository):
         return cuota
 
     async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
-        pass
+        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2"
+        rows = await self.db_connection.fetch(query, usuario_id, EstadoPago.COMPLETADO.value)
+        return [
+            Cuota(
+                id=row['id'],
+                usuario_id=row['usuario_id'],
+                tipo_de_cuota_id=row['tipo_de_cuota_id'],
+                importe_pagado=row['importe_pagado'],
+                estado_pago=EstadoPago(row['estado_pago']),
+                fecha_pago=row['fecha_pago'],
+                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                id_transaccion_externa=row['id_transaccion_externa'],
+                notas_admin=row['notas_admin'],
+                fecha_creacion=row['fecha_creacion']
+            ) for row in rows
+        ]
 
     async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
         pass

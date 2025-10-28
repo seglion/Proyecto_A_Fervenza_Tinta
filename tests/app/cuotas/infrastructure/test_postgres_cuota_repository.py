@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from datetime import datetime, date
 from uuid import UUID
 from src.app.cuotas.domain.entities import Cuota
-from src.app.cuotas.domain.value_objects import MetodoPago # Import MetodoPago from domain
+from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago # Import MetodoPago and EstadoPago from domain
 from src.app.cuotas.application.dtos import CuotaDetalleResponseDTO
 
 # Test para asegurar que la clase PostgresCuotaRepository existe
@@ -61,9 +61,8 @@ async def test_listar_todas_cuotas():
     assert len(cuotas) == 2
     assert isinstance(cuotas[0], Cuota)
     assert cuotas[0].id == UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-    assert cuotas[0].estado_pago == "completado"
-    assert cuotas[1].id == UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13')
-    assert cuotas[1].estado_pago == "pendiente"
+    assert cuotas[0].estado_pago == EstadoPago.COMPLETADO
+    assert cuotas[1].estado_pago == EstadoPago.PENDIENTE
 
 # Test para el método buscar_por_usuario_y_temporada
 @pytest.mark.asyncio
@@ -334,6 +333,75 @@ async def test_actualizar_cuota_no_existente():
     assert args[7] == cuota_id
 
     assert cuota_result == cuota_actualizada_input # El repositorio devuelve la cuota que se intentó actualizar, incluso si no existía
+
+@pytest.mark.asyncio
+async def test_buscar_por_usuario_id_completadas_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    now = datetime.now()
+
+    mock_rows = [
+        {
+            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),
+            'usuario_id': usuario_id,
+            'tipo_de_cuota_id': 1,
+            'importe_pagado': 50.00,
+            'estado_pago': "completado",
+            'fecha_pago': now,
+            'metodo_pago': "stripe",
+            'id_transaccion_externa': "txn_123",
+            'notas_admin': "Pago manual",
+            'fecha_creacion': now
+        },
+        {
+            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13'),
+            'usuario_id': usuario_id,
+            'tipo_de_cuota_id': 2,
+            'importe_pagado': 25.00,
+            'estado_pago': "completado",
+            'fecha_pago': now,
+            'metodo_pago': "efectivo",
+            'id_transaccion_externa': None,
+            'notas_admin': None,
+            'fecha_creacion': now
+        }
+    ]
+    mock_db_connection.fetch.return_value = mock_rows
+
+    cuotas = await repository.buscar_por_usuario_id_completadas(usuario_id)
+
+    mock_db_connection.fetch.assert_called_once_with(
+        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2",
+        usuario_id, EstadoPago.COMPLETADO.value
+    )
+
+    assert len(cuotas) == 2
+    assert isinstance(cuotas[0], Cuota)
+    assert cuotas[0].usuario_id == usuario_id
+    assert cuotas[0].estado_pago == EstadoPago.COMPLETADO
+
+@pytest.mark.asyncio
+async def test_buscar_por_usuario_id_completadas_not_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    mock_db_connection.fetch.return_value = []
+
+    cuotas = await repository.buscar_por_usuario_id_completadas(usuario_id)
+
+    mock_db_connection.fetch.assert_called_once_with(
+        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2",
+        usuario_id, EstadoPago.COMPLETADO.value
+    )
+
+    assert len(cuotas) == 0
 
 # Test para el método buscar_por_id_con_detalle
 @pytest.mark.asyncio
