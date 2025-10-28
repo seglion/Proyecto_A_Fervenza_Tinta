@@ -2219,6 +2219,25 @@ typing-extensions = {version = ">=4.10.0", markers = "python_version < \"3.13\""
 full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.18)", "pyyaml"]
 
 [[package]]
+name = "stripe"
+version = "13.0.1"
+description = "Python bindings for the Stripe API"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "stripe-13.0.1-py3-none-any.whl", hash = "sha256:7804cee14580ab37bbc1e5f6562e49dea0686ab3cb34384eb9386387ed8ebd0c"},
+    {file = "stripe-13.0.1.tar.gz", hash = "sha256:5869739430ff73bd9cd81275abfb79fd4089e97e9fd98d306a015f5defd39a0d"},
+]
+
+[package.dependencies]
+requests = {version = ">=2.20", markers = "python_version >= \"3.0\""}
+typing_extensions = {version = ">=4.5.0", markers = "python_version >= \"3.7\""}
+
+[package.extras]
+async = ["httpx"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -2347,4 +2366,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "71c4188b303946cca75dd064ba29c53dfe85826f687c650086ec9ab0294ac85d"
+content-hash = "58cb59e2f1d69cefe489d4024bc032cf55d4e98baf1b863053a05df673684117"
