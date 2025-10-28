@@ -441,6 +441,117 @@ async def test_ha_pagado_cuota_alta_antes_false():
 
     assert result is False
 
+@pytest.mark.asyncio
+async def test_get_usuarios_pendientes_por_temporada_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.users.domain.entities import User
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    temporada_id = 1
+    now = datetime.now()
+
+    mock_rows = [
+        {
+            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),
+            'email': "user1@example.com",
+            'contrasena_hasheada': "hashed_password",
+            'nombre': "Usuario 1",
+            'apellidos': "Apellido 1",
+            'numero_telefono': "123456789",
+            'rol': "socio",
+            'apodo': "U1",
+            'url_avatar': "http://example.com/avatar1.png",
+            'esta_activo': True,
+            'email_verificado': True,
+            'aprobado_por_admin': True,
+            'fecha_creacion': now,
+            'fecha_actualizacion': now
+        },
+        {
+            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13'),
+            'email': "user2@example.com",
+            'contrasena_hasheada': "hashed_password",
+            'nombre': "Usuario 2",
+            'apellidos': "Apellido 2",
+            'numero_telefono': "987654321",
+            'rol': "socio",
+            'apodo': "U2",
+            'url_avatar': "http://example.com/avatar2.png",
+            'esta_activo': True,
+            'email_verificado': True,
+            'aprobado_por_admin': True,
+            'fecha_creacion': now,
+            'fecha_actualizacion': now
+        }
+    ]
+    mock_db_connection.fetch.return_value = mock_rows
+
+    users = await repository.get_usuarios_pendientes_por_temporada(temporada_id)
+
+    mock_db_connection.fetch.assert_called_once()
+    args, kwargs = mock_db_connection.fetch.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        SELECT u.id, u.email, u.contrasena_hasheada, u.nombre, u.apellidos, u.numero_telefono, u.rol, u.apodo, u.url_avatar, u.esta_activo, u.email_verificado, u.aprobado_por_admin, u.fecha_creacion, u.fecha_actualizacion
+        FROM usuarios u
+        WHERE u.id IN (
+            SELECT c.usuario_id
+            FROM cuotas c
+            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            WHERE tc.temporada_id = $1
+            GROUP BY c.usuario_id
+            HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0
+        )
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == temporada_id
+    assert args[2] == EstadoPago.COMPLETADO.value
+
+    assert len(users) == 2
+    assert isinstance(users[0], User)
+    assert users[0].id == UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    assert users[0].nombre == "Usuario 1"
+    assert users[0].email == "user1@example.com"
+    assert users[0].contrasena_hasheada == "hashed_password"
+
+@pytest.mark.asyncio
+async def test_get_usuarios_pendientes_por_temporada_not_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.users.domain.entities import User
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    temporada_id = 1
+    mock_db_connection.fetch.return_value = []
+
+    users = await repository.get_usuarios_pendientes_por_temporada(temporada_id)
+
+    mock_db_connection.fetch.assert_called_once()
+    args, kwargs = mock_db_connection.fetch.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        SELECT u.id, u.email, u.contrasena_hasheada, u.nombre, u.apellidos, u.numero_telefono, u.rol, u.apodo, u.url_avatar, u.esta_activo, u.email_verificado, u.aprobado_por_admin, u.fecha_creacion, u.fecha_actualizacion
+        FROM usuarios u
+        WHERE u.id IN (
+            SELECT c.usuario_id
+            FROM cuotas c
+            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            WHERE tc.temporada_id = $1
+            GROUP BY c.usuario_id
+            HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0
+        )
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == temporada_id
+    assert args[2] == EstadoPago.COMPLETADO.value
+
+    assert len(users) == 0
+
 # Test para el método buscar_por_id_con_detalle
 @pytest.mark.asyncio
 async def test_buscar_por_id_con_detalle_found():

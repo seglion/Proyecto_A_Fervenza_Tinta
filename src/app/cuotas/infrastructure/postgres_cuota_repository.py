@@ -167,7 +167,37 @@ class PostgresCuotaRepository(ICuotaRepository):
         return count > 0
 
     async def get_usuarios_pendientes_por_temporada(self, temporada_id: int) -> List[User]:
-        pass
+        query = """
+        SELECT u.id, u.email, u.contrasena_hasheada, u.nombre, u.apellidos, u.numero_telefono, u.rol, u.apodo, u.url_avatar, u.esta_activo, u.email_verificado, u.aprobado_por_admin, u.fecha_creacion, u.fecha_actualizacion
+        FROM usuarios u
+        WHERE u.id IN (
+            SELECT c.usuario_id
+            FROM cuotas c
+            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            WHERE tc.temporada_id = $1
+            GROUP BY c.usuario_id
+            HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0
+        )
+        """
+        rows = await self.db_connection.fetch(query, temporada_id, EstadoPago.COMPLETADO.value)
+        return [
+            User(
+                id=row['id'],
+                email=row['email'],
+                contrasena_hasheada=row['contrasena_hasheada'],
+                nombre=row['nombre'],
+                apellidos=row['apellidos'],
+                numero_telefono=row['numero_telefono'],
+                rol=row['rol'],
+                apodo=row['apodo'],
+                url_avatar=row['url_avatar'],
+                esta_activo=row['esta_activo'],
+                email_verificado=row['email_verificado'],
+                aprobado_por_admin=row['aprobado_por_admin'],
+                fecha_creacion=row['fecha_creacion'],
+                fecha_actualizacion=row['fecha_actualizacion']
+            ) for row in rows
+        ]
 
     async def get_usuarios_inactivos_desde(self, fecha_limite: date) -> List[UUID]:
         pass
