@@ -210,3 +210,43 @@ async def test_buscar_todos_devuelve_lista_de_usuarios(db_connection, sample_use
     assert len(list_of_users) >= 2
     assert any(u.id == sample_user.id for u in list_of_users)
     assert any(u.id == user2.id for u in list_of_users)
+
+async def test_eliminar_por_id_elimina_usuario(db_connection, sample_user):
+    # Arrange
+    repo = PostgresUserRepository(db_connection)
+    await repo.crear(sample_user)
+
+    # Act
+    await repo.eliminar_por_id(sample_user.id)
+
+    # Assert
+    db_row = await db_connection.fetchrow("SELECT * FROM usuarios WHERE id = $1", sample_user.id)
+    assert db_row is None
+
+async def test_desactivar_usuarios_desactiva_multiples_usuarios(db_connection):
+    # Arrange
+    repo = PostgresUserRepository(db_connection)
+    user1_id = uuid4()
+    user2_id = uuid4()
+    user3_id = uuid4()
+
+    user1 = User(id=user1_id, email=f"test.{user1_id}@example.com", contrasena_hasheada="p1", nombre="U1", apellidos="S1", rol=Rol.USUARIO, numero_telefono=str(uuid4())[:20], esta_activo=True)
+    user2 = User(id=user2_id, email=f"test.{user2_id}@example.com", contrasena_hasheada="p2", nombre="U2", apellidos="S2", rol=Rol.USUARIO, numero_telefono=str(uuid4())[:20], esta_activo=True)
+    user3 = User(id=user3_id, email=f"test.{user3_id}@example.com", contrasena_hasheada="p3", nombre="U3", apellidos="S3", rol=Rol.USUARIO, numero_telefono=str(uuid4())[:20], esta_activo=True)
+
+    await repo.crear(user1)
+    await repo.crear(user2)
+    await repo.crear(user3)
+
+    # Act
+    users_to_deactivate = [user1_id, user3_id]
+    await repo.desactivar_usuarios(users_to_deactivate)
+
+    # Assert
+    db_row1 = await db_connection.fetchrow("SELECT esta_activo FROM usuarios WHERE id = $1", user1_id)
+    db_row2 = await db_connection.fetchrow("SELECT esta_activo FROM usuarios WHERE id = $1", user2_id)
+    db_row3 = await db_connection.fetchrow("SELECT esta_activo FROM usuarios WHERE id = $1", user3_id)
+
+    assert db_row1['esta_activo'] is False
+    assert db_row2['esta_activo'] is True # User2 should remain active
+    assert db_row3['esta_activo'] is False

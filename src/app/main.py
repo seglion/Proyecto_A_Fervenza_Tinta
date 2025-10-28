@@ -6,12 +6,12 @@ import asyncpg
 import typing # Import typing
 from app.users.presentation.router import router as users_router
 from app.users.presentation.admin_router import router as admin_router
-
+from app.cuotas.presentation.router import router as cuotas_router
 app = FastAPI()
 
 app.include_router(users_router)
 app.include_router(admin_router)
-
+app.include_router(cuotas_router)
 @app.on_event("startup")
 async def startup():
     await Database.get_pool()
