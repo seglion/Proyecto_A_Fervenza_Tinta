@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env.dev", env_file_encoding='utf-8')
 
     SENDGRID_API_KEY: Optional[str] = None
+    STRIPE_SECRET_KEY: str
 
 
     POSTGRES_DB: str
@@ -33,6 +34,7 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
     TEMPLATE_FOLDER: Optional[str] = None
 
+    STRIPE_SECRET_KEY: str
     
 
 settings = Settings()
