@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 # Importamos nuestra Base y los modelos para que Alembic los vea
 from app.core.database import Base
 from app.users.infrastructure import models as user_models
+from app.cuotas.infrastructure import models as cuotas_models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
