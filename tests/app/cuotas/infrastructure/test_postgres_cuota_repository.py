@@ -403,6 +403,44 @@ async def test_buscar_por_usuario_id_completadas_not_found():
 
     assert len(cuotas) == 0
 
+@pytest.mark.asyncio
+async def test_ha_pagado_cuota_alta_antes_true():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    mock_db_connection.fetchval.return_value = 1 # Indica que se encontró al menos una cuota de alta
+
+    result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
+
+    mock_db_connection.fetchval.assert_called_once_with(
+        "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
+        usuario_id, EstadoPago.COMPLETADO.value
+    )
+
+    assert result is True
+
+@pytest.mark.asyncio
+async def test_ha_pagado_cuota_alta_antes_false():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    mock_db_connection.fetchval.return_value = 0 # Indica que no se encontró ninguna cuota de alta
+
+    result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
+
+    mock_db_connection.fetchval.assert_called_once_with(
+        "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
+        usuario_id, EstadoPago.COMPLETADO.value
+    )
+
+    assert result is False
+
 # Test para el método buscar_por_id_con_detalle
 @pytest.mark.asyncio
 async def test_buscar_por_id_con_detalle_found():

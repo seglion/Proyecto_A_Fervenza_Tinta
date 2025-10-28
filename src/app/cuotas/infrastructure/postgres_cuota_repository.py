@@ -162,7 +162,9 @@ class PostgresCuotaRepository(ICuotaRepository):
         ]
 
     async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
-        pass
+        query = "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2"
+        count = await self.db_connection.fetchval(query, usuario_id, EstadoPago.COMPLETADO.value)
+        return count > 0
 
     async def get_usuarios_pendientes_por_temporada(self, temporada_id: int) -> List[User]:
         pass
