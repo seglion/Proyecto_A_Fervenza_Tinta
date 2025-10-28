@@ -214,6 +214,127 @@ async def test_buscar_por_id_not_found():
 
     assert cuota is None
 
+@pytest.mark.asyncio
+async def test_actualizar_cuota_existente():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    now = datetime.now()
+
+    cuota_existente = Cuota(
+        id=cuota_id,
+        usuario_id=usuario_id,
+        tipo_de_cuota_id=1,
+        importe_pagado=50.00,
+        estado_pago=EstadoPago.PENDIENTE,
+        fecha_pago=None,
+        metodo_pago=MetodoPago.STRIPE,
+        id_transaccion_externa="txn_old",
+        notas_admin="Notas antiguas",
+        fecha_creacion=now
+    )
+
+    cuota_actualizada_input = Cuota(
+        id=cuota_id,
+        usuario_id=usuario_id,
+        tipo_de_cuota_id=1,
+        importe_pagado=60.00,
+        estado_pago=EstadoPago.COMPLETADO,
+        fecha_pago=now,
+        metodo_pago=MetodoPago.EFECTIVO,
+        id_transaccion_externa="txn_new",
+        notas_admin="Notas nuevas",
+        fecha_creacion=now # fecha_creacion no debería cambiar
+    )
+
+    mock_db_connection.execute.return_value = "UPDATE 1" # Indica que una fila fue actualizada
+
+    cuota_result = await repository.actualizar(cuota_actualizada_input)
+
+    mock_db_connection.execute.assert_called_once()
+    args, kwargs = mock_db_connection.execute.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        UPDATE cuotas
+        SET
+            importe_pagado = $1,
+            estado_pago = $2,
+            fecha_pago = $3,
+            metodo_pago = $4::tipo_metodo_pago,
+            id_transaccion_externa = $5,
+            notas_admin = $6
+        WHERE id = $7
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == cuota_actualizada_input.importe_pagado
+    assert args[2] == cuota_actualizada_input.estado_pago.value
+    assert args[3] == cuota_actualizada_input.fecha_pago
+    assert args[4] == cuota_actualizada_input.metodo_pago.value
+    assert args[5] == cuota_actualizada_input.id_transaccion_externa
+    assert args[6] == cuota_actualizada_input.notas_admin
+    assert args[7] == cuota_id
+
+    assert cuota_result == cuota_actualizada_input
+
+@pytest.mark.asyncio
+async def test_actualizar_cuota_no_existente():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    from src.app.cuotas.domain.value_objects import EstadoPago
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+    now = datetime.now()
+
+    cuota_actualizada_input = Cuota(
+        id=cuota_id,
+        usuario_id=usuario_id,
+        tipo_de_cuota_id=1,
+        importe_pagado=60.00,
+        estado_pago=EstadoPago.COMPLETADO,
+        fecha_pago=now,
+        metodo_pago=MetodoPago.EFECTIVO,
+        id_transaccion_externa="txn_new",
+        notas_admin="Notas nuevas",
+        fecha_creacion=now
+    )
+
+    mock_db_connection.execute.return_value = "UPDATE 0" # Indica que ninguna fila fue actualizada
+
+    cuota_result = await repository.actualizar(cuota_actualizada_input)
+
+    mock_db_connection.execute.assert_called_once()
+    args, kwargs = mock_db_connection.execute.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        UPDATE cuotas
+        SET
+            importe_pagado = $1,
+            estado_pago = $2,
+            fecha_pago = $3,
+            metodo_pago = $4::tipo_metodo_pago,
+            id_transaccion_externa = $5,
+            notas_admin = $6
+        WHERE id = $7
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == cuota_actualizada_input.importe_pagado
+    assert args[2] == cuota_actualizada_input.estado_pago.value
+    assert args[3] == cuota_actualizada_input.fecha_pago
+    assert args[4] == cuota_actualizada_input.metodo_pago.value
+    assert args[5] == cuota_actualizada_input.id_transaccion_externa
+    assert args[6] == cuota_actualizada_input.notas_admin
+    assert args[7] == cuota_id
+
+    assert cuota_result == cuota_actualizada_input # El repositorio devuelve la cuota que se intentó actualizar, incluso si no existía
+
 # Test para el método buscar_por_id_con_detalle
 @pytest.mark.asyncio
 async def test_buscar_por_id_con_detalle_found():

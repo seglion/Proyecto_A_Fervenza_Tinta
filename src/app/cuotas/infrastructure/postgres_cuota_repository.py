@@ -120,7 +120,28 @@ class PostgresCuotaRepository(ICuotaRepository):
         return None
 
     async def actualizar(self, cuota: Cuota) -> Cuota:
-        pass
+        query = """
+        UPDATE cuotas
+        SET
+            importe_pagado = $1,
+            estado_pago = $2,
+            fecha_pago = $3,
+            metodo_pago = $4::tipo_metodo_pago,
+            id_transaccion_externa = $5,
+            notas_admin = $6
+        WHERE id = $7
+        """
+        await self.db_connection.execute(
+            query,
+            cuota.importe_pagado,
+            cuota.estado_pago.value,
+            cuota.fecha_pago,
+            cuota.metodo_pago.value if cuota.metodo_pago else None,
+            cuota.id_transaccion_externa,
+            cuota.notas_admin,
+            cuota.id
+        )
+        return cuota
 
     async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
         pass
