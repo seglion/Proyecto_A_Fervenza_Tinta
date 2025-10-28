@@ -163,6 +163,57 @@ async def test_guardar_cuota():
 
     assert cuota_guardada == cuota_input
 
+@pytest.mark.asyncio
+async def test_buscar_por_id_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    now = datetime.now()
+    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    mock_row = {
+        'id': cuota_id,
+        'usuario_id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12'),
+        'tipo_de_cuota_id': 1,
+        'importe_pagado': 50.00,
+        'estado_pago': "completado",
+        'fecha_pago': now,
+        'metodo_pago': "stripe",
+        'id_transaccion_externa': "txn_123",
+        'notas_admin': "Pago manual",
+        'fecha_creacion': now
+    }
+    mock_db_connection.fetchrow.return_value = mock_row
+
+    cuota = await repository.buscar_por_id(cuota_id)
+
+    mock_db_connection.fetchrow.assert_called_once_with(
+        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE id = $1",
+        cuota_id
+    )
+
+    assert cuota is not None
+    assert isinstance(cuota, Cuota)
+    assert cuota.id == cuota_id
+
+@pytest.mark.asyncio
+async def test_buscar_por_id_not_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    mock_db_connection.fetchrow.return_value = None
+
+    cuota = await repository.buscar_por_id(cuota_id)
+
+    mock_db_connection.fetchrow.assert_called_once_with(
+        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE id = $1",
+        cuota_id
+    )
+
+    assert cuota is None
+
 # Test para el método buscar_por_id_con_detalle
 @pytest.mark.asyncio
 async def test_buscar_por_id_con_detalle_found():

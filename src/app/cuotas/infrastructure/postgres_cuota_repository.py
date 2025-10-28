@@ -102,7 +102,22 @@ class PostgresCuotaRepository(ICuotaRepository):
         return None
 
     async def buscar_por_id(self, cuota_id: UUID) -> Optional[Cuota]:
-        pass
+        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE id = $1"
+        row = await self.db_connection.fetchrow(query, cuota_id)
+        if row:
+            return Cuota(
+                id=row['id'],
+                usuario_id=row['usuario_id'],
+                tipo_de_cuota_id=row['tipo_de_cuota_id'],
+                importe_pagado=row['importe_pagado'],
+                estado_pago=row['estado_pago'],
+                fecha_pago=row['fecha_pago'],
+                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                id_transaccion_externa=row['id_transaccion_externa'],
+                notas_admin=row['notas_admin'],
+                fecha_creacion=row['fecha_creacion']
+            )
+        return None
 
     async def actualizar(self, cuota: Cuota) -> Cuota:
         pass
