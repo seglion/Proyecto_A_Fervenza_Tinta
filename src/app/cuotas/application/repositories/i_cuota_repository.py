@@ -5,6 +5,7 @@ from datetime import date
 
 from src.app.cuotas.domain.entities import Cuota
 from src.app.users.domain.entities import User
+from src.app.cuotas.application.dtos import CuotaDetalleResponseDTO
 
 class ICuotaRepository(ABC):
     @abstractmethod
@@ -20,7 +21,7 @@ class ICuotaRepository(ABC):
         pass
 
     @abstractmethod
-    async def buscar_por_id_con_detalle(self, cuota_id: UUID) -> Optional[Cuota]:
+    async def buscar_por_id_con_detalle(self, cuota_id: UUID) -> Optional[CuotaDetalleResponseDTO]:
         pass
 
     @abstractmethod

@@ -2,17 +2,11 @@
 Modelos de la base de datos para el slice de Cuotas, definidos con SQLAlchemy.
 """
 import uuid # Added uuid import
-from enum import Enum as PyEnum # Import Python Enum
 from app.core.database import Base
 from sqlalchemy import Column, String, Integer, Date, DateTime, func, ForeignKey, Numeric, UUID, Enum, Text # Added UUID, Enum, Text
 from datetime import date, datetime
 from app.users.infrastructure.models import UsuarioModel # Added UsuarioModel import
-
-# Definición del Enum para metodo_pago
-class MetodoPagoEnum(PyEnum):
-    STRIPE = "stripe"
-    EFECTIVO = "efectivo"
-    TRANSFERENCIA_MANUAL = "transferencia_manual"
+from src.app.cuotas.domain.value_objects import MetodoPago # Import MetodoPago from domain
 
 class TemporadaCuotaModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -35,7 +29,7 @@ class CuotaModel(Base):
     importe_pagado = Column(Numeric(10, 2), nullable=False)
     estado_pago = Column(String(50), nullable=False)
     fecha_pago = Column(DateTime(timezone=True), nullable=True)
-    metodo_pago = Column(Enum(MetodoPagoEnum, name='tipo_metodo_pago'), nullable=True)
+    metodo_pago = Column(Enum(MetodoPago, name='tipo_metodo_pago'), nullable=True)
     id_transaccion_externa = Column(String(255), unique=True, nullable=True)
     notas_admin = Column(Text, nullable=True)
     fecha_creacion = Column(DateTime(timezone=True), nullable=False, default=func.now())
