@@ -552,7 +552,72 @@ async def test_get_usuarios_pendientes_por_temporada_not_found():
 
     assert len(users) == 0
 
-# Test para el método buscar_por_id_con_detalle
+@pytest.mark.asyncio
+async def test_get_usuarios_inactivos_desde_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    fecha_limite = date(2024, 1, 1)
+    usuario_id_1 = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
+    usuario_id_2 = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
+
+    mock_rows = [
+        {'id': usuario_id_1},
+        {'id': usuario_id_2}
+    ]
+    mock_db_connection.fetch.return_value = mock_rows
+
+    inactive_users = await repository.get_usuarios_inactivos_desde(fecha_limite)
+
+    mock_db_connection.fetch.assert_called_once()
+    args, kwargs = mock_db_connection.fetch.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        SELECT u.id
+        FROM usuarios u
+        LEFT JOIN cuotas c ON u.id = c.usuario_id
+        WHERE u.activo = FALSE
+        AND u.ultimo_acceso < $1
+        GROUP BY u.id
+        HAVING COUNT(c.id) = 0
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == fecha_limite
+
+    assert len(inactive_users) == 2
+    assert inactive_users[0] == usuario_id_1
+    assert inactive_users[1] == usuario_id_2
+
+@pytest.mark.asyncio
+async def test_get_usuarios_inactivos_desde_not_found():
+    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
+    mock_db_connection = AsyncMock()
+    repository = PostgresCuotaRepository(mock_db_connection)
+
+    fecha_limite = date(2024, 1, 1)
+    mock_db_connection.fetch.return_value = []
+
+    inactive_users = await repository.get_usuarios_inactivos_desde(fecha_limite)
+
+    mock_db_connection.fetch.assert_called_once()
+    args, kwargs = mock_db_connection.fetch.call_args
+    cleaned_actual_query = " ".join(args[0].split())
+    expected_query = """
+        SELECT u.id
+        FROM usuarios u
+        LEFT JOIN cuotas c ON u.id = c.usuario_id
+        WHERE u.activo = FALSE
+        AND u.ultimo_acceso < $1
+        GROUP BY u.id
+        HAVING COUNT(c.id) = 0
+        """
+    cleaned_expected_query = " ".join(expected_query.split())
+    assert cleaned_actual_query == cleaned_expected_query
+    assert args[1] == fecha_limite
+
+    assert len(inactive_users) == 0
 @pytest.mark.asyncio
 async def test_buscar_por_id_con_detalle_found():
     from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository

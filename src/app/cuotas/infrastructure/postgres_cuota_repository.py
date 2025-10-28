@@ -200,4 +200,14 @@ class PostgresCuotaRepository(ICuotaRepository):
         ]
 
     async def get_usuarios_inactivos_desde(self, fecha_limite: date) -> List[UUID]:
-        pass
+        query = """
+        SELECT u.id
+        FROM usuarios u
+        LEFT JOIN cuotas c ON u.id = c.usuario_id
+        WHERE u.activo = FALSE
+        AND u.ultimo_acceso < $1
+        GROUP BY u.id
+        HAVING COUNT(c.id) = 0
+        """
+        rows = await self.db_connection.fetch(query, fecha_limite)
+        return [row['id'] for row in rows]
