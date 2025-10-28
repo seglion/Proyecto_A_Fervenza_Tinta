@@ -46,7 +46,7 @@ def upgrade() -> None:
     sa.Column('importe_pagado', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('estado_pago', sa.String(length=50), nullable=False),
     sa.Column('fecha_pago', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('metodo_pago', sa.Enum('STRIPE', 'EFECTIVO', 'TRANSFERENCIA_MANUAL', name='tipo_metodo_pago'), nullable=True),
+    sa.Column('metodo_pago', sa.String(length=50), nullable=True),
     sa.Column('id_transaccion_externa', sa.String(length=255), nullable=True),
     sa.Column('notas_admin', sa.Text(), nullable=True),
     sa.Column('fecha_creacion', sa.DateTime(timezone=True), nullable=False),
