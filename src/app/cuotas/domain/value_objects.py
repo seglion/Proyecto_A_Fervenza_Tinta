@@ -6,6 +6,6 @@ class EstadoPago(Enum):
     FALLIDO = "fallido"
 
 class MetodoPago(Enum):
-    STRIPE = "stripe"
-    EFECTIVO = "efectivo"
-    TRANSFERENCIA_MANUAL = "transferencia_manual"
+    STRIPE = "STRIPE"
+    EFECTIVO = "EFECTIVO"
+    TRANSFERENCIA_MANUAL = "TRANSFERENCIA_MANUAL"

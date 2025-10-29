@@ -95,6 +95,11 @@ class RegistrarCuotaManualDTO(BaseModel):
     metodo: MetodoPago
     notas: Optional[str] = None
 
+class ActualizarCuotaManualDTO(BaseModel):
+    importe: Decimal
+    metodo: MetodoPago
+    notas: Optional[str] = None
+
 class InformePendientesDTO(BaseModel):
     pendientes: List[UsuarioResponseDTO]
 

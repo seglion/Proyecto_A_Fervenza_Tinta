@@ -10,7 +10,7 @@ from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
 from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case
-from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO
+from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO # Added ActualizarCuotaManualDTO
 from src.app.users.application.dtos import UsuarioResponseDTO # New import
 from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
@@ -146,34 +146,32 @@ async def test_ver_detalle_cuota_unauthorized_if_not_admin(app_client, non_admin
     # Cleanup
     app_client.app.dependency_overrides = {}
 
-# ------------------ Tests for RegistrarCuotaManual ------------------
+    # ------------------ Tests for RegistrarCuotaManual (Refactored) ------------------
 
 @pytest.mark.asyncio
 async def test_registrar_cuota_manual_endpoint_success(app_client, mock_registrar_cuota_manual_use_case, admin_user):
     # Arrange
+    cuota_id = uuid4()
     app_client.app.dependency_overrides[get_admin_user] = lambda: admin_user
     app_client.app.dependency_overrides[get_current_user] = lambda: admin_user # Needed for get_admin_user
     app_client.app.dependency_overrides[get_registrar_cuota_manual_use_case] = lambda: mock_registrar_cuota_manual_use_case
 
-    manual_fee_data = {
-        "usuario_id": str(uuid4()),
-        "tipo_cuota_id": 1,
-        "importe": 75.00,
-        "metodo": MetodoPago.EFECTIVO.value,
-        "notas": "Pago en efectivo por el socio"
-    }
+    update_data = ActualizarCuotaManualDTO(
+        importe=Decimal("75.00"),
+        metodo=MetodoPago.EFECTIVO,
+        notas="Pago en efectivo por el socio"
+    )
 
     # Act
-    response = app_client.post("/cuotas/registrar-manual", json=manual_fee_data)
+    response = app_client.put(f"/cuotas/{cuota_id}/registrar-manual", json=update_data.model_dump(mode='json'))
 
     # Assert
-    assert response.status_code == 201
+    assert response.status_code == 200
     assert response.json() == {"id": str(mock_registrar_cuota_manual_use_case.execute.return_value.id)}
-    mock_registrar_cuota_manual_use_case.execute.assert_called_once()
+    mock_registrar_cuota_manual_use_case.execute.assert_called_once_with(admin_user, cuota_id, update_data)
 
     # Cleanup
     app_client.app.dependency_overrides = {}
-
 # ------------------ Tests for ObtenerGenerarMiCuota ------------------
 
 @pytest.mark.asyncio

@@ -11,10 +11,10 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO # Added ActualizarCuotaManualDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
-from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado
+from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException # Added CuotaNoEncontrada, CuotaYaPagadaException
 from src.app.users.domain.entities import User
 from src.app.core.dependencies import get_current_user
 from src.app.users.domain.value_objects import Rol
@@ -87,11 +87,9 @@ def get_ver_detalle_cuota_use_case(
 
 def get_registrar_cuota_manual_use_case(
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
-    tipo_cuota_repository: ITipoCuotaRepository = Depends(get_tipo_cuota_repository),
-    temporada_cuota_repository: ITemporadaCuotaRepository = Depends(get_temporada_cuota_repository),
 ) -> RegistrarCuotaManualUseCase:
     cuota_policy = CuotaPolicy()
-    return RegistrarCuotaManualUseCase(cuota_repository, tipo_cuota_repository, temporada_cuota_repository, cuota_policy)
+    return RegistrarCuotaManualUseCase(cuota_repository, cuota_policy)
 
 def get_obtener_generar_mi_cuota_use_case(
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
@@ -161,13 +159,21 @@ async def obtener_generar_mi_cuota_activa(
 async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin_user), use_case: VerDetalleCuotaUseCase = Depends(get_ver_detalle_cuota_use_case)):
     return await use_case.execute(admin_user, cuota_id)
 
-@router.post("/registrar-manual", response_model=CuotaCompletadaDTO, status_code=status.HTTP_201_CREATED)
+@router.put("/{cuota_id}/registrar-manual", response_model=CuotaCompletadaDTO, status_code=status.HTTP_200_OK) # Changed path and status code
 async def registrar_cuota_manual(
-    dto: RegistrarCuotaManualDTO,
+    cuota_id: UUID, # New path parameter
+    dto: ActualizarCuotaManualDTO, # Changed DTO
     admin_user: User = Depends(get_admin_user),
     use_case: RegistrarCuotaManualUseCase = Depends(get_registrar_cuota_manual_use_case)
 ):
-    return await use_case.execute(admin_user, dto)
+    try:
+        return await use_case.execute(admin_user, cuota_id, dto) # Updated execute call
+    except CuotaNoEncontrada as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CuotaYaPagadaException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 
