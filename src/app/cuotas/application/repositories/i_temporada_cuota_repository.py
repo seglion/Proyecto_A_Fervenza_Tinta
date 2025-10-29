@@ -17,5 +17,9 @@ class ITemporadaCuotaRepository(ABC):
         pass
 
     @abstractmethod
+    async def buscar_por_id(self, temporada_id: int) -> Optional[TemporadaCuota]:
+        pass
+
+    @abstractmethod
     async def get_temporada_activa(self) -> Optional[TemporadaCuota]:
         pass
