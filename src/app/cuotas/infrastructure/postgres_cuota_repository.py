@@ -59,7 +59,7 @@ class PostgresCuotaRepository(ICuotaRepository):
             cuota.usuario_id,
             cuota.tipo_de_cuota_id,
             cuota.importe_pagado,
-            cuota.estado_pago,
+            cuota.estado_pago.value,
             cuota.fecha_pago,
             cuota.metodo_pago.value if cuota.metodo_pago else None,
             cuota.id_transaccion_externa,
