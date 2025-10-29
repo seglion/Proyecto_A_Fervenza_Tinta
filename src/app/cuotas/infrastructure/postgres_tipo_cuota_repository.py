@@ -86,3 +86,16 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
                 fecha_creacion=row['fecha_creacion']
             )
         return None
+
+    async def buscar_por_id(self, tipo_cuota_id: int) -> Optional[TipoCuota]:
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE id = $1"
+        row = await self.db_connection.fetchrow(query, tipo_cuota_id)
+        if row:
+            return TipoCuota(
+                id=row['id'],
+                temporada_id=row['temporada_id'],
+                nombre=row['nombre'],
+                importe=row['importe'],
+                fecha_creacion=row['fecha_creacion']
+            )
+        return None

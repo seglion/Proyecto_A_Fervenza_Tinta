@@ -99,3 +99,5 @@ class InformePendientesDTO(BaseModel):
 class UsuarioPolicyDTO(BaseModel):
     rol: Rol
     esta_activo: bool
+
+    model_config = ConfigDict(from_attributes=True)

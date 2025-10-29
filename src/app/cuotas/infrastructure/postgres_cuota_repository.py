@@ -85,8 +85,8 @@ class PostgresCuotaRepository(ICuotaRepository):
             ts.nombre_temporada AS temporada_nombre
         FROM cuotas c
         JOIN usuarios u ON c.usuario_id = u.id
-        JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
-        JOIN temporadas_cuota ts ON tc.temporada_id = ts.id
+        JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id
+        JOIN temporadacuotas ts ON tc.temporada_id = ts.id
         WHERE c.id = $1
         """
         row = await self.db_connection.fetchrow(query, cuota_id)
@@ -170,7 +170,7 @@ class PostgresCuotaRepository(ICuotaRepository):
         ]
 
     async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
-        query = "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2"
+        query = "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2"
         count = await self.db_connection.fetchval(query, usuario_id, EstadoPago.COMPLETADO.value)
         return count > 0
 
@@ -181,7 +181,7 @@ class PostgresCuotaRepository(ICuotaRepository):
         WHERE u.id IN (
             SELECT c.usuario_id
             FROM cuotas c
-            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id
             WHERE tc.temporada_id = $1
             GROUP BY c.usuario_id
             HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0

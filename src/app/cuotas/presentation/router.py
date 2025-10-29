@@ -11,7 +11,7 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada
@@ -59,12 +59,22 @@ def get_actualizar_temporada_use_case(
     cuota_policy = CuotaPolicy()
     return ActualizarTemporadaUseCase(temporada_cuota_repository, tipo_cuota_repository, cuota_policy)
 
+from src.app.cuotas.application.use_cases.ver_detalle_cuota_use_case import VerDetalleCuotaUseCase
+
 def get_listar_temporadas_use_case(
     temporada_cuota_repository: ITemporadaCuotaRepository = Depends(get_temporada_cuota_repository),
     tipo_cuota_repository: ITipoCuotaRepository = Depends(get_tipo_cuota_repository),
 ) -> ListarTemporadasUseCase:
     cuota_policy = CuotaPolicy()
     return ListarTemporadasUseCase(temporada_cuota_repository, tipo_cuota_repository, cuota_policy)
+
+def get_ver_detalle_cuota_use_case(
+    cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+    tipo_cuota_repository: ITipoCuotaRepository = Depends(get_tipo_cuota_repository),
+    temporada_cuota_repository: ITemporadaCuotaRepository = Depends(get_temporada_cuota_repository),
+) -> VerDetalleCuotaUseCase:
+    cuota_policy = CuotaPolicy()
+    return VerDetalleCuotaUseCase(cuota_repository, tipo_cuota_repository, temporada_cuota_repository, cuota_policy)
 
 @router.get("/", response_model=ListaCuotasDTO, status_code=status.HTTP_200_OK)
 async def listar_cuotas(
@@ -95,6 +105,8 @@ async def actualizar_temporada(
     except TemporadaNoEncontrada as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+from uuid import UUID
+
 @router.get("/temporadas", response_model=ListaTemporadasDTO, status_code=status.HTTP_200_OK)
 async def listar_temporadas(
     admin_user: User = Depends(get_admin_user),
@@ -104,3 +116,7 @@ async def listar_temporadas(
         return await use_case.execute(admin_user)
     except UnauthorizedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+
+@router.get("/{cuota_id}", response_model=DetalleCuotaDTO, status_code=status.HTTP_200_OK)
+async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin_user), use_case: VerDetalleCuotaUseCase = Depends(get_ver_detalle_cuota_use_case)):
+    return await use_case.execute(admin_user, cuota_id)
