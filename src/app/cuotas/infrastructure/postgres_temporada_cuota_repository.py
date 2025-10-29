@@ -56,6 +56,19 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
         )
         return temporada
 
+    async def buscar_por_id(self, temporada_id: int) -> Optional[TemporadaCuota]:
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE id = $1"
+        row = await self.db_connection.fetchrow(query, temporada_id)
+        if row:
+            return TemporadaCuota(
+                id=row['id'],
+                nombre_temporada=row['nombre_temporada'],
+                fecha_inicio=row['fecha_inicio'],
+                fecha_fin=row['fecha_fin'],
+                fecha_creacion=row['fecha_creacion']
+            )
+        return None
+
     async def get_temporada_activa(self) -> Optional[TemporadaCuota]:
         query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE"
         row = await self.db_connection.fetchrow(query)

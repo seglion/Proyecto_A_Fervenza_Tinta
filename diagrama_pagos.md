@@ -89,7 +89,7 @@ erDiagram
 
 -----
 
-## Tabla: temporadas\_cuota
+## Tabla: temporadascuotas
 
 | Nombre de Columna | Tipo de Dato | Restricciones / Notas |
 | :--- | :--- | :--- |
@@ -99,7 +99,7 @@ erDiagram
 | **fecha\_fin** | DATE | No Nulo. Ej: '2026-07-25' |
 | **fecha\_creacion** | TIMESTAMPZ | No Nulo |
 
-## Tabla: tipos\_de\_cuota 
+## Tabla: tipocuotas 
 
 | Nombre de Columna | Tipo de Dato | Restricciones / Notas |
 | :--- | :--- | :--- |

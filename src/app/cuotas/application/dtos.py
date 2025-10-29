@@ -85,6 +85,8 @@ class CuotaDetalleResponseDTO(CuotaDTO):
 class DetalleCuotaDTO(BaseModel):
     cuota: CuotaDTO
     temporada: TemporadaDTO
+    tipo_cuota_detalle: TipoCuotaDTO
+    usuario_detalle: UsuarioResponseDTO
 
 class RegistrarCuotaManualDTO(BaseModel):
     usuario_id: UUID
@@ -99,3 +101,8 @@ class InformePendientesDTO(BaseModel):
 class UsuarioPolicyDTO(BaseModel):
     rol: Rol
     esta_activo: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CuotaCompletadaDTO(BaseModel):
+    id: UUID
