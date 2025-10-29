@@ -62,7 +62,7 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
         ]
 
     async def get_tipo_cuota_general(self, temporada_id: int) -> Optional[TipoCuota]:
-        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = 'General'"
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))"
         row = await self.db_connection.fetchrow(query, temporada_id)
         if row:
             return TipoCuota(
@@ -75,7 +75,7 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
         return None
 
     async def get_tipo_cuota_nuevo_socio(self, temporada_id: int) -> Optional[TipoCuota]:
-        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = 'Nuevo Socio'"
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))"
         row = await self.db_connection.fetchrow(query, temporada_id)
         if row:
             return TipoCuota(
