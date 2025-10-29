@@ -48,6 +48,19 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
             
         return tipos_cuota
 
+    async def buscar_por_temporada_id(self, temporada_id: int) -> List[TipoCuota]:
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1"
+        rows = await self.db_connection.fetch(query, temporada_id)
+        return [
+            TipoCuota(
+                id=row['id'],
+                temporada_id=row['temporada_id'],
+                nombre=row['nombre'],
+                importe=row['importe'],
+                fecha_creacion=row['fecha_creacion']
+            ) for row in rows
+        ]
+
     async def get_tipo_cuota_general(self, temporada_id: int) -> Optional[TipoCuota]:
         query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = 'General'"
         row = await self.db_connection.fetchrow(query, temporada_id)

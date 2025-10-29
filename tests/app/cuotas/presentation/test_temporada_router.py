@@ -5,16 +5,18 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 from datetime import date, datetime
 
-from src.app.cuotas.application.dtos import CrearTemporadaDTO, TemporadaCreadaDTO, TipoCuotaCrearDTO, ActualizarTemporadaDTO, TemporadaDTO
+from src.app.cuotas.application.dtos import CrearTemporadaDTO, TemporadaCreadaDTO, TipoCuotaCrearDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO
 from src.app.cuotas.presentation.router import router as cuotas_router
 from src.app.cuotas.presentation.router import get_crear_temporada_use_case
-from src.app.cuotas.presentation.router import get_actualizar_temporada_use_case # Import the new dependency
+from src.app.cuotas.presentation.router import get_actualizar_temporada_use_case
+from src.app.cuotas.presentation.router import get_listar_temporadas_use_case
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
 from src.app.cuotas.presentation.router import get_admin_user
 
-@pytest.fixture(scope="module")
+# ------------------ Fixtures ------------------
+@pytest.fixture(scope="function")
 def app_client():
     app = FastAPI()
     app.include_router(cuotas_router)
@@ -69,6 +71,23 @@ def mock_actualizar_temporada_use_case():
     )
     return mock
 
+@pytest.fixture
+def mock_listar_temporadas_use_case():
+    mock = AsyncMock()
+    mock.execute.return_value = ListaTemporadasDTO(
+        temporadas=[
+            TemporadaDTO(
+                id=1,
+                nombre_temporada="Temporada 2025-2026",
+                fecha_inicio=date(2025, 10, 1),
+                fecha_fin=date(2026, 7, 25),
+                tipos_cuota=[]
+            )
+        ]
+    )
+    return mock
+
+# ------------------ Tests for CrearTemporada ------------------
 @pytest.mark.asyncio
 async def test_crear_temporada_endpoint_success(app_client, mock_crear_temporada_use_case, admin_user):
     # Arrange
@@ -124,29 +143,7 @@ async def test_crear_temporada_endpoint_unauthorized(app_client, mock_crear_temp
     # Clear overrides after the test
     app_client.app.dependency_overrides = {}
 
-@pytest.mark.asyncio
-async def test_actualizar_temporada_endpoint_exists(app_client, admin_user):
-    # Arrange
-    # Mock get_admin_user to allow access to the endpoint
-    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
-    app_client.app.dependency_overrides[get_admin_user] = lambda: admin_user
-
-    temporada_id = 1 # Placeholder ID
-    update_data = {
-        "nombre_temporada": "Temporada Actualizada",
-        "fecha_inicio": "2025-01-01"
-    }
-
-    # Act
-    response = app_client.put(f"/cuotas/temporadas/{temporada_id}", json=update_data)
-
-    # Assert
-    # Expecting 404 Not Found because the endpoint is not yet implemented
-    # or 422 Unprocessable Entity if Pydantic validation fails before route matching
-    assert response.status_code == 404 or response.status_code == 422
-    
-    # Clear overrides after the test
-    app_client.app.dependency_overrides = {}
+# ------------------ Tests for ActualizarTemporada ------------------
 
 @pytest.mark.asyncio
 async def test_actualizar_temporada_endpoint_success(app_client, mock_actualizar_temporada_use_case, admin_user):
@@ -180,34 +177,19 @@ async def test_actualizar_temporada_endpoint_success(app_client, mock_actualizar
     # Clear overrides after the test
     app_client.app.dependency_overrides = {}
 
+# ------------------ Tests for ListarTemporadas ------------------
 @pytest.mark.asyncio
-async def test_actualizar_temporada_endpoint_success(app_client, mock_actualizar_temporada_use_case, admin_user):
+async def test_listar_temporadas_endpoint_exists(app_client, admin_user):
     # Arrange
-    app_client.app.dependency_overrides[get_actualizar_temporada_use_case] = lambda: mock_actualizar_temporada_use_case
     app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
     app_client.app.dependency_overrides[get_admin_user] = lambda: admin_user
 
-    temporada_id = 1
-    update_data = {
-        "nombre_temporada": "Temporada Actualizada",
-        "fecha_inicio": "2025-01-01",
-        "fecha_fin": "2025-12-31",
-        "tipos_cuota": []
-    }
-
     # Act
-    response = app_client.put(f"/cuotas/temporadas/{temporada_id}", json=update_data)
+    response = app_client.get("/cuotas/temporadas")
 
     # Assert
+    # Expecting 200 OK because the endpoint is now implemented
     assert response.status_code == 200
-    assert response.json() == {
-        "id": 1,
-        "nombre_temporada": "Temporada Actualizada",
-        "fecha_inicio": "2025-01-01",
-        "fecha_fin": "2025-12-31",
-        "tipos_cuota": []
-    }
-    mock_actualizar_temporada_use_case.execute.assert_called_once_with(admin_user, temporada_id, ActualizarTemporadaDTO(**update_data))
 
     # Clear overrides after the test
     app_client.app.dependency_overrides = {}

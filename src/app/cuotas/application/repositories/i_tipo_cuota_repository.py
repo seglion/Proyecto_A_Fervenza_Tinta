@@ -13,6 +13,10 @@ class ITipoCuotaRepository(ABC):
         pass
 
     @abstractmethod
+    async def buscar_por_temporada_id(self, temporada_id: int) -> List[TipoCuota]:
+        pass
+
+    @abstractmethod
     async def get_tipo_cuota_general(self, temporada_id: int) -> Optional[TipoCuota]:
         pass
 
