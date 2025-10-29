@@ -12,6 +12,14 @@ class PostgresCuotaRepository(ICuotaRepository):
     def __init__(self, db_connection: asyncpg.Connection):
         self.db_connection = db_connection
 
+    def _get_metodo_pago_from_value(self, value: str) -> Optional[MetodoPago]:
+        if value is None:
+            return None
+        for member in MetodoPago:
+            if member.value == value.strip():
+                return member
+        return None # Should not happen if DB values are consistent with Enum
+
     async def listar_todas(self) -> List[Cuota]:
         query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas"
         rows = await self.db_connection.fetch(query)
@@ -23,7 +31,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 importe_pagado=row['importe_pagado'],
                 estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
-                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
                 id_transaccion_externa=row['id_transaccion_externa'],
                 notas_admin=row['notas_admin'],
                 fecha_creacion=row['fecha_creacion']
@@ -41,7 +49,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 importe_pagado=row['importe_pagado'],
                 estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
-                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
                 id_transaccion_externa=row['id_transaccion_externa'],
                 notas_admin=row['notas_admin'],
                 fecha_creacion=row['fecha_creacion']
@@ -90,7 +98,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 importe_pagado=row['importe_pagado'],
                 estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
-                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
                 id_transaccion_externa=row['id_transaccion_externa'],
                 notas_admin=row['notas_admin'],
                 fecha_creacion=row['fecha_creacion'],
@@ -112,7 +120,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 importe_pagado=row['importe_pagado'],
                 estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
-                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
                 id_transaccion_externa=row['id_transaccion_externa'],
                 notas_admin=row['notas_admin'],
                 fecha_creacion=row['fecha_creacion']
@@ -154,7 +162,7 @@ class PostgresCuotaRepository(ICuotaRepository):
                 importe_pagado=row['importe_pagado'],
                 estado_pago=EstadoPago(row['estado_pago']),
                 fecha_pago=row['fecha_pago'],
-                metodo_pago=MetodoPago(row['metodo_pago']) if row['metodo_pago'] else None,
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
                 id_transaccion_externa=row['id_transaccion_externa'],
                 notas_admin=row['notas_admin'],
                 fecha_creacion=row['fecha_creacion']
@@ -211,3 +219,4 @@ class PostgresCuotaRepository(ICuotaRepository):
         """
         rows = await self.db_connection.fetch(query, fecha_limite)
         return [row['id'] for row in rows]
+
