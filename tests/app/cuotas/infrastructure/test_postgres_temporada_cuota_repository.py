@@ -39,7 +39,7 @@ async def test_guardar_temporada():
     # Verificar que fetchval fue llamado con la query y los parámetros correctos
     mock_db_connection.fetchval.assert_called_once()
     args, kwargs = mock_db_connection.fetchval.call_args
-    assert "INSERT INTO temporadas_cuota" in args[0]
+    assert "INSERT INTO temporadacuotas" in args[0]
     assert temporada_input.nombre_temporada == args[1]
     assert temporada_input.fecha_inicio == args[2]
     assert temporada_input.fecha_fin == args[3]
@@ -70,7 +70,7 @@ async def test_listar_todas_temporadas():
     temporadas = await repository.listar_todas()
 
     # Verificar que fetch fue llamado con la query correcta
-    mock_db_connection.fetch.assert_called_once_with("SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadas_cuota ORDER BY fecha_inicio DESC")
+    mock_db_connection.fetch.assert_called_once_with("SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas ORDER BY fecha_inicio DESC")
 
     # Verificar que se mapearon correctamente a entidades TemporadaCuota
     assert len(temporadas) == 2
@@ -109,7 +109,7 @@ async def test_actualizar_temporada():
 
     mock_db_connection.execute.assert_called_once()
     args, kwargs = mock_db_connection.execute.call_args
-    assert "UPDATE temporadas_cuota" in args[0]
+    assert "UPDATE temporadacuotas" in args[0]
     assert temporada_actualizada_input.nombre_temporada == args[1]
     assert temporada_actualizada_input.fecha_inicio == args[2]
     assert temporada_actualizada_input.fecha_fin == args[3]
@@ -138,7 +138,7 @@ async def test_get_temporada_activa_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadas_cuota WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE" in args[0]
+    assert "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE" in args[0]
 
     assert temporada_activa is not None
     assert isinstance(temporada_activa, TemporadaCuota)
@@ -156,13 +156,13 @@ async def test_get_temporada_activa_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadas_cuota WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE" in args[0]
+    assert "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE" in args[0]
 
     assert temporada_activa is None
 
 # Test para el método actualizar
 @pytest.mark.asyncio
-async def test_actualizar_temporada():
+async def test_actualizar_temporada_again():
     from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
     mock_db_connection = AsyncMock()
     repository = PostgresTemporadaCuotaRepository(mock_db_connection)
@@ -189,7 +189,7 @@ async def test_actualizar_temporada():
 
     mock_db_connection.execute.assert_called_once()
     args, kwargs = mock_db_connection.execute.call_args
-    assert "UPDATE temporadas_cuota" in args[0]
+    assert "UPDATE temporadacuotas" in args[0]
     assert temporada_actualizada_input.nombre_temporada == args[1]
     assert temporada_actualizada_input.fecha_inicio == args[2]
     assert temporada_actualizada_input.fecha_fin == args[3]

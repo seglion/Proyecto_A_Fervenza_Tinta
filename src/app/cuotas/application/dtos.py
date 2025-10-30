@@ -100,8 +100,12 @@ class ActualizarCuotaManualDTO(BaseModel):
     metodo: MetodoPago
     notas: Optional[str] = None
 
+class UsuarioConCuotaPendienteDTO(BaseModel):
+    usuario: UsuarioResponseDTO
+    cuota: CuotaDTO
+
 class InformePendientesDTO(BaseModel):
-    pendientes: List[UsuarioResponseDTO]
+    pendientes: List[UsuarioConCuotaPendienteDTO]
 
 class UsuarioPolicyDTO(BaseModel):
     rol: Rol

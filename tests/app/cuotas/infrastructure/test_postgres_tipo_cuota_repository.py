@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from datetime import datetime
+from datetime import datetime, date
 from src.app.cuotas.domain.entities import TipoCuota
 
 # Test para asegurar que la clase PostgresTipoCuotaRepository existe
@@ -54,13 +54,8 @@ async def test_guardar_varios_tipos_cuota():
     # Limpiar la query para una comparación más robusta
     cleaned_query = " ".join(args[0].split())
 
-    expected_query_start = "INSERT INTO tipos_de_cuota (temporada_id, nombre, importe, fecha_creacion) VALUES"
-    expected_values_part = "(${1}, ${2}, ${3}, ${4}), (${5}, ${6}, ${7}, ${8})"
-    expected_query_end = "RETURNING id, temporada_id, nombre, importe, fecha_creacion"
-
-    assert expected_query_start in cleaned_query
-    assert expected_values_part in cleaned_query
-    assert expected_query_end in cleaned_query
+    expected_query = "INSERT INTO tipocuotas (temporada_id, nombre, importe, fecha_creacion) VALUES ($1, $2, $3, $4), ($5, $6, $7, $8) RETURNING id"
+    assert cleaned_query == expected_query
 
     # Verificar los parámetros pasados (asyncpg.fetch recibe los parámetros desempaquetados)
     expected_params = (
@@ -111,24 +106,17 @@ async def test_actualizar_varios_tipos_cuota():
 
     tipos_cuota_actualizados = await repository.actualizar_varios(tipos_cuota_input)
 
-    mock_db_connection.execute.assert_called_once()
-    args, kwargs = mock_db_connection.execute.call_args
-    cleaned_query = " ".join(args[0].split())
+    assert mock_db_connection.execute.call_count == 2
 
-    expected_query_start = "UPDATE tipos_de_cuota SET nombre = CASE id"
-    expected_query_end = "WHEN ${1} THEN ${2} WHEN ${5} THEN ${6} END, importe = CASE id WHEN ${3} THEN ${4} WHEN ${7} THEN ${8} END WHERE id IN (${9}, ${10})" # Corregido
+    # Verificar la primera llamada
+    args1, kwargs1 = mock_db_connection.execute.call_args_list[0]
+    assert "UPDATE tipocuotas SET nombre = $1, importe = $2 WHERE id = $3" in args1[0]
+    assert args1[1:] == (tipos_cuota_input[0].nombre, tipos_cuota_input[0].importe, tipos_cuota_input[0].id)
 
-    assert expected_query_start in cleaned_query
-    assert expected_query_end in cleaned_query
-
-    expected_params = (
-        tipos_cuota_input[0].id, tipos_cuota_input[0].nombre,
-        tipos_cuota_input[0].id, tipos_cuota_input[0].importe,
-        tipos_cuota_input[1].id, tipos_cuota_input[1].nombre,
-        tipos_cuota_input[1].id, tipos_cuota_input[1].importe,
-        tipos_cuota_input[0].id, tipos_cuota_input[1].id
-    )
-    assert args[1:] == expected_params
+    # Verificar la segunda llamada
+    args2, kwargs2 = mock_db_connection.execute.call_args_list[1]
+    assert "UPDATE tipocuotas SET nombre = $1, importe = $2 WHERE id = $3" in args2[0]
+    assert args2[1:] == (tipos_cuota_input[1].nombre, tipos_cuota_input[1].importe, tipos_cuota_input[1].id)
 
     assert tipos_cuota_actualizados == tipos_cuota_input
 
@@ -154,7 +142,7 @@ async def test_get_tipo_cuota_general_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'General'" in args[0] # Corregido
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is not None
@@ -174,7 +162,7 @@ async def test_get_tipo_cuota_general_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'General'" in args[0] # Corregido
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is None
@@ -201,7 +189,7 @@ async def test_get_tipo_cuota_nuevo_socio_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'Nuevo Socio'" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is not None
@@ -221,14 +209,14 @@ async def test_get_tipo_cuota_nuevo_socio_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'Nuevo Socio'" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is None
 
 # Test para el método get_tipo_cuota_general
 @pytest.mark.asyncio
-async def test_get_tipo_cuota_general_found():
+async def test_get_tipo_cuota_general_found_again():
     from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
     mock_db_connection = AsyncMock()
     repository = PostgresTipoCuotaRepository(mock_db_connection)
@@ -248,7 +236,7 @@ async def test_get_tipo_cuota_general_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'General'" in args[0] # Corregido
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is not None
@@ -256,7 +244,7 @@ async def test_get_tipo_cuota_general_found():
     assert tipo_cuota.id == 101
 
 @pytest.mark.asyncio
-async def test_get_tipo_cuota_general_not_found():
+async def test_get_tipo_cuota_general_not_found_again():
     from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
     mock_db_connection = AsyncMock()
     repository = PostgresTipoCuotaRepository(mock_db_connection)
@@ -268,7 +256,7 @@ async def test_get_tipo_cuota_general_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipos_de_cuota WHERE temporada_id = $1 AND nombre = 'General'" in args[0] # Corregido
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
     assert args[1] == temporada_id
 
     assert tipo_cuota is None
