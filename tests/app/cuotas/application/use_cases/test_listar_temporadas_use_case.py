@@ -13,7 +13,7 @@ async def test_listar_temporadas_unauthorized():
     mock_policy = Mock(spec=CuotaPolicy)
     mock_policy.es_administrador.return_value = False
 
-    use_case = ListarTemporadasUseCase(None, mock_policy)
+    use_case = ListarTemporadasUseCase(temporada_cuota_repository=None, tipo_cuota_repository=None, cuota_policy=mock_policy)
     
     regular_user = User(rol=Rol.USUARIO, email="user@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="", esta_activo=True)
 
@@ -24,11 +24,12 @@ async def test_listar_temporadas_unauthorized():
 async def test_listar_temporadas_success():
     mock_temporada_repo = AsyncMock()
     mock_temporada_repo.listar_todas.return_value = []
+    mock_tipo_cuota_repo = AsyncMock()
 
     mock_policy = Mock(spec=CuotaPolicy)
     mock_policy.es_administrador.return_value = True
 
-    use_case = ListarTemporadasUseCase(mock_temporada_repo, mock_policy)
+    use_case = ListarTemporadasUseCase(temporada_cuota_repository=mock_temporada_repo, tipo_cuota_repository=mock_tipo_cuota_repo, cuota_policy=mock_policy)
 
     admin_user = User(rol=Rol.ADMIN, email="admin@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="", esta_activo=True)
 

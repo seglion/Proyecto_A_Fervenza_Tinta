@@ -11,10 +11,10 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO # Added ActualizarCuotaManualDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
-from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException # Added CuotaNoEncontrada, CuotaYaPagadaException
+from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException
 from src.app.users.domain.entities import User
 from src.app.core.dependencies import get_current_user
 from src.app.users.domain.value_objects import Rol
@@ -62,6 +62,7 @@ def get_actualizar_temporada_use_case(
 from src.app.cuotas.application.use_cases.ver_detalle_cuota_use_case import VerDetalleCuotaUseCase
 from src.app.cuotas.application.use_cases.registrar_cuota_manual_use_case import RegistrarCuotaManualUseCase
 from src.app.cuotas.application.use_cases.obtener_generar_mi_cuota_use_case import ObtenerGenerarMiCuotaUseCase
+from src.app.cuotas.application.use_cases.generar_informe_pendientes_use_case import GenerarInformePendientesUseCase
 
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
@@ -98,6 +99,22 @@ def get_obtener_generar_mi_cuota_use_case(
 ) -> ObtenerGenerarMiCuotaUseCase:
     cuota_policy = CuotaPolicy()
     return ObtenerGenerarMiCuotaUseCase(cuota_repository, tipo_cuota_repository, temporada_cuota_repository, cuota_policy)
+
+def get_generar_informe_pendientes_use_case(
+    cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+    temporada_cuota_repository: ITemporadaCuotaRepository = Depends(get_temporada_cuota_repository),
+    tipo_cuota_repository: ITipoCuotaRepository = Depends(get_tipo_cuota_repository),
+    usuario_repository: IUserRepository = Depends(get_usuario_repository),
+) -> GenerarInformePendientesUseCase:
+    cuota_policy = CuotaPolicy()
+    return GenerarInformePendientesUseCase(cuota_repository, temporada_cuota_repository, tipo_cuota_repository, usuario_repository, cuota_policy)
+
+@router.get("/informe-pendientes", response_model=InformePendientesDTO, status_code=status.HTTP_200_OK)
+async def generar_informe_pendientes(
+    admin_user: User = Depends(get_admin_user),
+    use_case: GenerarInformePendientesUseCase = Depends(get_generar_informe_pendientes_use_case)
+):
+    return await use_case.execute(admin_user)
 
 @router.get("/", response_model=ListaCuotasDTO, status_code=status.HTTP_200_OK)
 async def listar_cuotas(
@@ -152,9 +169,6 @@ async def obtener_generar_mi_cuota_activa(
     except TipoCuotaNoEncontrado as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
-
-
-
 @router.get("/{cuota_id}", response_model=DetalleCuotaDTO, status_code=status.HTTP_200_OK)
 async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin_user), use_case: VerDetalleCuotaUseCase = Depends(get_ver_detalle_cuota_use_case)):
     return await use_case.execute(admin_user, cuota_id)
@@ -174,7 +188,3 @@ async def registrar_cuota_manual(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except UnauthorizedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
-
-
-
-

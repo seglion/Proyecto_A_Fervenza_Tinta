@@ -124,10 +124,10 @@ def test_registrar_cuota_manual_dto():
     assert fields['notas'] == Optional[str]
 
 def test_informe_pendientes_dto():
-    from src.app.cuotas.application.dtos import InformePendientesDTO
+    from src.app.cuotas.application.dtos import InformePendientesDTO, UsuarioConCuotaPendienteDTO
     assert issubclass(InformePendientesDTO, BaseModel)
     fields = InformePendientesDTO.__annotations__
-    assert fields['pendientes'] == List[UsuarioResponseDTO]
+    assert fields['pendientes'] == List[UsuarioConCuotaPendienteDTO]
 
 def test_usuario_policy_dto():
     from src.app.cuotas.application.dtos import UsuarioPolicyDTO
