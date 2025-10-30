@@ -120,6 +120,24 @@ class PostgresCuotaRepository(ICuotaRepository):
         )
         return cuota
 
+    async def buscar_por_usuario_id(self, usuario_id: UUID) -> List[Cuota]:
+        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1"
+        rows = await self.db_connection.fetch(query, usuario_id)
+        return [
+            Cuota(
+                id=row['id'],
+                usuario_id=row['usuario_id'],
+                tipo_de_cuota_id=row['tipo_de_cuota_id'],
+                importe_pagado=row['importe_pagado'],
+                estado_pago=EstadoPago(row['estado_pago']),
+                fecha_pago=row['fecha_pago'],
+                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
+                id_transaccion_externa=row['id_transaccion_externa'],
+                notas_admin=row['notas_admin'],
+                fecha_creacion=row['fecha_creacion']
+            ) for row in rows
+        ]
+
     async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
         query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2"
         rows = await self.db_connection.fetch(query, usuario_id, EstadoPago.COMPLETADO.value)
