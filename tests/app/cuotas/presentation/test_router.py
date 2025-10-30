@@ -9,9 +9,9 @@ from decimal import Decimal
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
-from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case
-from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO # Added ActualizarCuotaManualDTO
-from src.app.users.application.dtos import UsuarioResponseDTO # New import
+from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case, get_generar_informe_pendientes_use_case
+from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO
+from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
 
@@ -89,6 +89,12 @@ def mock_registrar_cuota_manual_use_case():
 @pytest.fixture
 def mock_obtener_generar_mi_cuota_use_case():
     mock = AsyncMock()
+    return mock
+
+@pytest.fixture
+def mock_generar_informe_pendientes_use_case():
+    mock = AsyncMock()
+    mock.execute.return_value = InformePendientesDTO(pendientes=[])
     return mock
 
 @pytest.fixture
@@ -172,6 +178,7 @@ async def test_registrar_cuota_manual_endpoint_success(app_client, mock_registra
 
     # Cleanup
     app_client.app.dependency_overrides = {}
+
 # ------------------ Tests for ObtenerGenerarMiCuota ------------------
 
 @pytest.mark.asyncio
@@ -188,3 +195,23 @@ async def test_obtener_generar_mi_cuota_activa_endpoint_returns_existing_cuota(a
     assert response.status_code == 200
     assert response.json() == expected_cuota_dto.model_dump(by_alias=True, mode='json') # Ensure correct serialization
     mock_obtener_generar_mi_cuota_use_case.execute.assert_called_once_with(non_admin_user_active)
+
+# ------------------ Tests for GenerarInformePendientes ------------------
+
+@pytest.mark.asyncio
+async def test_generar_informe_pendientes_success(app_client, admin_user, mock_generar_informe_pendientes_use_case):
+    # Arrange
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_admin_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_generar_informe_pendientes_use_case] = lambda: mock_generar_informe_pendientes_use_case
+
+    # Act
+    response = app_client.get("/cuotas/informe-pendientes")
+
+    # Assert
+    assert response.status_code == 200
+    assert "pendientes" in response.json()
+    mock_generar_informe_pendientes_use_case.execute.assert_called_once_with(admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
