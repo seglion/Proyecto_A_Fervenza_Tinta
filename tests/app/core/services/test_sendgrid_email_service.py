@@ -118,5 +118,5 @@ def test_enviar_email_rechazo(MockSettings, MockSendGridAPIClient):
     assert email_to in call_args['personalizations'][0]['to'][0]['email']
     assert service.sender_email in call_args['from']['email']
     assert "Your registration was rejected" == call_args['subject']
-    assert "We regret to inform you that your registration has been rejected." in call_args['content'][0]['value']
+    assert "Lamentamos informarte que tu solicitud de registro ha sido rechazada." in call_args['content'][0]['value']
     assert "Call To Action" not in call_args['content'][0]['value'] # Ensure button is removed

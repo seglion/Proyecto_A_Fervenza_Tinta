@@ -47,7 +47,7 @@ erDiagram
         TIMESTAMPZ fecha_creacion "No Nulo"
     }
 
-    temporadas_cuota {
+    temporadacuotas {
         INTEGER id PK "Clave Primaria"
         VARCHAR(100) nombre_temporada "Único, No Nulo (ej: 2025-2026)"
         DATE fecha_inicio "No Nulo (ej: 2025-10-01)"
@@ -55,19 +55,19 @@ erDiagram
         TIMESTAMPZ fecha_creacion "No Nulo"
     }
 
-    tipos_de_cuota {
+    tipocuotas {
         INTEGER id PK "Clave Primaria"
-        INTEGER temporada_id FK "Clave Externa a temporadas_cuota.id"
-        VARCHAR(100) nombre "No Nulo (ej: 'Cuota General', 'Cuota Nuevo Socio')"
-        NUMERIC(10-2) importe "No Nulo (ej: 25.00, 50.00)"
+        INTEGER temporada_id FK "Clave Externa a temporadacuotas.id"
+        ENUM NombreTipoCuota nombre "No Nulo (ej: 'Socio', 'Alta')"
+        NUMERIC importe "No Nulo (10, 2) (ej: 25.00, 50.00)"
         TIMESTAMPZ fecha_creacion "No Nulo"
     }
 
     cuotas {
         UUID id PK "Clave Primaria"
         UUID usuario_id FK "Clave Externa a usuarios.id"
-        INTEGER tipo_de_cuota_id FK "Clave Externa a tipos_de_cuota.id"
-        NUMERIC(10-2) importe_pagado "No Nulo (puede ser 0 si el admin lo perdona)"
+        INTEGER tipo_de_cuota_id FK "Clave Externa a tipocuotas.id"
+        NUMERIC importe_pagado "No Nulo (10, 2) (puede ser 0 si el admin lo perdona)"
         VARCHAR(50) estado_pago "No Nulo (ej: 'pendiente', 'completado')"
         TIMESTAMPZ fecha_pago "Nulo"
         tipo_metodo_pago metodo_pago "Nulo - ENUM"

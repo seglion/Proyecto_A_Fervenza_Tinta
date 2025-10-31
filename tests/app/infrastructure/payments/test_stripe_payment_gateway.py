@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, patch
+from uuid import UUID
 from src.app.core.config import settings
 import stripe
 
@@ -23,11 +24,12 @@ async def test_crear_sesion_pago_success(mock_stripe_session_create):
     user_id = 123
     amount = 1000 # 10.00 EUR
     currency = "eur"
+    cuota_id = UUID('a1b2c3d4-e5f6-7890-1234-567890abcdef') # Dummy UUID for testing
     expected_url = "https://checkout.stripe.com/pay/session_id"
 
     mock_stripe_session_create.return_value = AsyncMock(url=expected_url)
 
-    session_url = await gateway.crear_sesion_pago(user_id, amount, currency)
+    session_url = await gateway.crear_sesion_pago(user_id, amount, currency, cuota_id)
 
     mock_stripe_session_create.assert_called_once_with(
         line_items=[
@@ -45,7 +47,7 @@ async def test_crear_sesion_pago_success(mock_stripe_session_create):
         mode="payment",
         success_url="https://example.com/success",
         cancel_url="https://example.com/cancel",
-        metadata={'user_id': str(user_id)}
+        metadata={'user_id': str(user_id), 'cuota_id': str(cuota_id)}
     )
     assert session_url == expected_url
 
