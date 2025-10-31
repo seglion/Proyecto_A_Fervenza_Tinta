@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import List, Optional
 from uuid import UUID
 
-from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
+from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago, NombreTipoCuota # Added NombreTipoCuota
 from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.users.domain.value_objects import Rol
 
@@ -13,14 +13,14 @@ from pydantic import ConfigDict
 
 class TipoCuotaDTO(BaseModel):
     id: int
-    nombre: str
+    nombre: NombreTipoCuota # Changed from str
     importe: Decimal
     fecha_creacion: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 class TipoCuotaCrearDTO(BaseModel):
-    nombre: str
+    nombre: NombreTipoCuota # Changed from str
     importe: Decimal
 
 class CrearTemporadaDTO(BaseModel):
@@ -74,28 +74,38 @@ class IntentoPagoDTO(BaseModel):
     url_pago: str
 
 class HistorialCuotasDTO(BaseModel):
-    historial: List[CuotaDTO]
+    historial: List["CuotaDetalleResponseDTO"]
 
 class CuotaDetalleResponseDTO(CuotaDTO):
     usuario_nombre: str
     usuario_apellidos: str
-    tipo_cuota_nombre: str
+    tipo_cuota_nombre: NombreTipoCuota # Changed from str
     temporada_nombre: str
 
 class DetalleCuotaDTO(BaseModel):
     cuota: CuotaDTO
     temporada: TemporadaDTO
+    tipo_cuota_detalle: TipoCuotaDTO
+    usuario_detalle: UsuarioResponseDTO
 
-class RegistrarCuotaManualDTO(BaseModel):
-    usuario_id: UUID
-    tipo_cuota_id: int
+
+class ActualizarCuotaManualDTO(BaseModel):
     importe: Decimal
     metodo: MetodoPago
     notas: Optional[str] = None
 
+class UsuarioConCuotaPendienteDTO(BaseModel):
+    usuario: UsuarioResponseDTO
+    cuota: CuotaDTO
+
 class InformePendientesDTO(BaseModel):
-    pendientes: List[UsuarioResponseDTO]
+    pendientes: List[UsuarioConCuotaPendienteDTO]
 
 class UsuarioPolicyDTO(BaseModel):
     rol: Rol
     esta_activo: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CuotaCompletadaDTO(BaseModel):
+    id: UUID

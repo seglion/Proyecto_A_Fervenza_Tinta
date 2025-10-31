@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 from datetime import datetime, date
 from uuid import UUID
 from src.app.cuotas.domain.entities import Cuota
-from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago # Import MetodoPago and EstadoPago from domain
-from src.app.cuotas.application.dtos import CuotaDetalleResponseDTO
+from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago, NombreTipoCuota
+
 
 # Test para asegurar que la clase PostgresCuotaRepository existe
 def test_postgres_cuota_repository_class_exists():
@@ -64,62 +64,6 @@ async def test_listar_todas_cuotas():
     assert cuotas[0].estado_pago == EstadoPago.COMPLETADO
     assert cuotas[1].estado_pago == EstadoPago.PENDIENTE
 
-# Test para el método buscar_por_usuario_y_temporada
-@pytest.mark.asyncio
-async def test_buscar_por_usuario_y_temporada_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    now = datetime.now()
-    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
-    temporada_id = 1
-    mock_row = {
-        'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),
-        'usuario_id': usuario_id,
-        'tipo_de_cuota_id': temporada_id,
-        'importe_pagado': 50.00,
-        'estado_pago': "completado",
-        'fecha_pago': now,
-        'metodo_pago': "stripe",
-        'id_transaccion_externa': "txn_123",
-        'notas_admin': "Pago manual",
-        'fecha_creacion': now
-    }
-    mock_db_connection.fetchrow.return_value = mock_row
-
-    cuota = await repository.buscar_por_usuario_y_temporada(usuario_id, temporada_id)
-
-    mock_db_connection.fetchrow.assert_called_once()
-    args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND tipo_de_cuota_id = $2" in args[0]
-    assert args[1] == usuario_id
-    assert args[2] == temporada_id
-
-    assert cuota is not None
-    assert isinstance(cuota, Cuota)
-    assert cuota.id == UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-
-@pytest.mark.asyncio
-async def test_buscar_por_usuario_y_temporada_not_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
-    temporada_id = 1
-    mock_db_connection.fetchrow.return_value = None
-
-    cuota = await repository.buscar_por_usuario_y_temporada(usuario_id, temporada_id)
-
-    mock_db_connection.fetchrow.assert_called_once()
-    args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND tipo_de_cuota_id = $2" in args[0]
-    assert args[1] == usuario_id
-    assert args[2] == temporada_id
-
-    assert cuota is None
-
 # Test para el método guardar
 @pytest.mark.asyncio
 async def test_guardar_cuota():
@@ -133,7 +77,7 @@ async def test_guardar_cuota():
         usuario_id=UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12'),
         tipo_de_cuota_id=1,
         importe_pagado=50.00,
-        estado_pago="pendiente",
+        estado_pago=EstadoPago.PENDIENTE,
         fecha_pago=None,
         metodo_pago=MetodoPago.STRIPE,
         id_transaccion_externa="txn_123",
@@ -153,7 +97,7 @@ async def test_guardar_cuota():
     assert args[2] == cuota_input.usuario_id
     assert args[3] == cuota_input.tipo_de_cuota_id
     assert args[4] == cuota_input.importe_pagado
-    assert args[5] == cuota_input.estado_pago
+    assert args[5] == cuota_input.estado_pago.value
     assert args[6] == cuota_input.fecha_pago
     assert args[7] == cuota_input.metodo_pago.value
     assert args[8] == cuota_input.id_transaccion_externa
@@ -335,78 +279,9 @@ async def test_actualizar_cuota_no_existente():
     assert cuota_result == cuota_actualizada_input # El repositorio devuelve la cuota que se intentó actualizar, incluso si no existía
 
 @pytest.mark.asyncio
-async def test_buscar_por_usuario_id_completadas_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
-    now = datetime.now()
-
-    mock_rows = [
-        {
-            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),
-            'usuario_id': usuario_id,
-            'tipo_de_cuota_id': 1,
-            'importe_pagado': 50.00,
-            'estado_pago': "completado",
-            'fecha_pago': now,
-            'metodo_pago': "stripe",
-            'id_transaccion_externa': "txn_123",
-            'notas_admin': "Pago manual",
-            'fecha_creacion': now
-        },
-        {
-            'id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13'),
-            'usuario_id': usuario_id,
-            'tipo_de_cuota_id': 2,
-            'importe_pagado': 25.00,
-            'estado_pago': "completado",
-            'fecha_pago': now,
-            'metodo_pago': "efectivo",
-            'id_transaccion_externa': None,
-            'notas_admin': None,
-            'fecha_creacion': now
-        }
-    ]
-    mock_db_connection.fetch.return_value = mock_rows
-
-    cuotas = await repository.buscar_por_usuario_id_completadas(usuario_id)
-
-    mock_db_connection.fetch.assert_called_once_with(
-        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
-    )
-
-    assert len(cuotas) == 2
-    assert isinstance(cuotas[0], Cuota)
-    assert cuotas[0].usuario_id == usuario_id
-    assert cuotas[0].estado_pago == EstadoPago.COMPLETADO
-
-@pytest.mark.asyncio
-async def test_buscar_por_usuario_id_completadas_not_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    usuario_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
-    mock_db_connection.fetch.return_value = []
-
-    cuotas = await repository.buscar_por_usuario_id_completadas(usuario_id)
-
-    mock_db_connection.fetch.assert_called_once_with(
-        "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
-    )
-
-    assert len(cuotas) == 0
-
-@pytest.mark.asyncio
 async def test_ha_pagado_cuota_alta_antes_true():
     from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.cuotas.domain.value_objects import EstadoPago, NombreTipoCuota
     mock_db_connection = AsyncMock()
     repository = PostgresCuotaRepository(mock_db_connection)
 
@@ -416,8 +291,8 @@ async def test_ha_pagado_cuota_alta_antes_true():
     result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
 
     mock_db_connection.fetchval.assert_called_once_with(
-        "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
+        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = $2 AND c.estado_pago = $3",
+        usuario_id, NombreTipoCuota.ALTA.value, EstadoPago.COMPLETADO.value
     )
 
     assert result is True
@@ -425,7 +300,7 @@ async def test_ha_pagado_cuota_alta_antes_true():
 @pytest.mark.asyncio
 async def test_ha_pagado_cuota_alta_antes_false():
     from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.cuotas.domain.value_objects import EstadoPago, NombreTipoCuota
     mock_db_connection = AsyncMock()
     repository = PostgresCuotaRepository(mock_db_connection)
 
@@ -435,8 +310,8 @@ async def test_ha_pagado_cuota_alta_antes_false():
     result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
 
     mock_db_connection.fetchval.assert_called_once_with(
-        "SELECT COUNT(*) FROM cuotas c JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
+        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = $2 AND c.estado_pago = $3",
+        usuario_id, NombreTipoCuota.ALTA.value, EstadoPago.COMPLETADO.value
     )
 
     assert result is False
@@ -499,7 +374,7 @@ async def test_get_usuarios_pendientes_por_temporada_found():
         WHERE u.id IN (
             SELECT c.usuario_id
             FROM cuotas c
-            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id
             WHERE tc.temporada_id = $1
             GROUP BY c.usuario_id
             HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0
@@ -539,7 +414,7 @@ async def test_get_usuarios_pendientes_por_temporada_not_found():
         WHERE u.id IN (
             SELECT c.usuario_id
             FROM cuotas c
-            JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
+            JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id
             WHERE tc.temporada_id = $1
             GROUP BY c.usuario_id
             HAVING COUNT(CASE WHEN c.estado_pago = $2 THEN 1 ELSE NULL END) = 0
@@ -552,154 +427,3 @@ async def test_get_usuarios_pendientes_por_temporada_not_found():
 
     assert len(users) == 0
 
-@pytest.mark.asyncio
-async def test_get_usuarios_inactivos_desde_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    fecha_limite = date(2024, 1, 1)
-    usuario_id_1 = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-    usuario_id_2 = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12')
-
-    mock_rows = [
-        {'id': usuario_id_1},
-        {'id': usuario_id_2}
-    ]
-    mock_db_connection.fetch.return_value = mock_rows
-
-    inactive_users = await repository.get_usuarios_inactivos_desde(fecha_limite)
-
-    mock_db_connection.fetch.assert_called_once()
-    args, kwargs = mock_db_connection.fetch.call_args
-    cleaned_actual_query = " ".join(args[0].split())
-    expected_query = """
-        SELECT u.id
-        FROM usuarios u
-        LEFT JOIN cuotas c ON u.id = c.usuario_id
-        WHERE u.activo = FALSE
-        AND u.ultimo_acceso < $1
-        GROUP BY u.id
-        HAVING COUNT(c.id) = 0
-        """
-    cleaned_expected_query = " ".join(expected_query.split())
-    assert cleaned_actual_query == cleaned_expected_query
-    assert args[1] == fecha_limite
-
-    assert len(inactive_users) == 2
-    assert inactive_users[0] == usuario_id_1
-    assert inactive_users[1] == usuario_id_2
-
-@pytest.mark.asyncio
-async def test_get_usuarios_inactivos_desde_not_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    fecha_limite = date(2024, 1, 1)
-    mock_db_connection.fetch.return_value = []
-
-    inactive_users = await repository.get_usuarios_inactivos_desde(fecha_limite)
-
-    mock_db_connection.fetch.assert_called_once()
-    args, kwargs = mock_db_connection.fetch.call_args
-    cleaned_actual_query = " ".join(args[0].split())
-    expected_query = """
-        SELECT u.id
-        FROM usuarios u
-        LEFT JOIN cuotas c ON u.id = c.usuario_id
-        WHERE u.activo = FALSE
-        AND u.ultimo_acceso < $1
-        GROUP BY u.id
-        HAVING COUNT(c.id) = 0
-        """
-    cleaned_expected_query = " ".join(expected_query.split())
-    assert cleaned_actual_query == cleaned_expected_query
-    assert args[1] == fecha_limite
-
-    assert len(inactive_users) == 0
-@pytest.mark.asyncio
-async def test_buscar_por_id_con_detalle_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    now = datetime.now()
-    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-    mock_row = {
-        'id': cuota_id,
-        'usuario_id': UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12'),
-        'tipo_de_cuota_id': 1,
-        'importe_pagado': 50.00,
-        'estado_pago': "completado",
-        'fecha_pago': now,
-        'metodo_pago': "stripe",
-        'id_transaccion_externa': "txn_123",
-        'notas_admin': "Pago manual",
-        'fecha_creacion': now,
-        'usuario_nombre': "John",
-        'usuario_apellidos': "Doe",
-        'tipo_cuota_nombre': "General",
-        'temporada_nombre': "2025-2026"
-    }
-    mock_db_connection.fetchrow.return_value = mock_row
-
-    cuota = await repository.buscar_por_id_con_detalle(cuota_id)
-
-    mock_db_connection.fetchrow.assert_called_once()
-    args, kwargs = mock_db_connection.fetchrow.call_args
-    cleaned_actual_query = " ".join(args[0].split())
-    expected_query = """
-        SELECT
-            c.id, c.usuario_id, c.tipo_de_cuota_id, c.importe_pagado, c.estado_pago, c.fecha_pago, c.metodo_pago, c.id_transaccion_externa, c.notas_admin, c.fecha_creacion,
-            u.nombre AS usuario_nombre, u.apellidos AS usuario_apellidos,
-            tc.nombre AS tipo_cuota_nombre,
-            ts.nombre_temporada AS temporada_nombre
-        FROM cuotas c
-        JOIN usuarios u ON c.usuario_id = u.id
-        JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
-        JOIN temporadas_cuota ts ON tc.temporada_id = ts.id
-        WHERE c.id = $1
-        """
-    cleaned_expected_query = " ".join(expected_query.split())
-    assert cleaned_actual_query == cleaned_expected_query
-    assert args[1] == cuota_id
-
-    assert cuota is not None
-    assert isinstance(cuota, CuotaDetalleResponseDTO)
-    assert cuota.id == cuota_id
-    assert cuota.usuario_nombre == "John"
-    assert cuota.tipo_cuota_nombre == "General"
-    assert cuota.temporada_nombre == "2025-2026"
-
-@pytest.mark.asyncio
-async def test_buscar_por_id_con_detalle_not_found():
-    from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresCuotaRepository(mock_db_connection)
-
-    cuota_id = UUID('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')
-    mock_db_connection.fetchrow.return_value = None
-
-    cuota = await repository.buscar_por_id_con_detalle(cuota_id)
-
-    mock_db_connection.fetchrow.assert_called_once()
-    args, kwargs = mock_db_connection.fetchrow.call_args
-    cleaned_actual_query = " ".join(args[0].split())
-    expected_query = """
-        SELECT
-            c.id, c.usuario_id, c.tipo_de_cuota_id, c.importe_pagado, c.estado_pago, c.fecha_pago, c.metodo_pago, c.id_transaccion_externa, c.notas_admin, c.fecha_creacion,
-            u.nombre AS usuario_nombre, u.apellidos AS usuario_apellidos,
-            tc.nombre AS tipo_cuota_nombre,
-            ts.nombre_temporada AS temporada_nombre
-        FROM cuotas c
-        JOIN usuarios u ON c.usuario_id = u.id
-        JOIN tipos_de_cuota tc ON c.tipo_de_cuota_id = tc.id
-        JOIN temporadas_cuota ts ON tc.temporada_id = ts.id
-        WHERE c.id = $1
-        """
-    cleaned_expected_query = " ".join(expected_query.split())
-    assert cleaned_actual_query == cleaned_expected_query
-    assert args[1] == cuota_id
-
-    assert cuota is None

@@ -27,7 +27,9 @@ class UsuarioModel(Base):
 
 class TokenModel(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    usuario_id = Column(UUID(as_uuid=True), ForeignKey('usuarios.id'), nullable=False, index=True)
+<<<<<<< HEAD
+    usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False, index=True)
+>>>>>>> feature/cuotas-presentation-layer
     hash_token = Column(String, unique=True, nullable=False, index=True)
     tipo_token = Column(SQLAlchemyEnum(TipoToken), nullable=False)
     fecha_expiracion = Column(DateTime(timezone=True), nullable=False)

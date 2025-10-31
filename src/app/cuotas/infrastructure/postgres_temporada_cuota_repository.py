@@ -10,7 +10,7 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
 
     async def guardar_temporada(self, temporada: TemporadaCuota) -> TemporadaCuota:
         query = """
-        INSERT INTO temporadas_cuota (nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion)
+        INSERT INTO temporadacuotas (nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion)
         VALUES ($1, $2, $3, $4)
         RETURNING id
         """
@@ -29,7 +29,7 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
         return temporada
 
     async def listar_todas(self) -> List[TemporadaCuota]:
-        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadas_cuota ORDER BY fecha_inicio DESC"
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas ORDER BY fecha_inicio DESC"
         rows = await self.db_connection.fetch(query)
         return [
             TemporadaCuota(
@@ -43,7 +43,7 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
 
     async def actualizar(self, temporada: TemporadaCuota) -> TemporadaCuota:
         query = """
-        UPDATE temporadas_cuota
+        UPDATE temporadacuotas
         SET nombre_temporada = $1, fecha_inicio = $2, fecha_fin = $3
         WHERE id = $4
         """
@@ -56,8 +56,21 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
         )
         return temporada
 
+    async def buscar_por_id(self, temporada_id: int) -> Optional[TemporadaCuota]:
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE id = $1"
+        row = await self.db_connection.fetchrow(query, temporada_id)
+        if row:
+            return TemporadaCuota(
+                id=row['id'],
+                nombre_temporada=row['nombre_temporada'],
+                fecha_inicio=row['fecha_inicio'],
+                fecha_fin=row['fecha_fin'],
+                fecha_creacion=row['fecha_creacion']
+            )
+        return None
+
     async def get_temporada_activa(self) -> Optional[TemporadaCuota]:
-        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadas_cuota WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE"
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, fecha_creacion FROM temporadacuotas WHERE fecha_inicio <= CURRENT_DATE AND fecha_fin >= CURRENT_DATE"
         row = await self.db_connection.fetchrow(query)
         if row:
             return TemporadaCuota(

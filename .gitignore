@@ -116,6 +116,7 @@ docker-compose.yml
 .gemini/
 
 gemini.md
-
+diagrama_pagos.md
+diagrama_pagos.md
 test_sendgrid.py
 temp_test_session.py

@@ -141,3 +141,16 @@ class PostgresUserRepository(IUserRepository):
     async def eliminar_por_id(self, user_id: UUID) -> None:
         query = "DELETE FROM usuarios WHERE id = $1"
         await self.db_connection.execute(query, user_id)
+
+    async def desactivar_usuarios(self, user_ids: List[UUID]) -> None:
+        if not user_ids:
+            return
+        # Convert UUIDs to string for the IN clause
+        user_ids_str = [str(uid) for uid in user_ids]
+        # Using UNNEST for a more efficient way to pass a list of UUIDs
+        query = """
+        UPDATE usuarios
+        SET esta_activo = FALSE, fecha_actualizacion = $1
+        WHERE id = ANY($2::uuid[])
+        """
+        await self.db_connection.execute(query, datetime.now(timezone.utc), user_ids_str)

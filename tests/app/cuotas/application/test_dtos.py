@@ -2,10 +2,10 @@ import pytest
 from pydantic import BaseModel
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Optional, get_type_hints
 from uuid import UUID
 
-from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
+from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago, NombreTipoCuota # Importar NombreTipoCuota
 from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.users.domain.value_objects import Rol
 
@@ -23,7 +23,7 @@ def test_tipo_cuota_dto():
     assert issubclass(TipoCuotaDTO, BaseModel)
     fields = TipoCuotaDTO.__annotations__
     assert fields['id'] == int
-    assert fields['nombre'] == str
+    assert fields['nombre'] == NombreTipoCuota # Cambiado a NombreTipoCuota
     assert fields['importe'] == Decimal
     assert fields['fecha_creacion'] == datetime
 
@@ -101,10 +101,10 @@ def test_intento_pago_dto():
     assert fields['url_pago'] == str
 
 def test_historial_cuotas_dto():
-    from src.app.cuotas.application.dtos import HistorialCuotasDTO, CuotaDTO
+    from src.app.cuotas.application.dtos import HistorialCuotasDTO, CuotaDetalleResponseDTO
     assert issubclass(HistorialCuotasDTO, BaseModel)
-    fields = HistorialCuotasDTO.__annotations__
-    assert fields['historial'] == List[CuotaDTO]
+    resolved_hints = get_type_hints(HistorialCuotasDTO)
+    assert resolved_hints['historial'] == List[CuotaDetalleResponseDTO]
 
 def test_detalle_cuota_dto():
     from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO
@@ -113,21 +113,12 @@ def test_detalle_cuota_dto():
     assert fields['cuota'] == CuotaDTO
     assert fields['temporada'] == TemporadaDTO
 
-def test_registrar_cuota_manual_dto():
-    from src.app.cuotas.application.dtos import RegistrarCuotaManualDTO
-    assert issubclass(RegistrarCuotaManualDTO, BaseModel)
-    fields = RegistrarCuotaManualDTO.__annotations__
-    assert fields['usuario_id'] == UUID
-    assert fields['tipo_cuota_id'] == int
-    assert fields['importe'] == Decimal
-    assert fields['metodo'] == MetodoPago
-    assert fields['notas'] == Optional[str]
 
 def test_informe_pendientes_dto():
-    from src.app.cuotas.application.dtos import InformePendientesDTO
+    from src.app.cuotas.application.dtos import InformePendientesDTO, UsuarioConCuotaPendienteDTO
     assert issubclass(InformePendientesDTO, BaseModel)
     fields = InformePendientesDTO.__annotations__
-    assert fields['pendientes'] == List[UsuarioResponseDTO]
+    assert fields['pendientes'] == List[UsuarioConCuotaPendienteDTO]
 
 def test_usuario_policy_dto():
     from src.app.cuotas.application.dtos import UsuarioPolicyDTO

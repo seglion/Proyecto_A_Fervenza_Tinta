@@ -4,13 +4,13 @@ from decimal import Decimal
 from typing import List
 from uuid import UUID, uuid4
 
-from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
+from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago, NombreTipoCuota
 
 @dataclass
 class TipoCuota:
     id: int
     temporada_id: int
-    nombre: str
+    nombre: NombreTipoCuota
     importe: Decimal
     fecha_creacion: datetime
 

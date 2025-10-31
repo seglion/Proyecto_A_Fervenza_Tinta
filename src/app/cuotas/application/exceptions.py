@@ -11,7 +11,9 @@ class UnauthorizedException(CuotaException):
 class TemporadaNoEncontrada(CuotaException):
     def __init__(self, detail: str = "Season not found."):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
-
+class TipoCuotaNoEncontrado(CuotaException):
+    def __init__(self, detail: str = "Fee Type not found."):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 class CuotaNoEncontrada(CuotaException):
     def __init__(self, detail: str = "Fee not found."):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)

@@ -89,7 +89,7 @@ erDiagram
 
 -----
 
-## Tabla: temporadas\_cuota
+## Tabla: temporadascuotas
 
 | Nombre de Columna | Tipo de Dato | Restricciones / Notas |
 | :--- | :--- | :--- |
@@ -99,7 +99,7 @@ erDiagram
 | **fecha\_fin** | DATE | No Nulo. Ej: '2026-07-25' |
 | **fecha\_creacion** | TIMESTAMPZ | No Nulo |
 
-## Tabla: tipos\_de\_cuota 
+## Tabla: tipocuotas 
 
 | Nombre de Columna | Tipo de Dato | Restricciones / Notas |
 | :--- | :--- | :--- |
@@ -714,41 +714,3 @@ deactivate Stripe
 @enduml
 ```
 
------
-
-### CASO DE USO 12: Desactivar Socios Inactivos
-
-```plantuml
-@startuml
-!theme materia
-title Secuencia: 12. Desactivar Socios Inactivos
-
-actor Sistema
-participant "Scheduler (CronJob)" as Scheduler
-participant "DesactivarSociosInactivosUseCase" as UseCase
-participant "ICuotaRepository" as CuotaRepo
-participant "IUsuarioRepository" as UserRepo
-
-activate Scheduler
-Scheduler -> UseCase: execute()
-activate UseCase
-
-' 1. Encontrar IDs de usuarios inactivos (lógica en el repo de cuotas)
-UseCase -> CuotaRepo: get_usuarios_inactivos_desde(fecha_limite)
-activate CuotaRepo
-CuotaRepo --> UseCase: (lista_de_ids_usuarios_a_desactivar)
-deactivate CuotaRepo
-
-' 2. Desactivar a esos usuarios (lógica en el repo de usuarios)
-alt Hay usuarios para desactivar
-    UseCase -> UserRepo: desactivar_usuarios(lista_de_ids)
-    activate UserRepo
-    UserRepo --> UseCase: (éxito)
-    deactivate UserRepo
-end
-
-UseCase --> Scheduler: (reporte_de_ejecucion)
-deactivate UseCase
-deactivate Scheduler
-@enduml
-```

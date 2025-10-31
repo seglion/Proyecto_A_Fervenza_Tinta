@@ -19,7 +19,7 @@ class ActualizarTemporadaUseCase:
         self.cuota_policy = cuota_policy
 
     async def execute(self, user: User, temporada_id: int, dto: ActualizarTemporadaDTO) -> TemporadaDTO:
-        user_policy_dto = UsuarioPolicyDTO(rol=user.rol, esta_activo=user.esta_activo)
+        user_policy_dto = UsuarioPolicyDTO(rol=user.rol.value, esta_activo=user.esta_activo)
         if not self.cuota_policy.es_administrador(user_policy_dto):
             raise UnauthorizedException("Not authorized to update a season.")
 
