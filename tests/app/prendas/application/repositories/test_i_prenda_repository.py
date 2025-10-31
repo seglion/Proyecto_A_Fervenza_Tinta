@@ -2,6 +2,8 @@ import os
 import pytest
 import inspect
 from abc import ABC, abstractmethod
+from typing import List, Optional
+from uuid import UUID
 
 import src.app.prendas.application.repositories.i_prenda_repository as i_prenda_repository_module
 from src.app.prendas.domain.entities import Prenda
@@ -20,3 +22,13 @@ def test_listar_todas_method_exists():
     assert hasattr(i_prenda_repository_module.IPrendaRepository, "listar_todas"), "El método listar_todas no existe en IPrendaRepository"
     assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.listar_todas), "listar_todas no es una función"
     assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.listar_todas), "listar_todas no es un método abstracto"
+
+def test_buscar_por_id_con_variantes_method_exists():
+    assert hasattr(i_prenda_repository_module.IPrendaRepository, "buscar_por_id_con_variantes"), "El método buscar_por_id_con_variantes no existe en IPrendaRepository"
+    assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.buscar_por_id_con_variantes), "buscar_por_id_con_variantes no es una función"
+    assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.buscar_por_id_con_variantes), "buscar_por_id_con_variantes no es un método abstracto"
+
+def test_guardar_method_exists():
+    assert hasattr(i_prenda_repository_module.IPrendaRepository, "guardar"), "El método guardar no existe en IPrendaRepository"
+    assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.guardar), "guardar no es una función"
+    assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.guardar), "guardar no es un método abstracto"
