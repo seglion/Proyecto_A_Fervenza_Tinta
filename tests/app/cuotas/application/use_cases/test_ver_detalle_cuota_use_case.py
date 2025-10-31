@@ -13,6 +13,7 @@ from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.cuotas.domain.entities import Cuota, TipoCuota, TemporadaCuota
 from src.app.cuotas.application.dtos import DetalleCuotaDTO
+from src.app.cuotas.domain.value_objects import NombreTipoCuota
 
 @pytest.mark.asyncio
 async def test_use_case_initialization():
@@ -64,7 +65,7 @@ async def test_ver_detalle_cuota_success():
 
     cuota_existente = Cuota(id=cuota_id, usuario_id=usuario_id, tipo_de_cuota_id=tipo_cuota_id, importe_pagado=50, estado_pago="completado", fecha_creacion=datetime.now())
     usuario_existente = User(id=usuario_id, rol=Rol.USUARIO, email="user@example.com", contrasena_hasheada="", nombre="Test", apellidos="User", numero_telefono="", esta_activo=True)
-    tipo_cuota_existente = TipoCuota(id=tipo_cuota_id, temporada_id=temporada_id, nombre="General", importe=50, fecha_creacion=datetime.now())
+    tipo_cuota_existente = TipoCuota(id=tipo_cuota_id, temporada_id=temporada_id, nombre=NombreTipoCuota.SOCIO, importe=50, fecha_creacion=datetime.now())
     temporada_existente = TemporadaCuota(id=temporada_id, nombre_temporada="2025-2026", fecha_inicio=date.today(), fecha_fin=date.today(), fecha_creacion=datetime.now())
 
     mock_policy.es_administrador.return_value = True

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import (
-    Column, String, Boolean, DateTime, Enum as SQLAlchemyEnum
+    Column, String, Boolean, DateTime, Enum as SQLAlchemyEnum, ForeignKey
 )
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
@@ -27,7 +27,7 @@ class UsuarioModel(Base):
 
 class TokenModel(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    usuario_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    usuario_id = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False, index=True)
     hash_token = Column(String, unique=True, nullable=False, index=True)
     tipo_token = Column(SQLAlchemyEnum(TipoToken), nullable=False)
     fecha_expiracion = Column(DateTime(timezone=True), nullable=False)

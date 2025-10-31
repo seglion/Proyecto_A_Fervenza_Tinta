@@ -29,7 +29,7 @@ class ObtenerGenerarMiCuotaUseCase:
         if not temporada_activa:
             raise TemporadaNoEncontrada("No hay temporada activa en este momento.")
 
-        cuota_existente = await self.cuota_repository.buscar_por_usuario_y_temporada(user.id, temporada_activa.id)
+        cuota_existente = await self.cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada(user.id, temporada_activa.id)
 
         if cuota_existente:
             return CuotaDTO(

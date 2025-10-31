@@ -48,7 +48,7 @@ class GenerarInformePendientesUseCase:
         reporte_pendientes = []
 
         for current_user in all_users:
-            cuota_del_usuario = await self.cuota_repository.buscar_por_usuario_y_temporada(current_user.id, temporada_activa.id)
+            cuota_del_usuario = await self.cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada(current_user.id, temporada_activa.id)
 
             if not cuota_del_usuario:
                 # Si no tiene cuota para la temporada activa, se la creamos pendiente

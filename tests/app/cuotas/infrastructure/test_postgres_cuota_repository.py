@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from datetime import datetime, date
 from uuid import UUID
 from src.app.cuotas.domain.entities import Cuota
-from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago # Import MetodoPago and EstadoPago from domain
+from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago, NombreTipoCuota
 from src.app.cuotas.application.dtos import CuotaDetalleResponseDTO
 
 # Test para asegurar que la clase PostgresCuotaRepository existe
@@ -406,7 +406,7 @@ async def test_buscar_por_usuario_id_completadas_not_found():
 @pytest.mark.asyncio
 async def test_ha_pagado_cuota_alta_antes_true():
     from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.cuotas.domain.value_objects import EstadoPago, NombreTipoCuota
     mock_db_connection = AsyncMock()
     repository = PostgresCuotaRepository(mock_db_connection)
 
@@ -416,8 +416,8 @@ async def test_ha_pagado_cuota_alta_antes_true():
     result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
 
     mock_db_connection.fetchval.assert_called_once_with(
-        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
+        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = $2 AND c.estado_pago = $3",
+        usuario_id, NombreTipoCuota.ALTA.value, EstadoPago.COMPLETADO.value
     )
 
     assert result is True
@@ -425,7 +425,7 @@ async def test_ha_pagado_cuota_alta_antes_true():
 @pytest.mark.asyncio
 async def test_ha_pagado_cuota_alta_antes_false():
     from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
-    from src.app.cuotas.domain.value_objects import EstadoPago
+    from src.app.cuotas.domain.value_objects import EstadoPago, NombreTipoCuota
     mock_db_connection = AsyncMock()
     repository = PostgresCuotaRepository(mock_db_connection)
 
@@ -435,8 +435,8 @@ async def test_ha_pagado_cuota_alta_antes_false():
     result = await repository.ha_pagado_cuota_alta_antes(usuario_id)
 
     mock_db_connection.fetchval.assert_called_once_with(
-        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = 'Cuota de Alta' AND c.estado_pago = $2",
-        usuario_id, EstadoPago.COMPLETADO.value
+        "SELECT COUNT(*) FROM cuotas c JOIN tipocuotas tc ON c.tipo_de_cuota_id = tc.id WHERE c.usuario_id = $1 AND tc.nombre = $2 AND c.estado_pago = $3",
+        usuario_id, NombreTipoCuota.ALTA.value, EstadoPago.COMPLETADO.value
     )
 
     assert result is False

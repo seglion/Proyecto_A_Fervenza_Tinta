@@ -12,7 +12,7 @@ from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.cuotas.domain.entities import Cuota, TemporadaCuota, TipoCuota
-from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
+from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago, NombreTipoCuota
 from src.app.cuotas.application.dtos import CuotaDTO
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
 
@@ -67,10 +67,10 @@ def cuota_existente(user_registrado, temporada_activa):
         tipo_de_cuota_id=1,
         importe_pagado=Decimal("50.00"),
         estado_pago=EstadoPago.PENDIENTE,
-        fecha_pago=None,
-        metodo_pago=None,
-        id_transaccion_externa=None,
-        notas_admin=None,
+        fecha_pago=datetime.now(), # Asignar un valor concreto
+        metodo_pago=MetodoPago.STRIPE, # Asignar un valor concreto
+        id_transaccion_externa="existing_transaction_id", # Asignar un valor concreto
+        notas_admin="existing_notes", # Asignar un valor concreto
         fecha_creacion=datetime.now()
     )
 
@@ -79,7 +79,7 @@ def tipo_cuota_general(temporada_activa):
     return TipoCuota(
         id=10,
         temporada_id=temporada_activa.id,
-        nombre="Cuota General",
+        nombre=NombreTipoCuota.SOCIO,
         importe=Decimal("100.00"),
         fecha_creacion=datetime.now()
     )
@@ -89,7 +89,7 @@ def tipo_cuota_nuevo_socio(temporada_activa):
     return TipoCuota(
         id=11,
         temporada_id=temporada_activa.id,
-        nombre="Cuota Nuevo Socio",
+        nombre=NombreTipoCuota.ALTA,
         importe=Decimal("50.00"),
         fecha_creacion=datetime.now()
     )
@@ -106,21 +106,19 @@ async def test_obtener_generar_mi_cuota_use_case_returns_cuota_dto_on_pass(
 ):
     # Arrange
     mock_temporada_cuota_repository.get_temporada_activa.return_value = temporada_activa
-    mock_cuota_repository.buscar_por_usuario_y_temporada.return_value = None
-    mock_cuota_repository.ha_pagado_cuota_alta_antes.return_value = True # Para que entre en la rama de socio antiguo
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.return_value = None
+    mock_cuota_repository.ha_pagado_cuota_alta_antes.return_value = True
     mock_tipo_cuota_repository.get_tipo_cuota_general.return_value = tipo_cuota_general
-    mock_cuota_repository.guardar.return_value = Cuota(
+    
+    generated_cuota = Cuota(
         id=uuid4(),
         usuario_id=user_registrado.id,
         tipo_de_cuota_id=tipo_cuota_general.id,
         importe_pagado=tipo_cuota_general.importe,
         estado_pago=EstadoPago.PENDIENTE,
-        fecha_pago=None,
-        metodo_pago=None,
-        id_transaccion_externa=None,
-        notas_admin=None,
         fecha_creacion=datetime.now()
     )
+    mock_cuota_repository.guardar.return_value = generated_cuota
 
     use_case = ObtenerGenerarMiCuotaUseCase(
         cuota_repository=mock_cuota_repository,
@@ -134,11 +132,11 @@ async def test_obtener_generar_mi_cuota_use_case_returns_cuota_dto_on_pass(
 
     # Assert
     assert isinstance(result, CuotaDTO)
-    assert result.estado_pago.value == EstadoPago.PENDIENTE.value
+    assert result.estado_pago == EstadoPago.PENDIENTE
     assert result.tipo_de_cuota_id == tipo_cuota_general.id
     assert result.importe_pagado == tipo_cuota_general.importe
     mock_temporada_cuota_repository.get_temporada_activa.assert_called_once()
-    mock_cuota_repository.buscar_por_usuario_y_temporada.assert_called_once_with(
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.assert_called_once_with(
         user_registrado.id, temporada_activa.id
     )
     mock_cuota_repository.ha_pagado_cuota_alta_antes.assert_called_once_with(user_registrado.id)
@@ -168,7 +166,7 @@ async def test_obtener_generar_mi_cuota_use_case_raises_exception_if_no_active_s
         await use_case.execute(user_registrado)
 
     mock_temporada_cuota_repository.get_temporada_activa.assert_called_once()
-    mock_cuota_repository.buscar_por_usuario_y_temporada.assert_not_called()
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.assert_not_called()
     mock_cuota_repository.guardar.assert_not_called()
 
 @pytest.mark.asyncio
@@ -183,7 +181,7 @@ async def test_obtener_generar_mi_cuota_use_case_returns_existing_cuota_if_found
 ):
     # Arrange
     mock_temporada_cuota_repository.get_temporada_activa.return_value = temporada_activa
-    mock_cuota_repository.buscar_por_usuario_y_temporada.return_value = cuota_existente
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.return_value = cuota_existente
 
     use_case = ObtenerGenerarMiCuotaUseCase(
         cuota_repository=mock_cuota_repository,
@@ -197,9 +195,9 @@ async def test_obtener_generar_mi_cuota_use_case_returns_existing_cuota_if_found
 
     # Assert
     assert result.id == cuota_existente.id
-    assert result.estado_pago.value == cuota_existente.estado_pago.value
+    assert result.estado_pago == cuota_existente.estado_pago
     mock_temporada_cuota_repository.get_temporada_activa.assert_called_once()
-    mock_cuota_repository.buscar_por_usuario_y_temporada.assert_called_once_with(
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.assert_called_once_with(
         user_registrado.id, temporada_activa.id
     )
     mock_cuota_repository.guardar.assert_not_called()
@@ -216,21 +214,19 @@ async def test_obtener_generar_mi_cuota_use_case_generates_general_cuota_for_old
 ):
     # Arrange
     mock_temporada_cuota_repository.get_temporada_activa.return_value = temporada_activa
-    mock_cuota_repository.buscar_por_usuario_y_temporada.return_value = None
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.return_value = None
     mock_cuota_repository.ha_pagado_cuota_alta_antes.return_value = True # Es socio antiguo
     mock_tipo_cuota_repository.get_tipo_cuota_general.return_value = tipo_cuota_general
-    mock_cuota_repository.guardar.return_value = Cuota(
+    
+    generated_cuota = Cuota(
         id=uuid4(),
         usuario_id=user_registrado.id,
         tipo_de_cuota_id=tipo_cuota_general.id,
         importe_pagado=tipo_cuota_general.importe,
         estado_pago=EstadoPago.PENDIENTE,
-        fecha_pago=None,
-        metodo_pago=None,
-        id_transaccion_externa=None,
-        notas_admin=None,
         fecha_creacion=datetime.now()
     )
+    mock_cuota_repository.guardar.return_value = generated_cuota
 
     use_case = ObtenerGenerarMiCuotaUseCase(
         cuota_repository=mock_cuota_repository,
@@ -244,11 +240,11 @@ async def test_obtener_generar_mi_cuota_use_case_generates_general_cuota_for_old
 
     # Assert
     assert isinstance(result, CuotaDTO)
-    assert result.estado_pago.value == EstadoPago.PENDIENTE.value
+    assert result.estado_pago == EstadoPago.PENDIENTE
     assert result.tipo_de_cuota_id == tipo_cuota_general.id
     assert result.importe_pagado == tipo_cuota_general.importe
     mock_temporada_cuota_repository.get_temporada_activa.assert_called_once()
-    mock_cuota_repository.buscar_por_usuario_y_temporada.assert_called_once_with(
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.assert_called_once_with(
         user_registrado.id, temporada_activa.id
     )
     mock_cuota_repository.ha_pagado_cuota_alta_antes.assert_called_once_with(user_registrado.id)
@@ -267,21 +263,19 @@ async def test_obtener_generar_mi_cuota_use_case_generates_new_member_cuota_if_n
 ):
     # Arrange
     mock_temporada_cuota_repository.get_temporada_activa.return_value = temporada_activa
-    mock_cuota_repository.buscar_por_usuario_y_temporada.return_value = None
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.return_value = None
     mock_cuota_repository.ha_pagado_cuota_alta_antes.return_value = False # Es socio nuevo
     mock_tipo_cuota_repository.get_tipo_cuota_nuevo_socio.return_value = tipo_cuota_nuevo_socio
-    mock_cuota_repository.guardar.return_value = Cuota(
+    
+    generated_cuota = Cuota(
         id=uuid4(),
         usuario_id=user_registrado.id,
         tipo_de_cuota_id=tipo_cuota_nuevo_socio.id,
         importe_pagado=tipo_cuota_nuevo_socio.importe,
         estado_pago=EstadoPago.PENDIENTE,
-        fecha_pago=None,
-        metodo_pago=None,
-        id_transaccion_externa=None,
-        notas_admin=None,
         fecha_creacion=datetime.now()
     )
+    mock_cuota_repository.guardar.return_value = generated_cuota
 
     use_case = ObtenerGenerarMiCuotaUseCase(
         cuota_repository=mock_cuota_repository,
@@ -295,11 +289,11 @@ async def test_obtener_generar_mi_cuota_use_case_generates_new_member_cuota_if_n
 
     # Assert
     assert isinstance(result, CuotaDTO)
-    assert result.estado_pago.value == EstadoPago.PENDIENTE.value
+    assert result.estado_pago == EstadoPago.PENDIENTE
     assert result.tipo_de_cuota_id == tipo_cuota_nuevo_socio.id
     assert result.importe_pagado == tipo_cuota_nuevo_socio.importe
     mock_temporada_cuota_repository.get_temporada_activa.assert_called_once()
-    mock_cuota_repository.buscar_por_usuario_y_temporada.assert_called_once_with(
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.assert_called_once_with(
         user_registrado.id, temporada_activa.id
     )
     mock_cuota_repository.ha_pagado_cuota_alta_antes.assert_called_once_with(user_registrado.id)

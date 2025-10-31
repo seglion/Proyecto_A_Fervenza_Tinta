@@ -9,10 +9,10 @@ from decimal import Decimal
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
-from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case, get_generar_informe_pendientes_use_case
-from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO
+from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case, get_generar_informe_pendientes_use_case, get_consultar_historial_cuotas_use_case
+from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, CuotaDetalleResponseDTO
 from src.app.users.application.dtos import UsuarioResponseDTO
-from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago
+from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago, NombreTipoCuota
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
 
 # ------------------ Fixtures ------------------
@@ -51,7 +51,7 @@ def mock_ver_detalle_cuota_use_case():
     )
     dummy_tipo_cuota_dto = TipoCuotaDTO(
         id=1,
-        nombre="Cuota General",
+        nombre=NombreTipoCuota.SOCIO,
         importe=Decimal("50.00"),
         fecha_creacion=datetime.now()
     )
@@ -72,7 +72,7 @@ def mock_ver_detalle_cuota_use_case():
             fecha_inicio=date(2025, 10, 1),
             fecha_fin=date(2026, 7, 25),
             tipos_cuota=[
-                TipoCuotaDTO(id=1, nombre="Cuota General", importe=Decimal("50.00"), fecha_creacion=datetime.now())
+                TipoCuotaDTO(id=1, nombre=NombreTipoCuota.SOCIO, importe=Decimal("50.00"), fecha_creacion=datetime.now())
             ]
         ),
         tipo_cuota_detalle=dummy_tipo_cuota_dto, # New
@@ -95,6 +95,27 @@ def mock_obtener_generar_mi_cuota_use_case():
 def mock_generar_informe_pendientes_use_case():
     mock = AsyncMock()
     mock.execute.return_value = InformePendientesDTO(pendientes=[])
+    return mock
+
+@pytest.fixture
+def mock_consultar_historial_cuotas_use_case():
+    mock = AsyncMock()
+    detailed_cuota_dto = CuotaDetalleResponseDTO(
+        id=uuid4(),
+        usuario_id=uuid4(),
+        tipo_de_cuota_id=1,
+        importe_pagado=Decimal("50.00"),
+        estado_pago=EstadoPago.COMPLETADO,
+        fecha_pago=datetime.now(),
+        metodo_pago=MetodoPago.STRIPE,
+        id_transaccion_externa="pi_123",
+        notas_admin=None,
+        usuario_nombre="Test",
+        usuario_apellidos="User",
+        tipo_cuota_nombre=NombreTipoCuota.SOCIO,
+        temporada_nombre="2024-2025"
+    )
+    mock.execute.return_value = HistorialCuotasDTO(historial=[detailed_cuota_dto])
     return mock
 
 @pytest.fixture
@@ -212,6 +233,38 @@ async def test_generar_informe_pendientes_success(app_client, admin_user, mock_g
     assert response.status_code == 200
     assert "pendientes" in response.json()
     mock_generar_informe_pendientes_use_case.execute.assert_called_once_with(admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+# ------------------ Tests for ConsultarHistorialCuotas ------------------
+
+@pytest.mark.asyncio
+async def test_consultar_historial_cuotas_success(app_client, non_admin_user_active, mock_consultar_historial_cuotas_use_case):
+    # Arrange
+    app_client.app.dependency_overrides[get_current_user] = lambda: non_admin_user_active
+    app_client.app.dependency_overrides[get_consultar_historial_cuotas_use_case] = lambda: mock_consultar_historial_cuotas_use_case
+    
+    mock_return = mock_consultar_historial_cuotas_use_case.execute.return_value
+    expected_first_item = mock_return.historial[0]
+
+    # Act
+    response = app_client.get("/cuotas/historial")
+    response_json = response.json()
+
+    # Assert
+    assert response.status_code == 200
+    assert "historial" in response_json
+    assert isinstance(response_json["historial"], list)
+    assert len(response_json["historial"]) > 0
+    
+    first_item = response_json["historial"][0]
+    assert first_item["id"] == str(expected_first_item.id)
+    assert first_item["temporada_nombre"] == expected_first_item.temporada_nombre
+    assert first_item["importe_pagado"] == str(expected_first_item.importe_pagado)
+    assert first_item["estado_pago"] == expected_first_item.estado_pago.value
+    
+    mock_consultar_historial_cuotas_use_case.execute.assert_called_once_with(non_admin_user_active)
 
     # Cleanup
     app_client.app.dependency_overrides = {}

@@ -14,6 +14,7 @@ from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
 from src.app.cuotas.presentation.router import get_admin_user
+from src.app.cuotas.domain.value_objects import NombreTipoCuota
 
 # ------------------ Fixtures ------------------
 @pytest.fixture(scope="function")
@@ -100,8 +101,8 @@ async def test_crear_temporada_endpoint_success(app_client, mock_crear_temporada
         "fecha_inicio": "2025-10-01",
         "fecha_fin": "2026-07-25",
         "tipos_cuota": [
-            {"nombre": "Cuota General", "importe": 50.00},
-            {"nombre": "Cuota Nuevo Socio", "importe": 25.00}
+            {"nombre": NombreTipoCuota.SOCIO.value, "importe": 50.00},
+            {"nombre": NombreTipoCuota.ALTA.value, "importe": 25.00}
         ]
     }
 
@@ -127,8 +128,8 @@ async def test_crear_temporada_endpoint_unauthorized(app_client, mock_crear_temp
         "fecha_inicio": "2025-10-01",
         "fecha_fin": "2026-07-25",
         "tipos_cuota": [
-            {"nombre": "Cuota General", "importe": 50.00},
-            {"nombre": "Cuota Nuevo Socio", "importe": 25.00}
+            {"nombre": NombreTipoCuota.SOCIO.value, "importe": 50.00},
+            {"nombre": NombreTipoCuota.ALTA.value, "importe": 25.00}
         ]
     }
 

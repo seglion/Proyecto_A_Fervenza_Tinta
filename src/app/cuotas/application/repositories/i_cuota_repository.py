@@ -12,7 +12,11 @@ class ICuotaRepository(ABC):
         pass
 
     @abstractmethod
-    async def buscar_por_usuario_y_temporada(self, usuario_id: UUID, temporada_id: int) -> Optional[Cuota]:
+    async def buscar_por_usuario_y_temporada(self, usuario_id: UUID, tipo_cuota_id: int) -> Optional[Cuota]:
+        pass
+
+    @abstractmethod
+    async def buscar_cualquier_cuota_por_usuario_y_temporada(self, usuario_id: UUID, temporada_id: int) -> Optional[Cuota]:
         pass
 
     @abstractmethod
@@ -25,6 +29,10 @@ class ICuotaRepository(ABC):
 
     @abstractmethod
     async def actualizar(self, cuota: Cuota) -> Cuota:
+        pass
+
+    @abstractmethod
+    async def buscar_por_usuario_id(self, usuario_id: UUID) -> List[Cuota]:
         pass
 
     @abstractmethod

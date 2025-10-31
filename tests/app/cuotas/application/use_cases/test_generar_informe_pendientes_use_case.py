@@ -13,7 +13,7 @@ from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.cuotas.domain.entities import Cuota, TemporadaCuota, TipoCuota
-from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago
+from src.app.cuotas.domain.value_objects import EstadoPago, MetodoPago, NombreTipoCuota
 from src.app.cuotas.application.dtos import InformePendientesDTO, UsuarioConCuotaPendienteDTO, CuotaDTO, UsuarioPolicyDTO
 from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado
@@ -62,7 +62,7 @@ def tipo_cuota_general(temporada_activa):
     return TipoCuota(
         id=10,
         temporada_id=temporada_activa.id,
-        nombre="Cuota General",
+        nombre=NombreTipoCuota.SOCIO,
         importe=Decimal("100.00"),
         fecha_creacion=datetime.now()
     )
@@ -72,7 +72,7 @@ def tipo_cuota_nuevo_socio(temporada_activa):
     return TipoCuota(
         id=11,
         temporada_id=temporada_activa.id,
-        nombre="Cuota Nuevo Socio",
+        nombre=NombreTipoCuota.ALTA,
         importe=Decimal("150.00"),
         fecha_creacion=datetime.now()
     )
@@ -247,7 +247,7 @@ async def test_generar_informe_pendientes_use_case_generates_report_correctly(
         fecha_pago=datetime.now(), metodo_pago=MetodoPago.EFECTIVO, id_transaccion_externa=None, notas_admin=None, fecha_creacion=datetime.now()
     )
 
-    mock_cuota_repository.buscar_por_usuario_y_temporada.side_effect = [
+    mock_cuota_repository.buscar_cualquier_cuota_por_usuario_y_temporada.side_effect = [
         cuota_user1, # For user1
         None,        # For user2
         None,        # For user3

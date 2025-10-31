@@ -2,6 +2,7 @@ import asyncpg
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.domain.entities import TipoCuota
 from typing import List, Optional
+from src.app.cuotas.domain.value_objects import NombreTipoCuota # Import the new Enum
 
 class PostgresTipoCuotaRepository(ITipoCuotaRepository):
     def __init__(self, db_connection: asyncpg.Connection):
@@ -13,7 +14,7 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
 
         params = []
         for tc in tipos_cuota:
-            params.extend([tc.temporada_id, tc.nombre, tc.importe, tc.fecha_creacion])
+            params.extend([tc.temporada_id, tc.nombre.value, tc.importe, tc.fecha_creacion]) # Use .value for Enum
 
         num_columns = 4
         num_rows = len(tipos_cuota)
@@ -44,7 +45,7 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
 
         for tc in tipos_cuota:
             query = "UPDATE tipocuotas SET nombre = $1, importe = $2 WHERE id = $3"
-            await self.db_connection.execute(query, tc.nombre, tc.importe, tc.id)
+            await self.db_connection.execute(query, tc.nombre.value, tc.importe, tc.id) # Use .value for Enum
             
         return tipos_cuota
 
@@ -55,33 +56,33 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
             TipoCuota(
                 id=row['id'],
                 temporada_id=row['temporada_id'],
-                nombre=row['nombre'],
+                nombre=NombreTipoCuota(row['nombre']), # Instantiate Enum
                 importe=row['importe'],
                 fecha_creacion=row['fecha_creacion']
             ) for row in rows
         ]
 
     async def get_tipo_cuota_general(self, temporada_id: int) -> Optional[TipoCuota]:
-        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))"
-        row = await self.db_connection.fetchrow(query, temporada_id)
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2"
+        row = await self.db_connection.fetchrow(query, temporada_id, NombreTipoCuota.SOCIO.value) # Use Enum value
         if row:
             return TipoCuota(
                 id=row['id'],
                 temporada_id=row['temporada_id'],
-                nombre=row['nombre'],
+                nombre=NombreTipoCuota(row['nombre']), # Instantiate Enum
                 importe=row['importe'],
                 fecha_creacion=row['fecha_creacion']
             )
         return None
 
     async def get_tipo_cuota_nuevo_socio(self, temporada_id: int) -> Optional[TipoCuota]:
-        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))"
-        row = await self.db_connection.fetchrow(query, temporada_id)
+        query = "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2"
+        row = await self.db_connection.fetchrow(query, temporada_id, NombreTipoCuota.ALTA.value) # Use Enum value
         if row:
             return TipoCuota(
                 id=row['id'],
                 temporada_id=row['temporada_id'],
-                nombre=row['nombre'],
+                nombre=NombreTipoCuota(row['nombre']), # Instantiate Enum
                 importe=row['importe'],
                 fecha_creacion=row['fecha_creacion']
             )
@@ -94,7 +95,7 @@ class PostgresTipoCuotaRepository(ITipoCuotaRepository):
             return TipoCuota(
                 id=row['id'],
                 temporada_id=row['temporada_id'],
-                nombre=row['nombre'],
+                nombre=NombreTipoCuota(row['nombre']), # Instantiate Enum
                 importe=row['importe'],
                 fecha_creacion=row['fecha_creacion']
             )
