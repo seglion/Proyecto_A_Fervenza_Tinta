@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock
 from datetime import datetime, date
 from src.app.cuotas.domain.entities import TipoCuota
+from src.app.cuotas.domain.value_objects import NombreTipoCuota # Importar NombreTipoCuota
 
 # Test para asegurar que la clase PostgresTipoCuotaRepository existe
 def test_postgres_tipo_cuota_repository_class_exists():
@@ -27,14 +28,14 @@ async def test_guardar_varios_tipos_cuota():
         TipoCuota(
             id=None,
             temporada_id=1,
-            nombre="General",
+            nombre=NombreTipoCuota.SOCIO, # Usar el enum
             importe=50.00,
             fecha_creacion=now
         ),
         TipoCuota(
             id=None,
             temporada_id=1,
-            nombre="Nuevo Socio",
+            nombre=NombreTipoCuota.ALTA, # Usar el enum
             importe=25.00,
             fecha_creacion=now
         )
@@ -60,11 +61,11 @@ async def test_guardar_varios_tipos_cuota():
     # Verificar los parámetros pasados (asyncpg.fetch recibe los parámetros desempaquetados)
     expected_params = (
         tipos_cuota_input[0].temporada_id,
-        tipos_cuota_input[0].nombre,
+        tipos_cuota_input[0].nombre.value, # Usar .value
         tipos_cuota_input[0].importe,
         tipos_cuota_input[0].fecha_creacion,
         tipos_cuota_input[1].temporada_id,
-        tipos_cuota_input[1].nombre,
+        tipos_cuota_input[1].nombre.value, # Usar .value
         tipos_cuota_input[1].importe,
         tipos_cuota_input[1].fecha_creacion
     )
@@ -89,14 +90,14 @@ async def test_actualizar_varios_tipos_cuota():
         TipoCuota(
             id=101,
             temporada_id=1,
-            nombre="General Actualizado",
+            nombre=NombreTipoCuota.SOCIO, # Usar el enum
             importe=55.00,
             fecha_creacion=now
         ),
         TipoCuota(
             id=102,
             temporada_id=1,
-            nombre="Nuevo Socio Actualizado",
+            nombre=NombreTipoCuota.ALTA, # Usar el enum
             importe=30.00,
             fecha_creacion=now
         )
@@ -111,27 +112,21 @@ async def test_actualizar_varios_tipos_cuota():
     # Verificar la primera llamada
     args1, kwargs1 = mock_db_connection.execute.call_args_list[0]
     assert "UPDATE tipocuotas SET nombre = $1, importe = $2 WHERE id = $3" in args1[0]
-    assert args1[1:] == (tipos_cuota_input[0].nombre, tipos_cuota_input[0].importe, tipos_cuota_input[0].id)
+    assert args1[1:] == (tipos_cuota_input[0].nombre.value, tipos_cuota_input[0].importe, tipos_cuota_input[0].id)
 
     # Verificar la segunda llamada
     args2, kwargs2 = mock_db_connection.execute.call_args_list[1]
     assert "UPDATE tipocuotas SET nombre = $1, importe = $2 WHERE id = $3" in args2[0]
-    assert args2[1:] == (tipos_cuota_input[1].nombre, tipos_cuota_input[1].importe, tipos_cuota_input[1].id)
+    assert args2[1:] == (tipos_cuota_input[1].nombre.value, tipos_cuota_input[1].importe, tipos_cuota_input[1].id)
 
     assert tipos_cuota_actualizados == tipos_cuota_input
 
 # Test para el método get_tipo_cuota_general
-@pytest.mark.asyncio
-async def test_get_tipo_cuota_general_found():
-    from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-    mock_db_connection = AsyncMock()
-    repository = PostgresTipoCuotaRepository(mock_db_connection)
-
     now = datetime.now()
     mock_row = {
         'id': 101,
         'temporada_id': 1,
-        'nombre': "General",
+        'nombre': NombreTipoCuota.SOCIO.value, # Usar el valor del enum
         'importe': 50.00,
         'fecha_creacion': now
     }
@@ -142,8 +137,9 @@ async def test_get_tipo_cuota_general_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.SOCIO.value # Verificar el valor del enum
 
     assert tipo_cuota is not None
     assert isinstance(tipo_cuota, TipoCuota)
@@ -162,8 +158,9 @@ async def test_get_tipo_cuota_general_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.SOCIO.value # Verificar el valor del enum
 
     assert tipo_cuota is None
 
@@ -178,7 +175,7 @@ async def test_get_tipo_cuota_nuevo_socio_found():
     mock_row = {
         'id': 103,
         'temporada_id': 1,
-        'nombre': "Nuevo Socio",
+        'nombre': NombreTipoCuota.ALTA.value, # Usar el valor del enum
         'importe': 25.00,
         'fecha_creacion': now
     }
@@ -189,8 +186,9 @@ async def test_get_tipo_cuota_nuevo_socio_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.ALTA.value # Verificar el valor del enum
 
     assert tipo_cuota is not None
     assert isinstance(tipo_cuota, TipoCuota)
@@ -209,14 +207,15 @@ async def test_get_tipo_cuota_nuevo_socio_not_found():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota Nuevo Socio'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.ALTA.value # Verificar el valor del enum
 
     assert tipo_cuota is None
 
 # Test para el método get_tipo_cuota_general
 @pytest.mark.asyncio
-async def test_get_tipo_cuota_general_found_again():
+async def test_get_tipo_cuota_general_found():
     from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
     mock_db_connection = AsyncMock()
     repository = PostgresTipoCuotaRepository(mock_db_connection)
@@ -225,7 +224,7 @@ async def test_get_tipo_cuota_general_found_again():
     mock_row = {
         'id': 101,
         'temporada_id': 1,
-        'nombre': "General",
+        'nombre': NombreTipoCuota.SOCIO.value, # Usar el valor del enum
         'importe': 50.00,
         'fecha_creacion': now
     }
@@ -236,8 +235,9 @@ async def test_get_tipo_cuota_general_found_again():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.SOCIO.value # Verificar el valor del enum
 
     assert tipo_cuota is not None
     assert isinstance(tipo_cuota, TipoCuota)
@@ -256,7 +256,8 @@ async def test_get_tipo_cuota_general_not_found_again():
 
     mock_db_connection.fetchrow.assert_called_once()
     args, kwargs = mock_db_connection.fetchrow.call_args
-    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND LOWER(TRIM(nombre)) = LOWER(TRIM('Cuota General'))" in args[0]
+    assert "SELECT id, temporada_id, nombre, importe, fecha_creacion FROM tipocuotas WHERE temporada_id = $1 AND nombre = $2" in args[0]
     assert args[1] == temporada_id
+    assert args[2] == NombreTipoCuota.SOCIO.value # Verificar el valor del enum
 
     assert tipo_cuota is None

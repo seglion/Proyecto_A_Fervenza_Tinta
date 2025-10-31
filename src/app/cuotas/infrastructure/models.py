@@ -1,12 +1,11 @@
-"""
-Modelos de la base de datos para el slice de Cuotas, definidos con SQLAlchemy.
+"""Modelos de la base de datos para el slice de Cuotas, definidos con SQLAlchemy.
 """
 import uuid # Added uuid import
 from app.core.database import Base
 from sqlalchemy import Column, String, Integer, Date, DateTime, func, ForeignKey, Numeric, UUID, Enum, Text # Added UUID, Enum, Text
 from datetime import date, datetime
 from app.users.infrastructure.models import UsuarioModel # Added UsuarioModel import
-from src.app.cuotas.domain.value_objects import MetodoPago # Import MetodoPago from domain
+from src.app.cuotas.domain.value_objects import MetodoPago, NombreTipoCuota # Import MetodoPago and NombreTipoCuota from domain
 
 class TemporadaCuotaModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -18,7 +17,7 @@ class TemporadaCuotaModel(Base):
 class TipoCuotaModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     temporada_id = Column(Integer, ForeignKey('temporadacuotas.id'), nullable=False)
-    nombre = Column(String(100), nullable=False)
+    nombre = Column(Enum(NombreTipoCuota, name='nombretipocuota_enum'), nullable=False)
     importe = Column(Numeric(10, 2), nullable=False)
     fecha_creacion = Column(DateTime(timezone=True), nullable=False, default=func.now())
 

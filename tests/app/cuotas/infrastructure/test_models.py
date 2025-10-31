@@ -71,7 +71,7 @@ def test_tipo_cuota_model_has_nombre_column():
     assert 'nombre' in TipoCuotaModel.__table__.c
     nombre_col = TipoCuotaModel.__table__.c.nombre
     assert isinstance(nombre_col.type, String)
-    assert nombre_col.type.length == 100
+    assert nombre_col.type.length == 5
     assert nombre_col.nullable is False
 
 # 13. Test para verificar las propiedades de la columna 'importe'

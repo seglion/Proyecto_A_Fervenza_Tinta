@@ -9,6 +9,7 @@ from src.app.users.domain.value_objects import Rol
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada
 from src.app.cuotas.application.dtos import ActualizarTemporadaDTO, TipoCuotaDTO, TemporadaDTO
 from src.app.cuotas.domain.entities import TemporadaCuota
+from src.app.cuotas.domain.value_objects import NombreTipoCuota # Importar NombreTipoCuota
 
 @pytest.mark.asyncio
 async def test_actualizar_temporada_unauthorized():
@@ -52,7 +53,7 @@ async def test_actualizar_temporada_success():
 
     admin_user = User(rol=Rol.ADMIN, email="admin@example.com", contrasena_hasheada="", nombre="", apellidos="", numero_telefono="", esta_activo=True)
     
-    tipos_cuota_dto = [TipoCuotaDTO(id=1, nombre="General", importe=50, fecha_creacion=datetime.now())]
+    tipos_cuota_dto = [TipoCuotaDTO(id=1, nombre=NombreTipoCuota.SOCIO, importe=50, fecha_creacion=datetime.now())]
     actualizar_temporada_dto = ActualizarTemporadaDTO(nombre_temporada="2025-2026", fecha_inicio=date(2025, 9, 1), fecha_fin=date(2026, 6, 30), tipos_cuota=tipos_cuota_dto)
 
     result = await use_case.execute(admin_user, 1, actualizar_temporada_dto)
