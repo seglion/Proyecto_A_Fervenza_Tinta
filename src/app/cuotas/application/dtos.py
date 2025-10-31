@@ -88,12 +88,6 @@ class DetalleCuotaDTO(BaseModel):
     tipo_cuota_detalle: TipoCuotaDTO
     usuario_detalle: UsuarioResponseDTO
 
-class RegistrarCuotaManualDTO(BaseModel):
-    usuario_id: UUID
-    tipo_cuota_id: int
-    importe: Decimal
-    metodo: MetodoPago
-    notas: Optional[str] = None
 
 class ActualizarCuotaManualDTO(BaseModel):
     importe: Decimal

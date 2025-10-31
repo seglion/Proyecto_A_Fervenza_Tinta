@@ -38,24 +38,6 @@ class PostgresCuotaRepository(ICuotaRepository):
             ) for row in rows
         ]
 
-    async def buscar_por_usuario_y_temporada(self, usuario_id: UUID, tipo_cuota_id: int) -> Optional[Cuota]:
-        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND tipo_de_cuota_id = $2"
-        row = await self.db_connection.fetchrow(query, usuario_id, tipo_cuota_id)
-        if row:
-            return Cuota(
-                id=row['id'],
-                usuario_id=row['usuario_id'],
-                tipo_de_cuota_id=row['tipo_de_cuota_id'],
-                importe_pagado=row['importe_pagado'],
-                estado_pago=EstadoPago(row['estado_pago']),
-                fecha_pago=row['fecha_pago'],
-                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
-                id_transaccion_externa=row['id_transaccion_externa'],
-                notas_admin=row['notas_admin'],
-                fecha_creacion=row['fecha_creacion']
-            )
-        return None
-
     async def buscar_cualquier_cuota_por_usuario_y_temporada(self, usuario_id: UUID, temporada_id: int) -> Optional[Cuota]:
         query = """
         SELECT c.id, c.usuario_id, c.tipo_de_cuota_id, c.importe_pagado, c.estado_pago, c.fecha_pago, c.metodo_pago, c.id_transaccion_externa, c.notas_admin, c.fecha_creacion
@@ -132,6 +114,7 @@ class PostgresCuotaRepository(ICuotaRepository):
         """
         await self.db_connection.execute(
             query,
+
             cuota.importe_pagado,
             cuota.estado_pago.value,
             cuota.fecha_pago,
@@ -145,24 +128,6 @@ class PostgresCuotaRepository(ICuotaRepository):
     async def buscar_por_usuario_id(self, usuario_id: UUID) -> List[Cuota]:
         query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1"
         rows = await self.db_connection.fetch(query, usuario_id)
-        return [
-            Cuota(
-                id=row['id'],
-                usuario_id=row['usuario_id'],
-                tipo_de_cuota_id=row['tipo_de_cuota_id'],
-                importe_pagado=row['importe_pagado'],
-                estado_pago=EstadoPago(row['estado_pago']),
-                fecha_pago=row['fecha_pago'],
-                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
-                id_transaccion_externa=row['id_transaccion_externa'],
-                notas_admin=row['notas_admin'],
-                fecha_creacion=row['fecha_creacion']
-            ) for row in rows
-        ]
-
-    async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
-        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND estado_pago = $2"
-        rows = await self.db_connection.fetch(query, usuario_id, EstadoPago.COMPLETADO.value)
         return [
             Cuota(
                 id=row['id'],
@@ -229,20 +194,4 @@ class PostgresCuotaRepository(ICuotaRepository):
         rows = await self.db_connection.fetch(query, fecha_limite)
         return [row['id'] for row in rows]
 
-    async def buscar_cuota_pendiente_por_usuario_y_tipo_cuota(self, usuario_id: UUID, tipo_cuota_id: int) -> Optional[Cuota]:
-        query = "SELECT id, usuario_id, tipo_de_cuota_id, importe_pagado, estado_pago, fecha_pago, metodo_pago, id_transaccion_externa, notas_admin, fecha_creacion FROM cuotas WHERE usuario_id = $1 AND tipo_de_cuota_id = $2 AND estado_pago = $3"
-        row = await self.db_connection.fetchrow(query, usuario_id, tipo_cuota_id, EstadoPago.PENDIENTE.value)
-        if row:
-            return Cuota(
-                id=row['id'],
-                usuario_id=row['usuario_id'],
-                tipo_de_cuota_id=row['tipo_de_cuota_id'],
-                importe_pagado=row['importe_pagado'],
-                estado_pago=EstadoPago(row['estado_pago']),
-                fecha_pago=row['fecha_pago'],
-                metodo_pago=self._get_metodo_pago_from_value(row['metodo_pago']),
-                id_transaccion_externa=row['id_transaccion_externa'],
-                notas_admin=row['notas_admin'],
-                fecha_creacion=row['fecha_creacion']
-            )
-        return None
+

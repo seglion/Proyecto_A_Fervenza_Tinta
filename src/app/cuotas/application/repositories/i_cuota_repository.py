@@ -12,10 +12,6 @@ class ICuotaRepository(ABC):
         pass
 
     @abstractmethod
-    async def buscar_por_usuario_y_temporada(self, usuario_id: UUID, tipo_cuota_id: int) -> Optional[Cuota]:
-        pass
-
-    @abstractmethod
     async def buscar_cualquier_cuota_por_usuario_y_temporada(self, usuario_id: UUID, temporada_id: int) -> Optional[Cuota]:
         pass
 
@@ -36,10 +32,6 @@ class ICuotaRepository(ABC):
         pass
 
     @abstractmethod
-    async def buscar_por_usuario_id_completadas(self, usuario_id: UUID) -> List[Cuota]:
-        pass
-
-    @abstractmethod
     async def ha_pagado_cuota_alta_antes(self, usuario_id: UUID) -> bool:
         pass
 
@@ -49,8 +41,4 @@ class ICuotaRepository(ABC):
 
     @abstractmethod
     async def get_usuarios_inactivos_desde(self, fecha_limite: date) -> List[UUID]:
-        pass
-
-    @abstractmethod
-    async def buscar_cuota_pendiente_por_usuario_y_tipo_cuota(self, usuario_id: UUID, tipo_cuota_id: int) -> Optional[Cuota]:
         pass

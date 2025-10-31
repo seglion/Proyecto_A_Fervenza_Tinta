@@ -113,15 +113,6 @@ def test_detalle_cuota_dto():
     assert fields['cuota'] == CuotaDTO
     assert fields['temporada'] == TemporadaDTO
 
-def test_registrar_cuota_manual_dto():
-    from src.app.cuotas.application.dtos import RegistrarCuotaManualDTO
-    assert issubclass(RegistrarCuotaManualDTO, BaseModel)
-    fields = RegistrarCuotaManualDTO.__annotations__
-    assert fields['usuario_id'] == UUID
-    assert fields['tipo_cuota_id'] == int
-    assert fields['importe'] == Decimal
-    assert fields['metodo'] == MetodoPago
-    assert fields['notas'] == Optional[str]
 
 def test_informe_pendientes_dto():
     from src.app.cuotas.application.dtos import InformePendientesDTO, UsuarioConCuotaPendienteDTO

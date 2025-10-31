@@ -12,7 +12,7 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, IntentoPagoDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, IntentoPagoDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException

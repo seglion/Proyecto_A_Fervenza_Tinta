@@ -10,7 +10,7 @@ from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
 from src.app.cuotas.presentation.router import get_admin_user, get_ver_detalle_cuota_use_case, get_registrar_cuota_manual_use_case, get_obtener_generar_mi_cuota_use_case, get_generar_informe_pendientes_use_case, get_consultar_historial_cuotas_use_case
-from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, CuotaDetalleResponseDTO
+from src.app.cuotas.application.dtos import DetalleCuotaDTO, CuotaDTO, TemporadaDTO, TipoCuotaDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, CuotaDetalleResponseDTO
 from src.app.users.application.dtos import UsuarioResponseDTO
 from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago, NombreTipoCuota
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
