@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from typing import Any, List
 from uuid import UUID
 
@@ -27,6 +27,7 @@ from src.app.cuotas.application.use_cases.obtener_generar_mi_cuota_use_case impo
 from src.app.cuotas.application.use_cases.generar_informe_pendientes_use_case import GenerarInformePendientesUseCase
 from src.app.cuotas.application.use_cases.consultar_historial_cuotas_use_case import ConsultarHistorialCuotasUseCase
 from src.app.cuotas.application.use_cases.crear_intento_pago_use_case import CrearIntentoPagoUseCase
+from src.app.cuotas.application.use_cases.procesar_webhook_use_case import ProcesarWebhookUseCase
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 
@@ -135,6 +136,12 @@ def get_crear_intento_pago_use_case(
     cuota_policy = CuotaPolicy()
     return CrearIntentoPagoUseCase(obtener_generar_mi_cuota_uc, cuota_repository, payment_gateway, cuota_policy)
 
+def get_procesar_webhook_use_case(
+    payment_gateway: IPaymentGateway = Depends(get_payment_gateway),
+    cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+) -> ProcesarWebhookUseCase:
+    return ProcesarWebhookUseCase(payment_gateway=payment_gateway, cuota_repository=cuota_repository)
+
 @router.post("/crear-intento-pago", response_model=IntentoPagoDTO, status_code=status.HTTP_200_OK)
 async def crear_intento_pago(
     current_user: User = Depends(get_current_user),
@@ -226,3 +233,13 @@ async def registrar_cuota_manual(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except UnauthorizedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+
+@router.post("/webhooks/stripe", status_code=status.HTTP_200_OK)
+async def procesar_webhook(
+    request: Request,
+    use_case: ProcesarWebhookUseCase = Depends(get_procesar_webhook_use_case)
+):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    await use_case.execute(payload, sig_header)
+    return {"status": "ok"}

@@ -35,6 +35,7 @@ class CrearIntentoPagoUseCase:
             user_id=user.id,
             amount=int(cuota_a_pagar_dto.importe_pagado*100),
             currency="eur",
+            cuota_id=cuota_a_pagar_dto.id
         )
 
         return IntentoPagoDTO(url_pago=url_pago)

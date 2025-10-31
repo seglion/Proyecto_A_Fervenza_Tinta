@@ -2,12 +2,13 @@ import stripe
 from src.app.core.services.i_payment_gateway import IPaymentGateway
 from src.app.core.config import settings
 from typing import List, Optional
+from uuid import UUID
 
 class StripePaymentGateway(IPaymentGateway):
     def __init__(self):
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-    async def crear_sesion_pago(self, user_id: int, amount: int, currency: str) -> str:
+    async def crear_sesion_pago(self, user_id: int, amount: int, currency: str, cuota_id: UUID) -> str:
         try:
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
@@ -25,7 +26,7 @@ class StripePaymentGateway(IPaymentGateway):
                 mode="payment",
                 success_url="https://example.com/success", # Estas URLs deberían ser configurables
                 cancel_url="https://example.com/cancel",   # Estas URLs deberían ser configurables
-                metadata={'user_id': str(user_id)}
+                metadata={'user_id': str(user_id), 'cuota_id': str(cuota_id)}
             )
             return checkout_session.url
 
