@@ -28,10 +28,7 @@ class StripePaymentGateway(IPaymentGateway):
                 metadata={'user_id': str(user_id)}
             )
             return checkout_session.url
-        except stripe.error.StripeError as e:
-            # Manejo de errores específicos de Stripe
-            print(f"Error de Stripe al crear sesión de pago: {e}")
-            raise
+
         except Exception as e:
             # Manejo de otros errores inesperados
             print(f"Error inesperado al crear sesión de pago: {e}")

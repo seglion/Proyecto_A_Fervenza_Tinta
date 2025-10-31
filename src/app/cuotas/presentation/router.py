@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Any, List
+from uuid import UUID
 
 from src.app.core.database import get_db
 from src.app.cuotas.application.repositories.i_cuota_repository import ICuotaRepository
@@ -11,18 +12,27 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, RegistrarCuotaManualDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, IntentoPagoDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException
 from src.app.users.domain.entities import User
 from src.app.core.dependencies import get_current_user
 from src.app.users.domain.value_objects import Rol
+from src.app.core.services.i_payment_gateway import IPaymentGateway
+from src.app.infrastructure.payments.stripe_payment_gateway import StripePaymentGateway
+from src.app.cuotas.application.use_cases.ver_detalle_cuota_use_case import VerDetalleCuotaUseCase
+from src.app.cuotas.application.use_cases.registrar_cuota_manual_use_case import RegistrarCuotaManualUseCase
+from src.app.cuotas.application.use_cases.obtener_generar_mi_cuota_use_case import ObtenerGenerarMiCuotaUseCase
+from src.app.cuotas.application.use_cases.generar_informe_pendientes_use_case import GenerarInformePendientesUseCase
+from src.app.cuotas.application.use_cases.consultar_historial_cuotas_use_case import ConsultarHistorialCuotasUseCase
+from src.app.cuotas.application.use_cases.crear_intento_pago_use_case import CrearIntentoPagoUseCase
+from src.app.users.application.repositories.i_user_repository import IUserRepository
+from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 
 router = APIRouter(prefix="/cuotas", tags=["cuotas"])
 
 def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
-
     if current_user.rol.value != Rol.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -38,6 +48,9 @@ def get_temporada_cuota_repository(db_connection: Any = Depends(get_db)) -> ITem
 
 def get_tipo_cuota_repository(db_connection: Any = Depends(get_db)) -> ITipoCuotaRepository:
     return PostgresTipoCuotaRepository(db_connection)
+
+def get_payment_gateway() -> IPaymentGateway:
+    return StripePaymentGateway()
 
 def get_listar_cuotas_use_case(
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
@@ -58,15 +71,6 @@ def get_actualizar_temporada_use_case(
 ) -> ActualizarTemporadaUseCase:
     cuota_policy = CuotaPolicy()
     return ActualizarTemporadaUseCase(temporada_cuota_repository, tipo_cuota_repository, cuota_policy)
-
-from src.app.cuotas.application.use_cases.ver_detalle_cuota_use_case import VerDetalleCuotaUseCase
-from src.app.cuotas.application.use_cases.registrar_cuota_manual_use_case import RegistrarCuotaManualUseCase
-from src.app.cuotas.application.use_cases.obtener_generar_mi_cuota_use_case import ObtenerGenerarMiCuotaUseCase
-from src.app.cuotas.application.use_cases.generar_informe_pendientes_use_case import GenerarInformePendientesUseCase
-from src.app.cuotas.application.use_cases.consultar_historial_cuotas_use_case import ConsultarHistorialCuotasUseCase
-
-from src.app.users.application.repositories.i_user_repository import IUserRepository
-from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 
 def get_listar_temporadas_use_case(
     temporada_cuota_repository: ITemporadaCuotaRepository = Depends(get_temporada_cuota_repository),
@@ -123,6 +127,21 @@ def get_consultar_historial_cuotas_use_case(
         cuota_policy=cuota_policy
     )
 
+def get_crear_intento_pago_use_case(
+    obtener_generar_mi_cuota_uc: ObtenerGenerarMiCuotaUseCase = Depends(get_obtener_generar_mi_cuota_use_case),
+    cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+    payment_gateway: IPaymentGateway = Depends(get_payment_gateway),
+) -> CrearIntentoPagoUseCase:
+    cuota_policy = CuotaPolicy()
+    return CrearIntentoPagoUseCase(obtener_generar_mi_cuota_uc, cuota_repository, payment_gateway, cuota_policy)
+
+@router.post("/crear-intento-pago", response_model=IntentoPagoDTO, status_code=status.HTTP_200_OK)
+async def crear_intento_pago(
+    current_user: User = Depends(get_current_user),
+    use_case: CrearIntentoPagoUseCase = Depends(get_crear_intento_pago_use_case)
+):
+    return await use_case.execute(current_user)
+
 @router.get("/informe-pendientes", response_model=InformePendientesDTO, status_code=status.HTTP_200_OK)
 async def generar_informe_pendientes(
     admin_user: User = Depends(get_admin_user),
@@ -166,8 +185,6 @@ async def actualizar_temporada(
     except TemporadaNoEncontrada as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
-from uuid import UUID
-
 @router.get("/temporadas", response_model=ListaTemporadasDTO, status_code=status.HTTP_200_OK)
 async def listar_temporadas(
     admin_user: User = Depends(get_admin_user),
@@ -194,7 +211,7 @@ async def obtener_generar_mi_cuota_activa(
 async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin_user), use_case: VerDetalleCuotaUseCase = Depends(get_ver_detalle_cuota_use_case)):
     return await use_case.execute(admin_user, cuota_id)
 
-@router.put("/{cuota_id}/registrar-manual", response_model=CuotaCompletadaDTO, status_code=status.HTTP_200_OK) # Changed path and status code
+@router.put("/{cuota_id}/registrar-manual", response_model=CuotaCompletadaDTO, status_code=status.HTTP_200_OK)
 async def registrar_cuota_manual(
     cuota_id: UUID, # New path parameter
     dto: ActualizarCuotaManualDTO, # Changed DTO
