@@ -7,7 +7,8 @@ from datetime import datetime
 import asyncpg
 
 import src.app.prendas.infrastructure.postgres_prenda_repository as postgres_prenda_repository_module
-from src.app.prendas.domain.entities import Prenda
+from src.app.prendas.domain.entities import Prenda, VariantePrenda
+from src.app.prendas.domain.value_objects import GeneroPrenda, TallaPrenda
 
 class MockRecord:
     def __init__(self, data):
@@ -67,3 +68,31 @@ async def test_listar_todas_returns_list_of_prendas():
     assert prendas[0].nombre == 'Camiseta'
     assert prendas[1].id == UUID('b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2')
     assert prendas[1].nombre == 'Pantalón'
+
+@pytest.mark.asyncio
+async def test_buscar_por_id_con_variantes_returns_none_if_not_found():
+    mock_db_connection = AsyncMock(spec=asyncpg.Connection)
+    mock_db_connection.fetch.return_value = [] # fetch returns an empty list if no rows
+    
+    repository = postgres_prenda_repository_module.PostgresPrendaRepository(db_connection=mock_db_connection)
+    prenda_id = UUID('c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3')
+    prenda = await repository.buscar_por_id_con_variantes(prenda_id)
+
+    query = """
+        SELECT
+            p.id AS prenda_id,
+            p.nombre,
+            p.descripcion,
+            p.precio,
+            p.imagen_url,
+            p.fecha_creacion,
+            vp.id AS variante_id,
+            vp.genero,
+            vp.talla,
+            vp.fecha_creacion AS variante_fecha_creacion
+        FROM prendas p
+        LEFT JOIN variantes_prenda vp ON p.id = vp.prenda_id
+        WHERE p.id = $1
+    """
+    mock_db_connection.fetch.assert_called_once_with(inspect.cleandoc(query), prenda_id)
+    assert prenda is None

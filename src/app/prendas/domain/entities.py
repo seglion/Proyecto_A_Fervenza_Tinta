@@ -1,6 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
+from typing import List
 
 from src.app.prendas.domain.value_objects import GeneroPrenda, TallaPrenda
 
@@ -12,6 +13,7 @@ class Prenda:
     precio: float
     imagen_url: str
     fecha_creacion: datetime
+    variantes: List["VariantePrenda"] = field(default_factory=list)
 
 @dataclass
 class VariantePrenda:
