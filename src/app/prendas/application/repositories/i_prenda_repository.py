@@ -15,3 +15,11 @@ class IPrendaRepository(ABC):
     @abstractmethod
     async def guardar(self, prenda: Prenda) -> Prenda:
         pass
+
+    @abstractmethod
+    async def actualizar(self, prenda: Prenda) -> Prenda:
+        pass
+
+    @abstractmethod
+    async def eliminar_por_id(self, prenda_id: UUID) -> None:
+        pass

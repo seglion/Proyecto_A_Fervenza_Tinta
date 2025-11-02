@@ -32,3 +32,13 @@ def test_guardar_method_exists():
     assert hasattr(i_prenda_repository_module.IPrendaRepository, "guardar"), "El método guardar no existe en IPrendaRepository"
     assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.guardar), "guardar no es una función"
     assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.guardar), "guardar no es un método abstracto"
+
+def test_actualizar_method_exists():
+    assert hasattr(i_prenda_repository_module.IPrendaRepository, "actualizar"), "El método actualizar no existe en IPrendaRepository"
+    assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.actualizar), "actualizar no es una función"
+    assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.actualizar), "actualizar no es un método abstracto"
+
+def test_eliminar_por_id_method_exists():
+    assert hasattr(i_prenda_repository_module.IPrendaRepository, "eliminar_por_id"), "El método eliminar_por_id no existe en IPrendaRepository"
+    assert inspect.isfunction(i_prenda_repository_module.IPrendaRepository.eliminar_por_id), "eliminar_por_id no es una función"
+    assert "@abstractmethod" in inspect.getsource(i_prenda_repository_module.IPrendaRepository.eliminar_por_id), "eliminar_por_id no es un método abstracto"
