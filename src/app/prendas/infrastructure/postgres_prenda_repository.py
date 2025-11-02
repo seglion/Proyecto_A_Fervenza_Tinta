@@ -104,7 +104,21 @@ class PostgresPrendaRepository(IPrendaRepository):
         return prenda
 
     async def actualizar(self, prenda: Prenda) -> Prenda:
-        pass
+        query = inspect.cleandoc("""
+            UPDATE prendas
+            SET nombre = $1, descripcion = $2, precio = $3, imagen_url = $4
+            WHERE id = $5
+        """)
+        await self.db_connection.execute(
+            query,
+            prenda.nombre,
+            prenda.descripcion,
+            prenda.precio,
+            prenda.imagen_url,
+            prenda.id
+        )
+        return prenda
 
     async def eliminar_por_id(self, prenda_id: UUID) -> None:
-        pass
+        query = "DELETE FROM prendas WHERE id = $1"
+        await self.db_connection.execute(query, prenda_id)
