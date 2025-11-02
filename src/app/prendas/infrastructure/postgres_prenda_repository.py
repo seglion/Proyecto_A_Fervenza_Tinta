@@ -88,7 +88,20 @@ class PostgresPrendaRepository(IPrendaRepository):
         return Prenda(**prenda_data, variantes=variantes)
 
     async def guardar(self, prenda: Prenda) -> Prenda:
-        pass
+        query = inspect.cleandoc("""
+            INSERT INTO prendas (id, nombre, descripcion, precio, imagen_url, fecha_creacion)
+            VALUES ($1, $2, $3, $4, $5, $6)
+        """)
+        await self.db_connection.execute(
+            query,
+            prenda.id,
+            prenda.nombre,
+            prenda.descripcion,
+            prenda.precio,
+            prenda.imagen_url,
+            prenda.fecha_creacion
+        )
+        return prenda
 
     async def actualizar(self, prenda: Prenda) -> Prenda:
         pass

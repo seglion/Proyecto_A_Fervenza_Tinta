@@ -96,3 +96,36 @@ async def test_buscar_por_id_con_variantes_returns_none_if_not_found():
     """
     mock_db_connection.fetch.assert_called_once_with(inspect.cleandoc(query), prenda_id)
     assert prenda is None
+
+@pytest.mark.asyncio
+async def test_guardar_prenda_inserts_into_db():
+    mock_db_connection = AsyncMock(spec=asyncpg.Connection)
+    mock_db_connection.execute.return_value = "INSERT 0 1"
+
+    repository = postgres_prenda_repository_module.PostgresPrendaRepository(db_connection=mock_db_connection)
+    new_prenda = Prenda(
+        id=UUID('d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4'),
+        nombre='Gorra',
+        descripcion='Gorra de béisbol',
+        precio=15.00,
+        imagen_url='http://example.com/gorra.jpg',
+        fecha_creacion=datetime(2023, 3, 15, 12, 0, 0),
+        variantes=[]
+    )
+
+    saved_prenda = await repository.guardar(new_prenda)
+
+    query = """
+        INSERT INTO prendas (id, nombre, descripcion, precio, imagen_url, fecha_creacion)
+        VALUES ($1, $2, $3, $4, $5, $6)
+    """
+    mock_db_connection.execute.assert_called_once_with(
+        inspect.cleandoc(query),
+        new_prenda.id,
+        new_prenda.nombre,
+        new_prenda.descripcion,
+        new_prenda.precio,
+        new_prenda.imagen_url,
+        new_prenda.fecha_creacion
+    )
+    assert saved_prenda == new_prenda
