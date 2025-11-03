@@ -35,6 +35,10 @@ class PrendaActualizadaDTO(BaseModel):
     id: UUID
 
 
+class EliminarPrendaDTO(BaseModel):
+    id: UUID
+
+
 class VariantePrendaDTO(BaseModel):
     id: UUID
     prenda_id: UUID
