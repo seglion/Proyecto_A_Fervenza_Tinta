@@ -72,3 +72,13 @@ class PrendaDTO(BaseModel):
 
 class ListaPrendasDTO(BaseModel):
     prendas: List[PrendaDTO]
+
+
+class PrendaDetalleDTO(BaseModel):
+    id: UUID
+    nombre: str
+    descripcion: str
+    precio: float
+    imagen_url: str
+    fecha_creacion: datetime
+    variantes: List[VariantePrendaDTO]
