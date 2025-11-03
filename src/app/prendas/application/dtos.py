@@ -67,4 +67,8 @@ class PrendaDTO(BaseModel):
     precio: float
     imagen_url: str
     fecha_creacion: datetime
-    variantes: list[VariantePrendaDTO]
+    variantes: List[VariantePrendaDTO]
+
+
+class ListaPrendasDTO(BaseModel):
+    prendas: List[PrendaDTO]
