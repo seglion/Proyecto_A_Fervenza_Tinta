@@ -12,7 +12,7 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.infrastructure.postgres_temporada_cuota_repository import PostgresTemporadaCuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.infrastructure.postgres_tipo_cuota_repository import PostgresTipoCuotaRepository
-from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO, CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, IntentoPagoDTO
+from src.app.cuotas.application.dtos import ListaCuotasDTO, CuotaDTO, CrearTemporadaDTO, TemporadaCreadaDTO, ActualizarTemporadaDTO, TemporadaDTO, ListaTemporadasDTO, DetalleCuotaDTO,  CuotaCompletadaDTO, ActualizarCuotaManualDTO, InformePendientesDTO, HistorialCuotasDTO, IntentoPagoDTO
 from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import ActualizarTemporadaUseCase
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException
@@ -30,6 +30,8 @@ from src.app.cuotas.application.use_cases.crear_intento_pago_use_case import Cre
 from src.app.cuotas.application.use_cases.procesar_webhook_use_case import ProcesarWebhookUseCase
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
+from src.app.core.services.i_email_service import IEmailService
+from src.app.core.services.sendgrid_email_service import SendGridEmailService # O ConsoleEmailService, dependiendo de la configuración
 
 router = APIRouter(prefix="/cuotas", tags=["cuotas"])
 
@@ -52,6 +54,9 @@ def get_tipo_cuota_repository(db_connection: Any = Depends(get_db)) -> ITipoCuot
 
 def get_payment_gateway() -> IPaymentGateway:
     return StripePaymentGateway()
+
+def get_email_service() -> IEmailService:
+    return SendGridEmailService() # O ConsoleEmailService, dependiendo de la configuración
 
 def get_listar_cuotas_use_case(
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
@@ -139,8 +144,10 @@ def get_crear_intento_pago_use_case(
 def get_procesar_webhook_use_case(
     payment_gateway: IPaymentGateway = Depends(get_payment_gateway),
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+    email_service: IEmailService = Depends(get_email_service),
+    user_repository: IUserRepository = Depends(get_usuario_repository),
 ) -> ProcesarWebhookUseCase:
-    return ProcesarWebhookUseCase(payment_gateway=payment_gateway, cuota_repository=cuota_repository)
+    return ProcesarWebhookUseCase(payment_gateway=payment_gateway, cuota_repository=cuota_repository, email_service=email_service, user_repository=user_repository)
 
 @router.post("/crear-intento-pago", response_model=IntentoPagoDTO, status_code=status.HTTP_200_OK)
 async def crear_intento_pago(
