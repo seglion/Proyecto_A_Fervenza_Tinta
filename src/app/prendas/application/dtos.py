@@ -48,6 +48,10 @@ class VarianteCreadaDTO(BaseModel):
     id: UUID
 
 
+class EliminarVarianteDTO(BaseModel):
+    id: UUID
+
+
 class VariantePrendaDTO(BaseModel):
     id: UUID
     prenda_id: UUID
