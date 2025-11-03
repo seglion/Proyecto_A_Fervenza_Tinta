@@ -74,8 +74,7 @@ class PrendaDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ListaPrendasDTO(BaseModel):
-    prendas: List[PrendaDTO]
+
 
 
 class PrendaDetalleDTO(BaseModel):
@@ -88,3 +87,6 @@ class PrendaDetalleDTO(BaseModel):
     variantes: List[VariantePrendaDTO]
 
     model_config = ConfigDict(from_attributes=True)
+    
+class ListaPrendasDTO(BaseModel):
+    prendas: List[PrendaDetalleDTO]

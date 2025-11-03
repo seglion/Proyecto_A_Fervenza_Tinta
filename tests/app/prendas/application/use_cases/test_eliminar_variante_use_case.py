@@ -20,6 +20,10 @@ def mock_prenda_policy():
     return Mock()
 
 @pytest.fixture
+def mock_prenda_repository():
+    return AsyncMock()
+
+@pytest.fixture
 def admin_user_dto():
     return UsuarioPolicyDTO(rol=Rol.ADMIN, esta_activo=True)
 
@@ -52,55 +56,61 @@ def test_eliminar_variante_use_case_execute_method_exists():
     assert callable(getattr(EliminarVarianteUseCase, "execute"))
 
 @pytest.mark.asyncio
-async def test_eliminar_variante_use_case_execute_success(mock_variante_prenda_repository, mock_prenda_policy, admin_user_dto, existing_variante_prenda):
+async def test_eliminar_variante_use_case_execute_success(mock_variante_prenda_repository, mock_prenda_policy, mock_prenda_repository, admin_user_dto, existing_variante_prenda):
     # Arrange
     variante_id = existing_variante_prenda.id
-    eliminar_variante_dto = EliminarVarianteDTO(id=variante_id)
+    prenda_id = existing_variante_prenda.prenda_id
 
     mock_prenda_policy.es_administrador.return_value = True
-    mock_variante_prenda_repository.get_by_id.return_value = existing_variante_prenda
+    mock_variante_prenda_repository.buscar_por_id.return_value = existing_variante_prenda
+    mock_prenda_repository.buscar_por_id_con_variantes.return_value = Mock()
 
-    use_case = EliminarVarianteUseCase(mock_variante_prenda_repository, mock_prenda_policy)
+    use_case = EliminarVarianteUseCase(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy)
 
     # Act
-    await use_case.execute(variante_id, admin_user_dto)
+    await use_case.execute(prenda_id, variante_id, admin_user_dto)
 
     # Assert
     mock_prenda_policy.es_administrador.assert_called_once_with(admin_user_dto)
-    mock_variante_prenda_repository.get_by_id.assert_called_once_with(variante_id)
-    mock_variante_prenda_repository.delete.assert_called_once_with(existing_variante_prenda)
+    mock_variante_prenda_repository.buscar_por_id.assert_called_once_with(variante_id)
+    mock_variante_prenda_repository.eliminar_por_id.assert_called_once_with(variante_id)
+    mock_variante_prenda_repository.buscar_por_id.return_value = None
+    assert await mock_variante_prenda_repository.buscar_por_id(variante_id) is None
 
 @pytest.mark.asyncio
-async def test_eliminar_variante_use_case_not_authorized(mock_variante_prenda_repository, mock_prenda_policy, non_admin_user_dto):
+async def test_eliminar_variante_use_case_not_authorized(mock_variante_prenda_repository, mock_prenda_policy, mock_prenda_repository, non_admin_user_dto):
     # Arrange
     variante_id = uuid4()
+    prenda_id = uuid4()
 
     mock_prenda_policy.es_administrador.return_value = False
 
-    use_case = EliminarVarianteUseCase(mock_variante_prenda_repository, mock_prenda_policy)
+    use_case = EliminarVarianteUseCase(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy)
 
     # Act & Assert
     with pytest.raises(NotAuthorizedError):
-        await use_case.execute(variante_id, non_admin_user_dto)
+        await use_case.execute(prenda_id, variante_id, non_admin_user_dto)
 
     mock_prenda_policy.es_administrador.assert_called_once_with(non_admin_user_dto)
-    mock_variante_prenda_repository.get_by_id.assert_not_called()
-    mock_variante_prenda_repository.delete.assert_not_called()
+    mock_variante_prenda_repository.buscar_por_id.assert_not_called()
+    mock_variante_prenda_repository.eliminar_por_id.assert_not_called()
 
 @pytest.mark.asyncio
-async def test_eliminar_variante_use_case_variante_not_found(mock_variante_prenda_repository, mock_prenda_policy, admin_user_dto):
+async def test_eliminar_variante_use_case_variante_not_found(mock_variante_prenda_repository, mock_prenda_policy, mock_prenda_repository, admin_user_dto):
     # Arrange
     variante_id = uuid4()
+    prenda_id = uuid4()
 
     mock_prenda_policy.es_administrador.return_value = True
-    mock_variante_prenda_repository.get_by_id.return_value = None
+    mock_variante_prenda_repository.buscar_por_id.return_value = None
+    mock_prenda_repository.buscar_por_id_con_variantes.return_value = Mock()
 
-    use_case = EliminarVarianteUseCase(mock_variante_prenda_repository, mock_prenda_policy)
+    use_case = EliminarVarianteUseCase(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy)
 
     # Act & Assert
     with pytest.raises(PrendaNotFoundError):
-        await use_case.execute(variante_id, admin_user_dto)
+        await use_case.execute(prenda_id, variante_id, admin_user_dto)
 
     mock_prenda_policy.es_administrador.assert_called_once_with(admin_user_dto)
-    mock_variante_prenda_repository.get_by_id.assert_called_once_with(variante_id)
-    mock_variante_prenda_repository.delete.assert_not_called()
+    mock_variante_prenda_repository.buscar_por_id.assert_called_once_with(variante_id)
+    mock_variante_prenda_repository.eliminar_por_id.assert_not_called()

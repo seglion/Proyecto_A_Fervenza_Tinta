@@ -11,12 +11,16 @@ from src.app.users.domain.value_objects import Rol
 from src.app.core.dependencies import get_current_user
 from src.app.core.database import get_db # Añadido
 from src.app.prendas.presentation.router import (
+    get_anadir_variante_use_case,
+    get_eliminar_prenda_use_case,
+    get_eliminar_variante_use_case,
     router as prendas_router,
     get_listar_prendas_use_case,
     get_ver_detalle_prenda_use_case,
     get_crear_prenda_use_case,
+    get_actualizar_prenda_use_case,
 )
-from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDetalleDTO, PrendaDTO, VariantePrendaDTO, TallaPrenda, GeneroPrenda, CrearPrendaDTO, PrendaCreadaDTO
+from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDetalleDTO, PrendaDTO, VariantePrendaDTO, TallaPrenda, GeneroPrenda, CrearPrendaDTO, PrendaCreadaDTO, ActualizarPrendaDTO, PrendaActualizadaDTO, AnadirVarianteDTO, VarianteCreadaDTO
 from src.app.prendas.application.exceptions import PrendaNotFoundError, UnauthorizedException, NotAuthorizedError # Añadido NotAuthorizedError
 
 # ------------------ Fixtures ------------------
@@ -246,25 +250,266 @@ async def test_crear_prenda_forbidden(app_client, non_admin_user, mock_crear_pre
     # Cleanup
     app_client.app.dependency_overrides = {}
 
-@pytest.mark.asyncio
-async def test_crear_prenda_unauthorized(app_client, override_get_db):
-    # Arrange
-    app_client.app.dependency_overrides[get_current_user] = lambda: None
-    # No necesitamos mockear get_admin_user_dependency porque get_current_user ya devuelve None
-    app_client.app.dependency_overrides[get_db] = override_get_db
 
-    create_data = CrearPrendaDTO(
-        nombre="Sudadera",
-        descripcion="Sudadera de algodón con capucha",
-        precio=Decimal("45.00"),
-        imagen_url="http://example.com/sudadera.jpg"
+# ------------------ Tests for actualizar_prenda ------------------
+
+@pytest.fixture
+def mock_actualizar_prenda_use_case():
+    mock = AsyncMock()
+    mock.execute.return_value = PrendaActualizadaDTO(id=uuid4())
+    return mock
+
+@pytest.mark.asyncio
+async def test_actualizar_prenda_success(app_client, admin_user, mock_actualizar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_actualizar_prenda_use_case] = lambda: mock_actualizar_prenda_use_case
+
+    update_data = ActualizarPrendaDTO(
+        nombre="Camiseta Actualizada",
+        precio=Decimal("25.00")
     )
 
     # Act
-    response = app_client.post("/prendas/", json=create_data.model_dump(mode='json'))
+    response = app_client.put(f"/prendas/{prenda_id}", json=update_data.model_dump(mode='json'))
 
     # Assert
-    assert response.status_code == 401 # El use case lanza NotAuthorizedError con 403 si el user es None
+    assert response.status_code == 200
+    assert "id" in response.json()
+    mock_actualizar_prenda_use_case.execute.assert_called_once_with(prenda_id, update_data, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_actualizar_prenda_not_found(app_client, admin_user, mock_actualizar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_actualizar_prenda_use_case] = lambda: mock_actualizar_prenda_use_case
+    mock_actualizar_prenda_use_case.execute.side_effect = PrendaNotFoundError(f"Prenda con ID {prenda_id} no encontrada")
+
+    update_data = ActualizarPrendaDTO(
+        nombre="Camiseta Actualizada",
+        precio=Decimal("25.00")
+    )
+
+    # Act
+    response = app_client.put(f"/prendas/{prenda_id}", json=update_data.model_dump(mode='json'))
+
+    # Assert
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Prenda con ID {prenda_id} no encontrada"}
+    mock_actualizar_prenda_use_case.execute.assert_called_once_with(prenda_id, update_data, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_actualizar_prenda_forbidden(app_client, non_admin_user, mock_actualizar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: non_admin_user
+    app_client.app.dependency_overrides[get_actualizar_prenda_use_case] = lambda: mock_actualizar_prenda_use_case
+    mock_actualizar_prenda_use_case.execute.side_effect = NotAuthorizedError("No tienes permiso para actualizar una prenda.")
+
+    update_data = ActualizarPrendaDTO(
+        nombre="Camiseta Actualizada",
+        precio=Decimal("25.00")
+    )
+
+    # Act
+    response = app_client.put(f"/prendas/{prenda_id}", json=update_data.model_dump(mode='json'))
+
+    # Assert
+    assert response.status_code == 403
+    assert response.json() == {"detail": "The user doesn't have enough privileges"}
+    mock_actualizar_prenda_use_case.execute.assert_not_called()
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_actualizar_prenda_unauthorized(app_client, override_get_db):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: None
+    app_client.app.dependency_overrides[get_db] = override_get_db
+
+    update_data = ActualizarPrendaDTO(
+        nombre="Camiseta Actualizada",
+        precio=Decimal("25.00")
+    )
+
+    # Act
+    response = app_client.put(f"/prendas/{prenda_id}", json=update_data.model_dump(mode='json'))
+
+    # Assert
+    assert response.status_code == 401
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+# ------------------ Tests for eliminar_prenda ------------------
+
+@pytest.fixture
+def mock_eliminar_prenda_use_case():
+    mock = AsyncMock()
+    mock.execute.return_value = None  # Eliminar no devuelve nada
+    return mock
+
+@pytest.mark.asyncio
+async def test_eliminar_prenda_success(app_client, admin_user, mock_eliminar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_eliminar_prenda_use_case] = lambda: mock_eliminar_prenda_use_case
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}")
+
+    # Assert
+    assert response.status_code == 204
+    mock_eliminar_prenda_use_case.execute.assert_called_once_with(prenda_id, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_prenda_not_found(app_client, admin_user, mock_eliminar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_eliminar_prenda_use_case] = lambda: mock_eliminar_prenda_use_case
+    mock_eliminar_prenda_use_case.execute.side_effect = PrendaNotFoundError(f"Prenda con ID {prenda_id} no encontrada")
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}")
+
+    # Assert
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Prenda con ID {prenda_id} no encontrada"}
+    mock_eliminar_prenda_use_case.execute.assert_called_once_with(prenda_id, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_prenda_forbidden(app_client, non_admin_user, mock_eliminar_prenda_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: non_admin_user
+    app_client.app.dependency_overrides[get_eliminar_prenda_use_case] = lambda: mock_eliminar_prenda_use_case
+    mock_eliminar_prenda_use_case.execute.side_effect = NotAuthorizedError("No tienes permiso para eliminar una prenda.")
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}")
+
+    # Assert
+    assert response.status_code == 403
+    assert response.json() == {"detail": "The user doesn't have enough privileges"}
+    mock_eliminar_prenda_use_case.execute.assert_not_called()
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_prenda_unauthorized(app_client, override_get_db):
+    # Arrange
+    prenda_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: None
+    app_client.app.dependency_overrides[get_db] = override_get_db
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}")
+
+    # Assert
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Not authenticated"}
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+
+# ------------------ Tests for eliminar_variante ------------------
+
+@pytest.fixture
+def mock_eliminar_variante_use_case():
+    mock = AsyncMock()
+    mock.execute.return_value = None  # Eliminar no devuelve nada
+    return mock
+
+@pytest.mark.asyncio
+async def test_eliminar_variante_success(app_client, admin_user, mock_eliminar_variante_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    variante_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_eliminar_variante_use_case] = lambda: mock_eliminar_variante_use_case
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}/variantes/{variante_id}")
+
+    # Assert
+    assert response.status_code == 204
+    mock_eliminar_variante_use_case.execute.assert_called_once_with(prenda_id, variante_id, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_variante_prenda_not_found(app_client, admin_user, mock_eliminar_variante_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    variante_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: admin_user
+    app_client.app.dependency_overrides[get_eliminar_variante_use_case] = lambda: mock_eliminar_variante_use_case
+    mock_eliminar_variante_use_case.execute.side_effect = PrendaNotFoundError(f"Prenda con ID {prenda_id} no encontrada")
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}/variantes/{variante_id}")
+
+    # Assert
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"Prenda con ID {prenda_id} no encontrada"}
+    mock_eliminar_variante_use_case.execute.assert_called_once_with(prenda_id, variante_id, admin_user)
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_variante_forbidden(app_client, non_admin_user, mock_eliminar_variante_use_case):
+    # Arrange
+    prenda_id = uuid4()
+    variante_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: non_admin_user
+    app_client.app.dependency_overrides[get_eliminar_variante_use_case] = lambda: mock_eliminar_variante_use_case
+    mock_eliminar_variante_use_case.execute.side_effect = NotAuthorizedError("No tienes permiso para eliminar variantes de una prenda.")
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}/variantes/{variante_id}")
+
+    # Assert
+    assert response.status_code == 403
+    assert response.json() == {"detail": "The user doesn't have enough privileges"}
+    mock_eliminar_variante_use_case.execute.assert_not_called()
+
+    # Cleanup
+    app_client.app.dependency_overrides = {}
+
+@pytest.mark.asyncio
+async def test_eliminar_variante_unauthorized(app_client, override_get_db):
+    # Arrange
+    prenda_id = uuid4()
+    variante_id = uuid4()
+    app_client.app.dependency_overrides[get_current_user] = lambda: None
+    app_client.app.dependency_overrides[get_db] = override_get_db
+
+    # Act
+    response = app_client.delete(f"/prendas/{prenda_id}/variantes/{variante_id}")
+
+    # Assert
+    assert response.status_code == 401
     assert response.json() == {"detail": "Not authenticated"}
 
     # Cleanup

@@ -1,6 +1,6 @@
 from typing import Optional
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
-from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDTO, UsuarioPolicyDTO, VariantePrendaDTO
+from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDetalleDTO, UsuarioPolicyDTO, VariantePrendaDTO
 from src.app.prendas.application.policies.prenda_policy import PrendaPolicy
 from src.app.users.domain.entities import User
 from src.app.prendas.application.exceptions import UnauthorizedException
@@ -21,7 +21,7 @@ class ListarPrendasUseCase:
         prendas = await self.prenda_repository.listar_todas()
         return ListaPrendasDTO(
             prendas=[
-                PrendaDTO(
+                    PrendaDetalleDTO(
                     id=p.id,
                     nombre=p.nombre,
                     descripcion=p.descripcion,

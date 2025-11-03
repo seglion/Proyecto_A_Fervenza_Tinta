@@ -63,8 +63,8 @@ async def test_anadir_variante_use_case_execute_success(mock_prenda_repository, 
     anadir_variante_dto = AnadirVarianteDTO(genero=GeneroPrenda.HOMBRE, talla=TallaPrenda.M)
 
     mock_prenda_policy.es_administrador.return_value = True
-    mock_prenda_repository.get_by_id.return_value = existing_prenda
-    mock_variante_prenda_repository.save.side_effect = lambda variante_prenda: setattr(variante_prenda, 'id', uuid4()) or variante_prenda
+    mock_prenda_repository.buscar_por_id_con_variantes.return_value = existing_prenda
+    mock_variante_prenda_repository.guardar.return_value = VariantePrenda(id=uuid4(), prenda_id=prenda_id, genero=anadir_variante_dto.genero, talla=anadir_variante_dto.talla, fecha_creacion=datetime.now())
 
     use_case = AnadirVarianteUseCase(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy)
 
@@ -73,9 +73,9 @@ async def test_anadir_variante_use_case_execute_success(mock_prenda_repository, 
 
     # Assert
     mock_prenda_policy.es_administrador.assert_called_once_with(admin_user_dto)
-    mock_prenda_repository.get_by_id.assert_called_once_with(prenda_id)
-    mock_variante_prenda_repository.save.assert_called_once()
-    saved_variante = mock_variante_prenda_repository.save.call_args[0][0]
+    mock_prenda_repository.buscar_por_id_con_variantes.assert_called_once_with(prenda_id)
+    mock_variante_prenda_repository.guardar.assert_called_once()
+    saved_variante = mock_variante_prenda_repository.guardar.return_value
     assert isinstance(saved_variante, VariantePrenda)
     assert saved_variante.prenda_id == prenda_id
     assert saved_variante.genero == anadir_variante_dto.genero
@@ -98,8 +98,8 @@ async def test_anadir_variante_use_case_not_authorized(mock_prenda_repository, m
         await use_case.execute(prenda_id, anadir_variante_dto, non_admin_user_dto)
 
     mock_prenda_policy.es_administrador.assert_called_once_with(non_admin_user_dto)
-    mock_prenda_repository.get_by_id.assert_not_called()
-    mock_variante_prenda_repository.save.assert_not_called()
+    mock_prenda_repository.buscar_por_id_con_variantes.assert_not_called()
+    mock_variante_prenda_repository.guardar.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_anadir_variante_use_case_prenda_not_found(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy, admin_user_dto):
@@ -108,7 +108,8 @@ async def test_anadir_variante_use_case_prenda_not_found(mock_prenda_repository,
     anadir_variante_dto = AnadirVarianteDTO(genero=GeneroPrenda.HOMBRE, talla=TallaPrenda.M)
 
     mock_prenda_policy.es_administrador.return_value = True
-    mock_prenda_repository.get_by_id.return_value = None
+    mock_prenda_repository.buscar_por_id_con_variantes.return_value = None
+    mock_variante_prenda_repository.guardar.return_value = VariantePrenda(id=uuid4(), prenda_id=prenda_id, genero=anadir_variante_dto.genero, talla=anadir_variante_dto.talla, fecha_creacion=datetime.now())
 
     use_case = AnadirVarianteUseCase(mock_prenda_repository, mock_variante_prenda_repository, mock_prenda_policy)
 
@@ -117,5 +118,5 @@ async def test_anadir_variante_use_case_prenda_not_found(mock_prenda_repository,
         await use_case.execute(prenda_id, anadir_variante_dto, admin_user_dto)
 
     mock_prenda_policy.es_administrador.assert_called_once_with(admin_user_dto)
-    mock_prenda_repository.get_by_id.assert_called_once_with(prenda_id)
-    mock_variante_prenda_repository.save.assert_not_called()
+    mock_prenda_repository.buscar_por_id_con_variantes.assert_called_once_with(prenda_id)
+    mock_variante_prenda_repository.guardar.assert_not_called()

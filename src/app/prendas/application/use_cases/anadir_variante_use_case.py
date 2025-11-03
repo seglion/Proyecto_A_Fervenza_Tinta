@@ -16,10 +16,11 @@ class AnadirVarianteUseCase:
         self.prenda_policy = prenda_policy
 
     async def execute(self, prenda_id: UUID, data: AnadirVarianteDTO, current_user: UsuarioPolicyDTO) -> VarianteCreadaDTO:
-        if not self.prenda_policy.es_administrador(current_user):
+        user_policy_dto = UsuarioPolicyDTO(rol=current_user.rol.value, esta_activo=current_user.esta_activo)
+        if not self.prenda_policy.es_administrador(user_policy_dto):
             raise NotAuthorizedError("No tienes permiso para añadir variantes a una prenda.")
 
-        prenda = await self.prenda_repository.get_by_id(prenda_id)
+        prenda = await self.prenda_repository.buscar_por_id_con_variantes(prenda_id)
         if not prenda:
             raise PrendaNotFoundError("Prenda no encontrada.")
 
@@ -31,5 +32,5 @@ class AnadirVarianteUseCase:
             fecha_creacion=datetime.now()
         )
 
-        variante_creada = await self.variante_prenda_repository.save(variante_prenda)
+        variante_creada = await self.variante_prenda_repository.guardar(variante_prenda)
         return VarianteCreadaDTO(id=variante_creada.id)
