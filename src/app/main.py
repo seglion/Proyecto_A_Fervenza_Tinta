@@ -1,33 +1,33 @@
-from dotenv import load_dotenv; load_dotenv()
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from fastapi import FastAPI, Depends
-from app.core.database import Database, get_db
-import asyncpg
-import typing # Import typing
-from app.users.presentation.router import router as users_router
-from app.users.presentation.admin_router import router as admin_router
-from app.cuotas.presentation.router import router as cuotas_router
-app = FastAPI()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app.include_router(users_router)
-app.include_router(admin_router)
-app.include_router(cuotas_router)
-@app.on_event("startup")
-async def startup():
-    await Database.get_pool()
+from app.core.config import settings
 
-@app.on_event("shutdown")
-async def shutdown():
-    await Database.close_pool()
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+)
 
-@app.get("/health")
-async def health_check(db: typing.Any = Depends(get_db)): # Changed type hint to typing.Any
-    try:
-        result = await db.fetchval("SELECT 1")
-        if result == 1:
-            return {"status": "ok", "database": "ok"}
-        else:
-            # This case is unlikely but good to have
-            return {"status": "error", "database": "unexpected result"}
-    except Exception:
-        return {"status": "error", "database": "unavailable"}
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+def include_routers():
+    from app.users.presentation.router import router as users_router
+    from app.cuotas.presentation.router import router as cuotas_router
+    from app.prendas.presentation.router import router as prendas_router
+
+    app.include_router(users_router, prefix=settings.API_V1_STR)
+    app.include_router(cuotas_router, prefix=settings.API_V1_STR)
+    app.include_router(prendas_router, prefix=settings.API_V1_STR)
+
+include_routers()

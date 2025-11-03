@@ -55,7 +55,7 @@ class PostgresPrendaRepository(IPrendaRepository):
                 vp.talla,
                 vp.fecha_creacion AS variante_fecha_creacion
             FROM prendas p
-            LEFT JOIN variantes_prenda vp ON p.id = vp.prenda_id
+            LEFT JOIN varianteprendas vp ON p.id = vp.prenda_id
             WHERE p.id = $1
         """)
         rows = await self.db_connection.fetch(query, prenda_id)

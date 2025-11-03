@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
+from typing import Optional, List
 from pathlib import Path
 
 # Construir una ruta absoluta al directorio raíz del proyecto
@@ -7,6 +7,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env.dev", env_file_encoding='utf-8')
+
+    PROJECT_NAME: str = "FCT App"
+    API_V1_STR: str = "/api/v1"
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
 
     SENDGRID_API_KEY: Optional[str] = None
     STRIPE_SECRET_KEY: str
