@@ -39,6 +39,15 @@ class EliminarPrendaDTO(BaseModel):
     id: UUID
 
 
+class AnadirVarianteDTO(BaseModel):
+    genero: GeneroPrenda
+    talla: TallaPrenda
+
+
+class VarianteCreadaDTO(BaseModel):
+    id: UUID
+
+
 class VariantePrendaDTO(BaseModel):
     id: UUID
     prenda_id: UUID
