@@ -13,7 +13,7 @@ class PostgresVariantePrendaRepository(IVariantePrendaRepository):
 
     async def guardar(self, variante_prenda: VariantePrenda) -> VariantePrenda:
         query = inspect.cleandoc("""
-            INSERT INTO variantes_prenda (id, prenda_id, genero, talla, fecha_creacion)
+            INSERT INTO varianteprendas (id, prenda_id, genero, talla, fecha_creacion)
             VALUES ($1, $2, $3::genero_prenda_enum, $4::talla_prenda_enum, $5)
         """)
         await self.db_connection.execute(
@@ -27,11 +27,11 @@ class PostgresVariantePrendaRepository(IVariantePrendaRepository):
         return variante_prenda
 
     async def eliminar_por_id(self, variante_prenda_id: UUID) -> None:
-        query = "DELETE FROM variantes_prenda WHERE id = $1"
+        query = "DELETE FROM varianteprendas WHERE id = $1"
         await self.db_connection.execute(query, variante_prenda_id)
 
     async def buscar_por_id(self, variante_prenda_id: UUID) -> Optional[VariantePrenda]:
-        query = "SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE id = $1"
+        query = "SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE id = $1"
         row = await self.db_connection.fetchrow(query, variante_prenda_id)
         if row:
             return VariantePrenda(
@@ -44,7 +44,7 @@ class PostgresVariantePrendaRepository(IVariantePrendaRepository):
         return None
 
     async def listar_por_prenda_id(self, prenda_id: UUID) -> List[VariantePrenda]:
-        query = "SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE prenda_id = $1"
+        query = "SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE prenda_id = $1"
         rows = await self.db_connection.fetch(query, prenda_id)
         return [
             VariantePrenda(

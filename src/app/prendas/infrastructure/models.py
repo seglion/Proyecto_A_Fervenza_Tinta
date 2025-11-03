@@ -8,7 +8,6 @@ from app.core.database import Base
 from src.app.prendas.domain.value_objects import GeneroPrenda, TallaPrenda
 
 class PrendaModel(Base):
-    __tablename__ = "prendas"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String(100), unique=True, nullable=False)
@@ -20,7 +19,6 @@ class PrendaModel(Base):
     variantes = relationship("VariantePrendaModel", back_populates="prenda", cascade="all, delete-orphan")
 
 class VariantePrendaModel(Base):
-    __tablename__ = "variantes_prenda"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     prenda_id = Column(UUID(as_uuid=True), ForeignKey("prendas.id"), nullable=False)

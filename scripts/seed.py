@@ -30,6 +30,12 @@ from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.domain.entities import User
 from app.users.domain.value_objects import Rol
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
+from app.prendas.domain.entities import Prenda, VariantePrenda
+from app.prendas.domain.value_objects import TallaPrenda, GeneroPrenda
+from app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
+from app.prendas.application.repositories.i_variante_prenda_repository import IVariantePrendaRepository
+from app.prendas.infrastructure.postgres_prenda_repository import PostgresPrendaRepository
+from app.prendas.infrastructure.postgres_variante_prenda_repository import PostgresVariantePrendaRepository
 
 # --- Configuration ---
 NUM_USERS_TO_CREATE = 15
@@ -56,6 +62,8 @@ async def seed_data():
         temporada_repo: ITemporadaCuotaRepository = PostgresTemporadaCuotaRepository(db_connection)
         tipo_cuota_repo: ITipoCuotaRepository = PostgresTipoCuotaRepository(db_connection)
         cuota_repo: ICuotaRepository = PostgresCuotaRepository(db_connection)
+        prenda_repo: IPrendaRepository = PostgresPrendaRepository(db_connection)
+        variante_prenda_repo: IVariantePrendaRepository = PostgresVariantePrendaRepository(db_connection)
 
         # === 1. Create Users ===
         print(f"Creating {NUM_USERS_TO_CREATE} users and 1 admin...")
@@ -179,7 +187,40 @@ async def seed_data():
             await cuota_repo.guardar(cuota)
         print("- Approx 80% of users have a fee for the current 2025-2026 season.")
 
-        # === 4. Test Trigger ===
+        # === 4. Create Prendas and Variantes ===
+        print("Creating prendas and variantes...")
+        prendas_data = [
+            {"nombre": "Camiseta Técnica", "descripcion": "Camiseta transpirable para entrenamientos.", "precio": "15.00", "imagen_url": "https://via.placeholder.com/150"},
+            {"nombre": "Sudadera con Capucha", "descripcion": "Sudadera de algodón con el logo del club.", "precio": "35.50", "imagen_url": "https://via.placeholder.com/150"},
+            {"nombre": "Pantalón Corto", "descripcion": "Pantalón corto ideal para correr.", "precio": "20.00", "imagen_url": "https://via.placeholder.com/150"},
+        ]
+        created_prendas = []
+        for prenda_data in prendas_data:
+            prenda = Prenda(
+                id=uuid4(),
+                nombre=prenda_data["nombre"],
+                descripcion=prenda_data["descripcion"],
+                precio=Decimal(prenda_data["precio"]),
+                imagen_url=prenda_data["imagen_url"],
+                fecha_creacion=datetime.now(timezone.utc)
+            )
+            await prenda_repo.guardar(prenda)
+            created_prendas.append(prenda)
+
+            # Crear variantes para cada prenda
+            for genero in [GeneroPrenda.HOMBRE, GeneroPrenda.MUJER]:
+                for talla in [TallaPrenda.S, TallaPrenda.M, TallaPrenda.L]:
+                    variante = VariantePrenda(
+                        id=uuid4(),
+                        prenda_id=prenda.id,
+                        genero=genero,
+                        talla=talla,
+                        fecha_creacion=datetime.now(timezone.utc)
+                    )
+                    await variante_prenda_repo.guardar(variante)
+        print(f"- Created {len(created_prendas)} prendas with their variantes.")
+
+        # === 5. Test Trigger ===
         print("--- Testing database trigger ---")
         user_to_test = created_users[5] # Pick a user who already has a fee
         # This user already has a 'CUOTA ANUAL' for temporada_24_25

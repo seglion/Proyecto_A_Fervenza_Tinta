@@ -59,6 +59,8 @@ class VariantePrendaDTO(BaseModel):
     talla: TallaPrenda
     fecha_creacion: datetime
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class PrendaDTO(BaseModel):
     id: UUID
@@ -68,6 +70,8 @@ class PrendaDTO(BaseModel):
     imagen_url: str
     fecha_creacion: datetime
     variantes: List[VariantePrendaDTO]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ListaPrendasDTO(BaseModel):
@@ -82,3 +86,5 @@ class PrendaDetalleDTO(BaseModel):
     imagen_url: str
     fecha_creacion: datetime
     variantes: List[VariantePrendaDTO]
+
+    model_config = ConfigDict(from_attributes=True)

@@ -150,15 +150,7 @@ erDiagram
 7.  **Eliminar Variante de Prenda**
       * **Lógica:** Un administrador elimina una variante específica (ej: "Hombre - Talla S") de una prenda, sin necesidad de borrar la prenda completa.
 
------
 
-## Diagramas de Secuencia
-
------
-
-Aquí os tes.
-
-Xerei os 7 diagramas de secuencia para o slice `Prendas`, seguindo a numeración da lista de casos de uso que consolidamos e a nosa arquitectura.
 
 -----
 

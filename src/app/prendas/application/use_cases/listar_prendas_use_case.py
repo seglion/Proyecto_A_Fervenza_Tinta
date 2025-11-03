@@ -1,36 +1,31 @@
-from typing import List
-
-from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDTO, VariantePrendaDTO
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
-
+from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDTO, UsuarioPolicyDTO, VariantePrendaDTO
+from src.app.prendas.application.policies.prenda_policy import PrendaPolicy
+from src.app.users.domain.entities import User
+from src.app.prendas.application.exceptions import UnauthorizedException
 
 class ListarPrendasUseCase:
-    def __init__(self, prenda_repository: IPrendaRepository):
+    def __init__(self, prenda_repository: IPrendaRepository, prenda_policy: PrendaPolicy):
         self.prenda_repository = prenda_repository
+        self.prenda_policy = prenda_policy
 
-    async def execute(self) -> ListaPrendasDTO:
-        prendas = await self.prenda_repository.get_all()
-        prendas_dto = []
-        for prenda in prendas:
-            variantes_dto = [
-                VariantePrendaDTO(
-                    id=variante.id,
-                    prenda_id=variante.prenda_id,
-                    genero=variante.genero,
-                    talla=variante.talla,
-                    fecha_creacion=variante.fecha_creacion
-                )
-                for variante in prenda.variantes
-            ]
-            prendas_dto.append(
+    async def execute(self, user: User) -> ListaPrendasDTO:
+        user_policy_dto = UsuarioPolicyDTO(rol=user.rol.value, esta_activo=user.esta_activo)
+        if not self.prenda_policy.es_usuario_activo(user_policy_dto):
+            raise UnauthorizedException("No está autorizado para listar prendas.")
+
+        prendas = await self.prenda_repository.listar_todas()
+        return ListaPrendasDTO(
+            prendas=[
                 PrendaDTO(
-                    id=prenda.id,
-                    nombre=prenda.nombre,
-                    descripcion=prenda.descripcion,
-                    precio=prenda.precio,
-                    imagen_url=prenda.imagen_url,
-                    fecha_creacion=prenda.fecha_creacion,
-                    variantes=variantes_dto
+                    id=p.id,
+                    nombre=p.nombre,
+                    descripcion=p.descripcion,
+                    precio=p.precio,
+                    imagen_url=p.imagen_url,
+                    fecha_creacion=p.fecha_creacion,
+                    variantes=[VariantePrendaDTO.model_validate(v) for v in p.variantes]
                 )
-            )
-        return ListaPrendasDTO(prendas=prendas_dto)
+                for p in prendas
+            ]
+        )

@@ -40,7 +40,7 @@ async def test_guardar_variante_prenda():
     mock_db_connection.execute.assert_called_once()
     args = mock_db_connection.execute.call_args[0]
     
-    expected_query = "INSERT INTO variantes_prenda (id, prenda_id, genero, talla, fecha_creacion) VALUES ($1, $2, $3::genero_prenda_enum, $4::talla_prenda_enum, $5)"
+    expected_query = "INSERT INTO varianteprendas (id, prenda_id, genero, talla, fecha_creacion) VALUES ($1, $2, $3::genero_prenda_enum, $4::talla_prenda_enum, $5)"
     assert " ".join(args[0].split()) == expected_query
 
     assert args[1] == variante.id
@@ -61,7 +61,7 @@ async def test_eliminar_por_id_variante_prenda():
 
     await repository.eliminar_por_id(variante_id)
 
-    mock_db_connection.execute.assert_called_once_with("DELETE FROM variantes_prenda WHERE id = $1", variante_id)
+    mock_db_connection.execute.assert_called_once_with("DELETE FROM varianteprendas WHERE id = $1", variante_id)
 
 # --- Test de buscar_por_id ---
 
@@ -75,7 +75,7 @@ async def test_buscar_por_id_variante_prenda_not_found():
 
     result = await repository.buscar_por_id(variante_id)
 
-    mock_db_connection.fetchrow.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE id = $1", variante_id)
+    mock_db_connection.fetchrow.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE id = $1", variante_id)
     assert result is None
 
 @pytest.mark.asyncio
@@ -97,7 +97,7 @@ async def test_buscar_por_id_variante_prenda_found():
 
     result = await repository.buscar_por_id(variante_id)
 
-    mock_db_connection.fetchrow.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE id = $1", variante_id)
+    mock_db_connection.fetchrow.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE id = $1", variante_id)
     assert result is not None
     assert isinstance(result, VariantePrenda)
     assert result.id == variante_id
@@ -115,7 +115,7 @@ async def test_listar_por_prenda_id_returns_empty_list():
 
     result = await repository.listar_por_prenda_id(prenda_id)
 
-    mock_db_connection.fetch.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE prenda_id = $1", prenda_id)
+    mock_db_connection.fetch.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE prenda_id = $1", prenda_id)
     assert result == []
 
 @pytest.mark.asyncio
@@ -136,7 +136,7 @@ async def test_listar_por_prenda_id_returns_list_of_variantes():
 
     result = await repository.listar_por_prenda_id(prenda_id)
 
-    mock_db_connection.fetch.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM variantes_prenda WHERE prenda_id = $1", prenda_id)
+    mock_db_connection.fetch.assert_called_once_with("SELECT id, prenda_id, genero, talla, fecha_creacion FROM varianteprendas WHERE prenda_id = $1", prenda_id)
     assert len(result) == 2
     assert isinstance(result[0], VariantePrenda)
     assert result[0].id == variante1_id
