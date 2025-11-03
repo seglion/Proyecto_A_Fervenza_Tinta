@@ -43,8 +43,7 @@ async def test_crear_prenda_use_case_execute(mock_prenda_repository, mock_prenda
     
     # Mock the save method to return a Prenda instance with a UUID id
     crear_prenda_dto = CrearPrendaDTO(nombre="Camiseta", descripcion="Camiseta de algodón", precio=19.99, imagen_url="http://example.com/img.png")
-    mock_prenda_repository.save.return_value = Prenda(id=uuid4(), nombre=crear_prenda_dto.nombre, descripcion=crear_prenda_dto.descripcion, precio=crear_prenda_dto.precio, imagen_url=crear_prenda_dto.imagen_url, fecha_creacion=datetime.now())
-
+    mock_prenda_repository.guardar.side_effect = lambda prenda: prenda
     use_case = CrearPrendaUseCase(mock_prenda_repository, mock_prenda_policy)
 
     # Act
@@ -52,7 +51,7 @@ async def test_crear_prenda_use_case_execute(mock_prenda_repository, mock_prenda
 
     # Assert
     mock_prenda_policy.es_administrador.assert_called_once_with(admin_user_dto)
-    mock_prenda_repository.save.assert_called_once()
-    saved_prenda = mock_prenda_repository.save.call_args[0][0]
+    mock_prenda_repository.guardar.assert_called_once()
+    saved_prenda = mock_prenda_repository.guardar.call_args[0][0]
     assert isinstance(saved_prenda, Prenda)
     assert saved_prenda.nombre == crear_prenda_dto.nombre
