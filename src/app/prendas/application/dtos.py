@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
 from src.app.prendas.domain.value_objects import GeneroPrenda, TallaPrenda
 from src.app.users.domain.value_objects import Rol
@@ -20,6 +21,17 @@ class CrearPrendaDTO(BaseModel):
 
 
 class PrendaCreadaDTO(BaseModel):
+    id: UUID
+
+
+class ActualizarPrendaDTO(BaseModel):
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    precio: Optional[float] = None
+    imagen_url: Optional[str] = None
+
+
+class PrendaActualizadaDTO(BaseModel):
     id: UUID
 
 
