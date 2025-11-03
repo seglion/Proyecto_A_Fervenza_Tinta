@@ -1,3 +1,4 @@
+from typing import Optional
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
 from src.app.prendas.application.dtos import ListaPrendasDTO, PrendaDTO, UsuarioPolicyDTO, VariantePrendaDTO
 from src.app.prendas.application.policies.prenda_policy import PrendaPolicy
@@ -9,7 +10,10 @@ class ListarPrendasUseCase:
         self.prenda_repository = prenda_repository
         self.prenda_policy = prenda_policy
 
-    async def execute(self, user: User) -> ListaPrendasDTO:
+    async def execute(self, user: Optional[User]) -> ListaPrendasDTO:
+        if user is None:
+            raise UnauthorizedException("No está autenticado para listar prendas.")
+        
         user_policy_dto = UsuarioPolicyDTO(rol=user.rol.value, esta_activo=user.esta_activo)
         if not self.prenda_policy.es_usuario_activo(user_policy_dto):
             raise UnauthorizedException("No está autorizado para listar prendas.")
