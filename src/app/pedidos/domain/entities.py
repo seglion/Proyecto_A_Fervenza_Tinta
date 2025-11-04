@@ -32,7 +32,7 @@ class Pedido:
 
 @dataclass
 class TemporadaPedido:
-    id: int
+    id: Optional[int]
     nombre_temporada: str
     fecha_inicio: date
     fecha_fin: date
