@@ -1,0 +1,8 @@
+from enum import Enum
+
+class EstadoPedido(str, Enum):
+    BORRADOR = "BORRADOR"
+    PENDIENTEPAGO = "PENDIENTEPAGO"
+    COMPLETADO = "COMPLETADO"
+    ENCARGADO = "ENCARGADO"
+    CANCELADO = "CANCELADO"
