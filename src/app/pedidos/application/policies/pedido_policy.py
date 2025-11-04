@@ -24,3 +24,6 @@ class PedidoPolicy:
 
     def cancelar_pedido(self, current_user: User) -> bool:
         return self.es_administrador(current_user)
+
+    def puede_listar_historial(self, current_user: User) -> bool:
+        return current_user.esta_activo

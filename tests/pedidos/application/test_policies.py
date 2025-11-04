@@ -10,3 +10,4 @@ def test_pedido_policy_tiene_metodos():
     assert hasattr(PedidoPolicy, 'listar_todos_pedidos')
     assert hasattr(PedidoPolicy, 'marcar_pagado')
     assert hasattr(PedidoPolicy, 'cancelar_pedido')
+    assert hasattr(PedidoPolicy, 'puede_listar_historial')
