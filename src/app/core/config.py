@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env.dev", env_file_encoding='utf-8')
 
-    PROJECT_NAME: str = "FCT App"
+    PROJECT_NAME: str = "FERVENZA App"
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
 
@@ -40,6 +40,6 @@ class Settings(BaseSettings):
     TEMPLATE_FOLDER: Optional[str] = None
 
     STRIPE_SECRET_KEY: str
-    
+
 
 settings = Settings()

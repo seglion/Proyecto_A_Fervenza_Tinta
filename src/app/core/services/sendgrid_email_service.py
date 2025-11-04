@@ -4,6 +4,7 @@ from sendgrid.helpers.mail import Mail, Email, To, Content
 from app.core.services.i_email_service import IEmailService
 from app.core.config import settings
 from pathlib import Path
+from typing import Dict, Any
 
 class SendGridEmailService(IEmailService):
     def __init__(self):
@@ -19,6 +20,7 @@ class SendGridEmailService(IEmailService):
         self.welcome_template = (template_dir / "welcome_email.html").read_text()
         self.reset_password_template = (template_dir / "reset_password_email.html").read_text()
         self.rejection_template = (template_dir / "rejection_email.html").read_text()
+        self.payment_confirmation_template = (template_dir / "payment_confirmation_email.html").read_text()
         self.button_template = (template_dir / "button_section.html").read_text()
 
     def send_verification_email(self, email_to: str, name: str, token: str) -> None:
@@ -98,4 +100,26 @@ class SendGridEmailService(IEmailService):
             print(response.headers)
         except Exception as e:
             print(f"Error sending rejection email: {e}")
+            raise
+
+    def enviar_email_confirmacion_pago(self, email_to: str, name: str, cuota_info: Dict[str, Any]) -> None:
+        subject = "Confirmación de Pago de Cuota"
+        html_content = self.payment_confirmation_template.replace("{{name}}", name)
+        # Aquí puedes añadir más reemplazos para cuota_info si la plantilla lo requiere
+        for key, value in cuota_info.items():
+            html_content = html_content.replace(f"{{{{{key}}}}}", str(value))
+        
+        message = Mail(
+            from_email=Email(self.sender_email),
+            to_emails=To(email_to),
+            subject=subject,
+            html_content=Content("text/html", html_content)
+        )
+        try:
+            response = self.sg.client.mail.send.post(request_body=message.get())
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(f"Error sending payment confirmation email: {e}")
             raise

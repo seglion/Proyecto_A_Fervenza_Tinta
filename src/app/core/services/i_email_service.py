@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Dict, Any
 
 class IEmailService(ABC):
     @abstractmethod
@@ -15,4 +16,8 @@ class IEmailService(ABC):
 
     @abstractmethod
     def enviar_email_rechazo(self, email_to: str) -> None:
+        pass
+
+    @abstractmethod
+    def enviar_email_confirmacion_pago(self, email_to: str, name: str, cuota_info: Dict[str, Any]) -> None:
         pass

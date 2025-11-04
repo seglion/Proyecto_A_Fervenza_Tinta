@@ -25,7 +25,7 @@ def include_routers():
     from app.users.presentation.router import router as users_router
     from app.cuotas.presentation.router import router as cuotas_router
     from app.prendas.presentation.router import router as prendas_router
-
+    print(settings.PROJECT_NAME)
     app.include_router(users_router, prefix=settings.API_V1_STR)
     app.include_router(cuotas_router, prefix=settings.API_V1_STR)
     app.include_router(prendas_router, prefix=settings.API_V1_STR)
