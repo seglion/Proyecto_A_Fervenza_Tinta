@@ -6,3 +6,8 @@ class EstadoPedido(str, Enum):
     COMPLETADO = "COMPLETADO"
     ENCARGADO = "ENCARGADO"
     CANCELADO = "CANCELADO"
+
+class MetodoPago(str, Enum):
+    STRIPE = "STRIPE"
+    ENCARGO = "ENCARGO"
+    MANUAL = "MANUAL"
