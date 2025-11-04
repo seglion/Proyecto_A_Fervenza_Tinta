@@ -12,7 +12,11 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
 
-    SENDGRID_API_KEY: Optional[str] = None
+    
+    SENDGRID_API_KEY: str
+    SENDGRID_SENDER_EMAIL: str
+    
+    
     STRIPE_SECRET_KEY: str
     STRIPE_CUOTAS_WEBHOOK_SECRET: str
 

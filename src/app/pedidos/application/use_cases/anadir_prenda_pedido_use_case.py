@@ -1,12 +1,12 @@
 from uuid import UUID
 from typing import Optional
 
-from src.app.pedidos.application.dtos import PedidoDTO, DatosLineaDTO
+from src.app.pedidos.application.dtos import PedidoDTO, CrearLineaDePedidoDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository
 from src.app.pedidos.application.repositories.i_temporada_pedido_repository import ITemporadaPedidoRepository
 from src.app.prendas.application.repositories.i_variante_prenda_repository import IVariantePrendaRepository
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoValidoException
+from src.app.pedidos.application.exceptions import TemporadaPedidoNoActivaException, VariantePrendaNoEncontradaException, CantidadInvalidaException, PedidoNoEncontradoException
 from src.app.users.domain.entities import User
 
 
@@ -23,11 +23,11 @@ class AnadirPrendaPedidoUseCase:
         self.variante_prenda_repository = variante_prenda_repository
         self.prenda_repository = prenda_repository
 
-    async def execute(self, current_user: User, datos_linea: DatosLineaDTO) -> PedidoDTO:
+    async def execute(self, current_user: User, datos_linea: CrearLineaDePedidoDTO) -> PedidoDTO:
         # 1. Comprobar temporada activa
         temporada_activa = await self.temporada_pedido_repository.get_temporada_activa()
         if not temporada_activa or not temporada_activa.esta_activa:
-            raise TemporadaCerradaException("No hay temporada de pedidos activa o está cerrada.")
+            raise TemporadaPedidoNoActivaException("No hay temporada de pedidos activa o está cerrada.")
 
         # 2. Obtener o crear el pedido 'borrador'
         pedido_borrador = await self.pedido_repository.obtener_o_crear_borrador(
@@ -38,11 +38,11 @@ class AnadirPrendaPedidoUseCase:
         # 3. Obtener datos de la prenda y variante para "congelar" precio y descripción
         variante = await self.variante_prenda_repository.buscar_por_id(datos_linea.variante_id)
         if not variante:
-            raise PedidoNoValidoException("Variante de prenda no encontrada.")
+            raise VariantePrendaNoEncontradaException("Variante de prenda no encontrada.")
 
-        prenda = await self.prenda_repository.buscar_por_id_con_variantes(variante.prenda_id)
+        prenda = await self.prenda_repository.buscar_por_id(variante.prenda_id) # Changed from buscar_por_id_con_variantes
         if not prenda:
-            raise PedidoNoValidoException("Prenda no encontrada.")
+            raise PedidoNoEncontradoException("Prenda no encontrada.") # Changed exception
 
         # 4. Añadir o actualizar la línea de pedido
         if datos_linea.cantidad <= 0:

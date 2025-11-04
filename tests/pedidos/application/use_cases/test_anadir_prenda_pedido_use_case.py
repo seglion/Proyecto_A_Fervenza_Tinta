@@ -14,8 +14,8 @@ from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido, TemporadaPedido, LineaDePedido
 from src.app.prendas.domain.entities import Prenda, VariantePrenda
 from src.app.pedidos.domain.value_objects import EstadoPedido
-from src.app.pedidos.application.dtos import PedidoDTO, DatosLineaDTO
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoValidoException
+from src.app.pedidos.application.dtos import PedidoDTO, CrearLineaDePedidoDTO
+from src.app.pedidos.application.exceptions import TemporadaPedidoNoActivaException, VariantePrendaNoEncontradaException, PedidoNoEncontradoException
 
 @pytest.fixture
 def mock_pedido_repository():
@@ -90,7 +90,7 @@ async def test_anadir_prenda_a_pedido(mock_pedido_repository, mock_temporada_ped
     mock_pedido_repository.guardar_pedido.return_value = pedido_borrador
 
     use_case = AnadirPrendaPedidoUseCase(mock_pedido_repository, mock_temporada_pedido_repository, mock_variante_prenda_repository, mock_prenda_repository)
-    datos_linea = DatosLineaDTO(variante_id=variante_prenda.id, cantidad=1)
+    datos_linea = CrearLineaDePedidoDTO(variante_prenda_id=variante_prenda.id, cantidad=1)
 
     # Act
     result = await use_case.execute(user_registrado, datos_linea)

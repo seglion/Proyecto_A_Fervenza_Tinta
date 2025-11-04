@@ -16,12 +16,11 @@ from app.users.application.use_cases.forzar_reseteo_use_case import ForzarResete
 from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_email_service
 from app.users.domain.entities import User
 from app.users.domain.value_objects import Rol
 from app.users.application.policies.user_policy import UserPolicy
 from app.core.services.i_email_service import IEmailService
-from app.core.services.sendgrid_email_service import SendGridEmailService as EmailService
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
 from app.core.security.i_password_hasher import IPasswordHasher
@@ -86,10 +85,10 @@ async def get_user_profile(
 
 def get_aprobar_usuario_use_case(
     db_connection: typing.Any = Depends(get_db),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> AprobarUsuarioUseCase:
     user_repository = PostgresUserRepository(db_connection)
     user_policy = UserPolicy()
-    email_service = EmailService()
     return AprobarUsuarioUseCase(user_repository, user_policy, email_service)
 
 @router.post("/{user_id}/aprobar", status_code=status.HTTP_200_OK)
@@ -106,10 +105,10 @@ async def approve_user(
 
 def get_rechazar_usuario_use_case(
     db_connection: typing.Any = Depends(get_db),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> RechazarUsuarioUseCase:
     user_repository = PostgresUserRepository(db_connection)
     user_policy = UserPolicy()
-    email_service = EmailService()
     return RechazarUsuarioUseCase(user_repository, user_policy, email_service)
 
 @router.post("/{user_id}/rechazar", status_code=status.HTTP_200_OK)
@@ -184,22 +183,11 @@ async def delete_user(
 
 def get_forzar_reseteo_use_case(
     db_connection: typing.Any = Depends(get_db),
+    password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> ForzarReseteoUseCase:
     user_repository = PostgresUserRepository(db_connection)
     token_repository = PostgresTokenRepository(db_connection)
     password_hasher = Argon2PasswordHasher()
     user_policy = UserPolicy()
-    email_service = EmailService()
     return ForzarReseteoUseCase(user_repository, token_repository, password_hasher, user_policy, email_service)
-
-@router.post("/{user_id}/forzar-reseteo", status_code=status.HTTP_200_OK)
-async def force_password_reset(
-    user_id: UUID,
-    admin_user: User = Depends(get_admin_user),
-    use_case: ForzarReseteoUseCase = Depends(get_forzar_reseteo_use_case)
-):
-    try:
-        await use_case.execute(admin_user, user_id)
-        return {"message": "Password reset forced successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

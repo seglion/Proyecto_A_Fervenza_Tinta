@@ -1,4 +1,4 @@
-import os
+
 from typing import Dict, Any
 
 from sendgrid import SendGridAPIClient
@@ -11,8 +11,9 @@ from src.app.core.config import settings
 
 class SendgridEmailService(IEmailService):
     def __init__(self):
-        self.sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-        self.sender_email = os.environ.get('SENDGRID_SENDER_EMAIL')
+        print(f"SendGrid API Key: {settings.SENDGRID_API_KEY}")
+        self.sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        self.sender_email = settings.SENDGRID_SENDER_EMAIL
 
     def send_verification_email(self, email_to: str, name: str, token: str) -> None:
         message = Mail(

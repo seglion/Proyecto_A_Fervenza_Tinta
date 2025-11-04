@@ -14,7 +14,7 @@ class EmailTemplates:
     @staticmethod
     def get_verification_email_template(name: str, token: str) -> str:
         template = EmailTemplates._load_template("verification_email.html")
-        verification_link = f"{settings.BASE_URL}/users/verificar-email?token={token}"
+        verification_link = f"{settings.BASE_URL}{settings.API_V1_STR}/users/verificar-email?token={token}"
         button_html = EmailTemplates._load_template("button_section.html").replace("{{link}}", verification_link).replace("{{button_text}}", "Verify Email")
         return template.replace("{{name}}", name).replace("{{button_section}}", button_html)
 
@@ -26,7 +26,7 @@ class EmailTemplates:
     @staticmethod
     def get_reset_password_email_template(token: str) -> str:
         template = EmailTemplates._load_template("reset_password_email.html")
-        reset_link = f"{settings.BASE_URL}/users/confirmar-reseteo?token={token}"
+        reset_link = f"{settings.BASE_URL}{settings.API_V1_STR}users/confirmar-reseteo?token={token}"
         button_html = EmailTemplates._load_template("button_section.html").replace("{{link}}", reset_link).replace("{{button_text}}", "Reset Password")
         return template.replace("{{name}}", "there").replace("{{button_section}}", button_html)
 

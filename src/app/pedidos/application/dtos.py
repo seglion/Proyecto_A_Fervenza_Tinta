@@ -1,77 +1,15 @@
 from pydantic import BaseModel, ConfigDict
-from uuid import UUID
+from datetime import date, datetime
 from decimal import Decimal
 from typing import List, Optional
-from datetime import datetime, date
+from uuid import UUID
 
-from src.app.pedidos.domain.value_objects import EstadoPedido
-# from src.app.users.application.dtos import UserDTO # Placeholder, will be imported later
-
-
-class LineaPedidoDTO(BaseModel):
-    id: UUID
-    variante_prenda_id: UUID
-    cantidad: int
-    precio_unitario_conxelado: Decimal
-    desc_variante_conxelada: str
-
-    model_config = ConfigDict(from_attributes=True)
+from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
+from src.app.users.application.dtos import UsuarioResponseDTO # Para PedidoDetalleAdminDTO
+from src.app.prendas.application.dtos import VariantePrendaDTO # Para LineaDePedidoDTO
 
 
-class PedidoDTO(BaseModel):
-    id: UUID
-    usuario_id: UUID
-    temporada_id: int
-    estado: EstadoPedido
-    total_calculado: Decimal
-    fecha_creacion: datetime
-    metodo_pago: Optional[str] = None
-    id_transaccion_externa: Optional[str] = None
-    fecha_finalizacion: Optional[datetime] = None
-    lineas: List[LineaPedidoDTO] = []
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class DatosLineaDTO(BaseModel):
-    variante_id: UUID
-    cantidad: int
-
-
-class IntentoPagoDTO(BaseModel):
-    url_pago: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ListaPedidosDTO(BaseModel):
-    pedidos: List[PedidoDTO]
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class PedidoDetalleAdminDTO(BaseModel):
-    id: UUID
-    usuario_id: UUID
-    # usuario: UserDTO # Placeholder
-    temporada_id: int
-    estado: EstadoPedido
-    total_calculado: Decimal
-    fecha_creacion: datetime
-    metodo_pago: Optional[str] = None
-    id_transaccion_externa: Optional[str] = None
-    fecha_finalizacion: Optional[datetime] = None
-    lineas: List[LineaPedidoDTO] = []
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ListaPedidosAdminDTO(BaseModel):
-    pedidos: List[PedidoDetalleAdminDTO]
-
-    model_config = ConfigDict(from_attributes=True)
-
-
+# --- TemporadaPedido DTOs ---
 class TemporadaPedidoDTO(BaseModel):
     id: int
     nombre_temporada: str
@@ -82,21 +20,102 @@ class TemporadaPedidoDTO(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
-class DatosTemporadaPedidoDTO(BaseModel):
+class CrearTemporadaPedidoDTO(BaseModel):
     nombre_temporada: str
     fecha_inicio: date
     fecha_fin: date
+    esta_activa: bool = False
+
+class ActualizarTemporadaPedidoDTO(BaseModel):
+    nombre_temporada: Optional[str] = None
+    fecha_inicio: Optional[date] = None
+    fecha_fin: Optional[date] = None
+    esta_activa: Optional[bool] = None
+
+class ListaTemporadasPedidoDTO(BaseModel):
+    temporadas: List[TemporadaPedidoDTO]
 
 
-class DatosPagoManualDTO(BaseModel):
-    metodo_pago: str
-    notas: Optional[str] = None
+# --- LineaDePedido DTOs ---
+class LineaDePedidoDTO(BaseModel):
+    id: UUID
+    pedido_id: UUID
+    variante_prenda_id: UUID
+    cantidad: int
+    precio_unitario_conxelado: Decimal
+    desc_variante_conxelada: str
+    # Opcional: Podríamos incluir aquí un VariantePrendaDTO si siempre se necesita el detalle de la variante
 
+    model_config = ConfigDict(from_attributes=True)
+
+class CrearLineaDePedidoDTO(BaseModel):
+    variante_prenda_id: UUID
+    cantidad: int
+
+
+# --- Pedido DTOs ---
+class PedidoDTO(BaseModel):
+    id: UUID
+    usuario_id: UUID
+    temporada_id: int
+    estado: EstadoPedido
+    total_calculado: Decimal
+    metodo_pago: Optional[MetodoPago] = None
+    id_transaccion_externa: Optional[str] = None
+    fecha_creacion: datetime
+    fecha_finalizacion: Optional[datetime] = None
+    lineas: List[LineaDePedidoDTO] = [] # Incluir líneas en el DTO principal
+
+    model_config = ConfigDict(from_attributes=True)
+
+class ListaPedidosDTO(BaseModel):
+    pedidos: List[PedidoDTO]
+
+class PedidoDetalleDTO(PedidoDTO):
+    # Este DTO podría extender PedidoDTO si se necesita información adicional
+    # Por ahora, es igual a PedidoDTO, pero se mantiene para consistencia
+    pass
+
+class IntentoPagoPedidoDTO(BaseModel):
+    url_pago: str
 
 class PedidoCompletadoDTO(BaseModel):
     id: UUID
     estado: EstadoPedido
-    fecha_finalizacion: datetime
+    total_calculado: Decimal
+    metodo_pago: Optional[MetodoPago] = None
+    id_transaccion_externa: Optional[str] = None
+    fecha_finalizacion: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class PedidoAdminDTO(BaseModel):
+    id: UUID
+    usuario_id: UUID
+    temporada_id: int
+    estado: EstadoPedido
+    total_calculado: Decimal
+    metodo_pago: Optional[MetodoPago] = None
+    id_transaccion_externa: Optional[str] = None
+    fecha_creacion: datetime
+    fecha_finalizacion: Optional[datetime] = None
+    usuario_detalle: Optional[UsuarioResponseDTO] = None # Para mostrar info del usuario en admin
+
+    model_config = ConfigDict(from_attributes=True)
+
+class ListaPedidosAdminDTO(BaseModel):
+    pedidos: List[PedidoAdminDTO]
+
+class PedidoDetalleAdminDTO(PedidoAdminDTO):
+    lineas: List[LineaDePedidoDTO] = []
+
+class ActualizarEstadoPedidoDTO(BaseModel):
+    estado: EstadoPedido
+    metodo_pago: Optional[MetodoPago] = None
+    id_transaccion_externa: Optional[str] = None
+    fecha_finalizacion: Optional[datetime] = None
+
+class ActualizarPedidoManualDTO(BaseModel):
+    metodo_pago: MetodoPago
+    id_transaccion_externa: Optional[str] = None
+

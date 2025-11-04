@@ -25,11 +25,11 @@ from app.users.application.repositories.i_token_repository import ITokenReposito
 from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
 
 
-from app.core.services.sendgrid_email_service import SendGridEmailService as EmailService
+
 from app.infrastructure.security.jwt_service import get_jwt_service
 from app.core.database import get_db
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_email_service
 from app.users.domain.entities import User
 from app.users.application.policies.user_policy import UserPolicy
 from app.users.application.use_cases.registrar_usuario_use_case import RegistrarUsuarioUseCase
@@ -69,13 +69,13 @@ class RefrescarSesionRequest(BaseModel):
 def get_registrar_usuario_use_case(
     db_connection: typing.Any = Depends(get_db),
     password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> "RegistrarUsuarioUseCase":
     # import local para evitar importación circular / side-effects en import time
 
 
     user_repository = PostgresUserRepository(db_connection)
     token_repository = PostgresTokenRepository(db_connection)
-    email_service = EmailService()
     return RegistrarUsuarioUseCase(user_repository, password_hasher, email_service, token_repository)
 
 @router.post("/register", response_model=UsuarioCreadoDTO, status_code=status.HTTP_201_CREATED)
@@ -214,11 +214,11 @@ async def solicitar_eliminacion(
 def get_reenviar_email_use_case(
     db_connection: typing.Any = Depends(get_db),
     password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> "ReenviarEmailUseCase":
 
     user_repository = PostgresUserRepository(db_connection)
     token_repository = PostgresTokenRepository(db_connection)
-    email_service = EmailService()
     return ReenviarEmailUseCase(user_repository, token_repository, password_hasher, email_service)
 
 @router.post("/reenviar-verificacion", status_code=status.HTTP_200_OK)
@@ -235,11 +235,11 @@ async def reenviar_email_verificacion(
 def get_solicitar_reseteo_contrasena_use_case(
     db_connection: typing.Any = Depends(get_db),
     password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
+    email_service: IEmailService = Depends(get_email_service)
 ) -> "SolicitarReseteoContrasenaUseCase":
 
     user_repository = PostgresUserRepository(db_connection)
     token_repository = PostgresTokenRepository(db_connection)
-    email_service = EmailService()
     return SolicitarReseteoContrasenaUseCase(user_repository, token_repository, email_service, password_hasher)
 
 @router.post("/solicitar-reseteo", status_code=status.HTTP_200_OK)

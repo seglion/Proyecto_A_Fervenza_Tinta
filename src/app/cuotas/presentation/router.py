@@ -17,7 +17,7 @@ from src.app.cuotas.application.use_cases.actualizar_temporada_use_case import A
 from src.app.cuotas.application.use_cases.listar_temporadas_use_case import ListarTemporadasUseCase
 from src.app.cuotas.application.exceptions import UnauthorizedException, TemporadaNoEncontrada, TipoCuotaNoEncontrado, CuotaNoEncontrada, CuotaYaPagadaException
 from src.app.users.domain.entities import User
-from src.app.core.dependencies import get_current_user
+from src.app.core.dependencies import get_current_user, get_email_service
 from src.app.users.domain.value_objects import Rol
 from src.app.core.services.i_payment_gateway import IPaymentGateway
 from src.app.infrastructure.payments.stripe_payment_gateway import StripePaymentGateway
@@ -31,7 +31,6 @@ from src.app.cuotas.application.use_cases.procesar_webhook_use_case import Proce
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 from src.app.core.services.i_email_service import IEmailService
-from src.app.core.services.sendgrid_email_service import SendGridEmailService # O ConsoleEmailService, dependiendo de la configuración
 
 router = APIRouter(prefix="/cuotas", tags=["cuotas"])
 
@@ -54,9 +53,6 @@ def get_tipo_cuota_repository(db_connection: Any = Depends(get_db)) -> ITipoCuot
 
 def get_payment_gateway() -> IPaymentGateway:
     return StripePaymentGateway()
-
-def get_email_service() -> IEmailService:
-    return SendGridEmailService() # O ConsoleEmailService, dependiendo de la configuración
 
 def get_listar_cuotas_use_case(
     cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
