@@ -6,10 +6,7 @@ from src.app.pedidos.application.repositories.i_pedido_repository import IPedido
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.core.services.i_email_service import IEmailService
 from src.app.pedidos.application.exceptions import PedidoNoEncontradoException
-from src.app.pedidos.domain.value_objects import EstadoPedido
-
-# Asumiendo que MetodoPago está en el mismo fichero de value_objects
-from src.app.pedidos.domain.value_objects import MetodoPago
+from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
 
 
 class ProcesarWebhookPedidoUseCase:
@@ -52,5 +49,11 @@ class ProcesarWebhookPedidoUseCase:
             # Obtener el usuario para enviar el correo de confirmación
             user = await self.user_repository.buscar_por_id(pedido.usuario_id)
             if user:
-                # Asumiendo que el servicio de email tiene un método para esto
-                await self.email_service.enviar_confirmacion_pago_pedido(user.email, pedido)
+                pedido_info = {
+                    "name": user.nombre,
+                    "pedido_id": str(pedido.id),
+                    "total": str(pedido.total_calculado),
+                    "estado": pedido.estado.value,
+                    "fecha_finalizacion": pedido.fecha_finalizacion.isoformat() if pedido.fecha_finalizacion else None,
+                }
+                self.email_service.enviar_confirmacion_pago_pedido(user.email, pedido_info)

@@ -16,3 +16,7 @@ class ITemporadaPedidoRepository(ABC):
     @abstractmethod
     async def marcar_temporadas_como_cerradas(self, lista_ids_temporadas: List[int]):
         pass
+
+    @abstractmethod
+    async def get_temporadas_finalizadas_pendientes_cierre(self) -> List[TemporadaPedido]:
+        pass

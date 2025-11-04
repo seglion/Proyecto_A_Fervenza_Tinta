@@ -21,3 +21,7 @@ class IEmailService(ABC):
     @abstractmethod
     def enviar_email_confirmacion_pago(self, email_to: str, name: str, cuota_info: Dict[str, Any]) -> None:
         pass
+
+    @abstractmethod
+    def enviar_confirmacion_pago_pedido(self, email_to: str, pedido_info: Dict[str, Any]) -> None:
+        pass

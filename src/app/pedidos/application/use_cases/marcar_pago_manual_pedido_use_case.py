@@ -9,7 +9,7 @@ from src.app.core.services.i_email_service import IEmailService
 from src.app.pedidos.application.policies.pedido_policy import PedidoPolicy
 from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoValidoException
 from src.app.users.domain.entities import User
-from src.app.pedidos.domain.value_objects import EstadoPedido
+from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
 
 
 class MarcarPagoManualPedidoUseCase:
@@ -37,14 +37,21 @@ class MarcarPagoManualPedidoUseCase:
             raise PedidoNoValidoException(f"El pedido no está en estado '{EstadoPedido.ENCARGADO.value}' para ser marcado como pagado.")
 
         pedido.estado = EstadoPedido.COMPLETADO
-        pedido.metodo_pago = datos_pago_manual.metodo_pago
+        pedido.metodo_pago = MetodoPago(datos_pago_manual.metodo_pago)
         pedido.fecha_finalizacion = datetime.now()
 
         pedido_actualizado = await self.pedido_repository.guardar_pedido(pedido)
 
         # Opcional: Enviar email de confirmación
-        user_email = await self.user_repository.buscar_email_por_id(pedido.usuario_id)
-        if user_email:
-            await self.email_service.enviar_confirmacion_pago_pedido(user_email, pedido_actualizado)
+        user = await self.user_repository.buscar_por_id(pedido.usuario_id)
+        if user:
+            pedido_info = {
+                "name": user.nombre,
+                "pedido_id": str(pedido_actualizado.id),
+                "total": str(pedido_actualizado.total_calculado),
+                "estado": pedido_actualizado.estado.value,
+                "fecha_finalizacion": pedido_actualizado.fecha_finalizacion.isoformat() if pedido_actualizado.fecha_finalizacion else None,
+            }
+            self.email_service.enviar_confirmacion_pago_pedido(user.email, pedido_info)
 
         return PedidoCompletadoDTO.model_validate(pedido_actualizado)
