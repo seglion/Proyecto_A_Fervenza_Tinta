@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, date
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
@@ -25,6 +25,7 @@ class Pedido:
     estado: EstadoPedido
     total_calculado: Decimal
     fecha_creacion: datetime
+    lineas: List[LineaDePedido] = field(default_factory=list)
     metodo_pago: Optional[MetodoPago] = None
     id_transaccion_externa: Optional[str] = None
     fecha_finalizacion: Optional[datetime] = None

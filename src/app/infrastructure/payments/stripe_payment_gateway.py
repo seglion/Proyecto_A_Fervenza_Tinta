@@ -40,7 +40,7 @@ class StripePaymentGateway(IPaymentGateway):
             event = stripe.Webhook.construct_event(
                 payload,
                 sig_header,
-                settings.STRIPE_WEBHOOK_SECRET
+                settings.STRIPE_CUOTAS_WEBHOOK_SECRET
             )
             return event
         except ValueError as e:
