@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from src.app.pedidos.domain.value_objects import EstadoPedido
+from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
 
 
 @dataclass
@@ -25,7 +25,7 @@ class Pedido:
     estado: EstadoPedido
     total_calculado: Decimal
     fecha_creacion: datetime
-    metodo_pago: Optional[str] = None
+    metodo_pago: Optional[MetodoPago] = None
     id_transaccion_externa: Optional[str] = None
     fecha_finalizacion: Optional[datetime] = None
 
