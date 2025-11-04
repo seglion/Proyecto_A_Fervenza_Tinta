@@ -1,125 +1,69 @@
 import os
-import sendgrid
-from sendgrid.helpers.mail import Mail, Email, To, Content
-from app.core.services.i_email_service import IEmailService
-from app.core.config import settings
-from pathlib import Path
 from typing import Dict, Any
 
-class SendGridEmailService(IEmailService):
-    def __init__(self):
-        api_key = settings.SENDGRID_API_KEY or os.environ.get("SENDGRID_API_KEY")
-        if not api_key:
-            raise ValueError("SENDGRID_API_KEY not found in settings or environment variables.")
-        self.sg = sendgrid.SendGridAPIClient(api_key)
-        self.sender_email = settings.MAIL_USERNAME
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
-        # Load templates
-        template_dir = Path(__file__).parent / "email_templates" / "sendgrid"
-        self.verification_template = (template_dir / "verification_email.html").read_text()
-        self.welcome_template = (template_dir / "welcome_email.html").read_text()
-        self.reset_password_template = (template_dir / "reset_password_email.html").read_text()
-        self.rejection_template = (template_dir / "rejection_email.html").read_text()
-        self.payment_confirmation_template = (template_dir / "payment_confirmation_email.html").read_text()
-        self.button_template = (template_dir / "button_section.html").read_text()
+from src.app.core.services.i_email_service import IEmailService
+from src.app.core.services.email_templates.email_templates import EmailTemplates
+from src.app.core.config import settings
+
+
+class SendgridEmailService(IEmailService):
+    def __init__(self):
+        self.sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        self.sender_email = os.environ.get('SENDGRID_SENDER_EMAIL')
 
     def send_verification_email(self, email_to: str, name: str, token: str) -> None:
-        subject = "Verify your email"
-        verification_link = f"http://localhost:8000/users/verificar-email?token={token}"
-        
-        button_html = self.button_template.replace("{{link}}", verification_link).replace("{{button_text}}", "Verify Email")
-        html_content = self.verification_template.replace("{{name}}", name).replace("{{button_section}}", button_html)
-
         message = Mail(
-            from_email=Email(self.sender_email),
-            to_emails=To(email_to),
-            subject=subject,
-            html_content=Content("text/html", html_content)
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Verifica tu cuenta',
+            html_content=EmailTemplates.get_verification_email_template(name, token)
         )
-        try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(f"Error sending verification email: {e}")
-            raise
+        self.sg.send(message)
 
     def enviar_email_bienvenida(self, email_to: str, name: str) -> None:
-        subject = "Welcome!"
-        html_content = self.welcome_template.replace("{{name}}", name).replace("{{button_section}}", "")
         message = Mail(
-            from_email=Email(self.sender_email),
-            to_emails=To(email_to),
-            subject=subject,
-            html_content=Content("text/html", html_content)
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Bienvenido a nuestra plataforma',
+            html_content=EmailTemplates.get_welcome_email_template(name)
         )
-        try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(f"Error sending welcome email: {e}")
-            raise
+        self.sg.send(message)
 
     def send_reset_password_email(self, email_to: str, token: str) -> None:
-        subject = "Reset your password"
-        reset_link = f"http://localhost:8000/users/confirmar-reseteo?token={token}"
-        
-        button_html = self.button_template.replace("{{link}}", reset_link).replace("{{button_text}}", "Reset Password")
-        html_content = self.reset_password_template.replace("{{name}}", "there").replace("{{button_section}}", button_html)
         message = Mail(
-            from_email=Email(self.sender_email),
-            to_emails=To(email_to),
-            subject=subject,
-            html_content=Content("text/html", html_content)
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Restablece tu contraseña',
+            html_content=EmailTemplates.get_reset_password_email_template(token)
         )
-        try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(f"Error sending reset password email: {e}")
-            raise
+        self.sg.send(message)
 
     def enviar_email_rechazo(self, email_to: str) -> None:
-        subject = "Your registration was rejected"
-        html_content = self.rejection_template.replace("{{name}}", "there").replace("{{button_section}}", "")
         message = Mail(
-            from_email=Email(self.sender_email),
-            to_emails=To(email_to),
-            subject=subject,
-            html_content=Content("text/html", html_content)
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Tu solicitud ha sido rechazada',
+            html_content=EmailTemplates.get_rejection_email_template()
         )
-        try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(f"Error sending rejection email: {e}")
-            raise
+        self.sg.send(message)
 
     def enviar_email_confirmacion_pago(self, email_to: str, name: str, cuota_info: Dict[str, Any]) -> None:
-        subject = "Confirmación de Pago de Cuota"
-        html_content = self.payment_confirmation_template.replace("{{name}}", name)
-        # Aquí puedes añadir más reemplazos para cuota_info si la plantilla lo requiere
-        for key, value in cuota_info.items():
-            html_content = html_content.replace(f"{{{{{key}}}}}", str(value))
-        
         message = Mail(
-            from_email=Email(self.sender_email),
-            to_emails=To(email_to),
-            subject=subject,
-            html_content=Content("text/html", html_content)
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Confirmación de pago de cuota',
+            html_content=EmailTemplates.get_payment_confirmation_email_template(name, cuota_info)
         )
-        try:
-            response = self.sg.client.mail.send.post(request_body=message.get())
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(f"Error sending payment confirmation email: {e}")
-            raise
+        self.sg.send(message)
+
+    def enviar_confirmacion_pago_pedido(self, email_to: str, pedido_info: Dict[str, Any]) -> None:
+        message = Mail(
+            from_email=self.sender_email,
+            to_emails=email_to,
+            subject='Confirmación de pago de pedido',
+            html_content=EmailTemplates.get_pedido_payment_confirmation_email_template(pedido_info)
+        )
+        self.sg.send(message)

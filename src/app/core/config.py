@@ -14,8 +14,9 @@ class Settings(BaseSettings):
 
     SENDGRID_API_KEY: Optional[str] = None
     STRIPE_SECRET_KEY: str
-    STRIPE_WEBHOOK_SECRET: str
+    STRIPE_CUOTAS_WEBHOOK_SECRET: str
 
+    STRIPE_PEDIDOS_WEBHOOK_SECRET: str
 
     POSTGRES_DB: str
     POSTGRES_USER: str
@@ -39,7 +40,7 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
     TEMPLATE_FOLDER: Optional[str] = None
 
-    STRIPE_SECRET_KEY: str
+    BASE_URL: str = "http://localhost:8000"
 
 
 settings = Settings()
