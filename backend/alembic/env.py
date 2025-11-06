@@ -2,7 +2,7 @@ import asyncio
 import os
 import sys
 from logging.config import fileConfig
-
+import os
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -22,7 +22,20 @@ from src.app.pedidos.infrastructure import models as pedidos_models
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+# --- INICIO DEL CÓDIGO A AÑADIR ---
 
+# Obtenemos la URL de la base de datos desde la variable de entorno
+# que docker-compose ha inyectado.
+db_url = os.environ.get("DATABASE_URL")
+
+# Si no la encontramos, lanzamos un error claro
+if db_url is None:
+    raise EnvironmentError("No se encontró la variable de entorno DATABASE_URL. "
+                           "Asegúrate de que está en tu .env.dev")
+
+# Sobrescribimos el 'sqlalchemy.url' del alembic.ini
+# con el valor de nuestra variable de entorno.
+config.set_main_option('sqlalchemy.url', db_url)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

@@ -33,9 +33,10 @@ class Pedido:
 
 @dataclass
 class TemporadaPedido:
-    id: Optional[int]
+    
     nombre_temporada: str
     fecha_inicio: date
     fecha_fin: date
     esta_activa: bool
     fecha_creacion: datetime
+    id: Optional[int] = None
