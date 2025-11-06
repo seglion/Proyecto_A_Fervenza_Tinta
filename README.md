@@ -1,63 +1,55 @@
-# Backend - A Fervenza Tinta
- 
-Este directorio contiene el backend del proyecto, una API RESTful desarrollada con FastAPI.
+# Proyecto de Gestion de A Fervenza Tinta
+Este es un proyecto full-stack para la gestión de un club deportivo, compuesto por un backend con FastAPI y un frontend con
+     Vue.js.
 
-**Nota:** Este es un paquete dentro de un monorepo. Para la visión general del proyecto, consulta el `README.md` en la raíz.
+## Estructura del Monorepo
+
+El proyecto está organizado como un monorepo con dos paquetes principales:
+```
+/
+├── backend/      # API RESTful con FastAPI y PostgreSQL.
+└── frontend/     # (Futuro) Aplicación de cliente con Vue.js.
+```
+
+Cada paquete tiene su propio `README.md` con instrucciones de instalación y desarrollo específicas.
 
 ## Stack Tecnológico
+
+*   **Backend:** Python, FastAPI, SQLAlchemy, PostgreSQL, Docker.
+*   **Frontend:** JavaScript, Vue.js, CSS/Sass.
+
+## Puesta en Marcha del Entorno Completo
+
+### Prerrequisitos
+
+*   Git
+*   Docker y Docker Compose
+*   Python 3.12+ y Poetry (para el backend)
+*   Node.js y npm/yarn (para el frontend)
+
+### Instrucciones
+
+1.  **Clonar el repositorio:**
+```
+      git clone <URL_DEL_REPOSITORIO>
+      cd <NOMBRE_DEL_REPOSITORIO>
+```
+
+2.  **Configurar y ejecutar el Backend:**
+     Sigue las instrucciones detalladas en el fichero `backend/README.md`.
+
+3.  **Configurar y ejecutar el Frontend:**
+     Sigue las instrucciones detalladas en el fichero `frontend/README.md`.
  
-*   **Lenguaje:** Python 3.12
-*   **Framework:** FastAPI
-*   **Base de Datos:** PostgreSQL (gestionado con Docker)
-*   **ORM:** SQLAlchemy y SQLModel
-*   **Migraciones:** Alembi
-*   **Gestión de Dependencias:** Poetry
-
-## Configuración y Puesta en Marcha
- 
-### 1. Configurar Variables de Entorno
- 
-Asegúrate de que estás en el directorio `backend/`. Crea un fichero `.env` a partir del `.env.example` (si existe) o desde cero con las variables necesarias.
-Configuración de la base de datos
-```
-DATABASE_URL="postgresql+asyncpg://user:password@localhost:5432/club_db"
-```
-Clave secreta para JWT
-```
-SECRET_KEY="tu_super_secreto_aqui"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-```
-(otras variables como Stripe, SendGrid, etc.)
-
- ### 2. Instalar Dependencias
- ```
-  poetry install
-```
-### 3. Levantar la Base de Datos con Docker
-
-Desde el directorio `backend/`, ejecuta:
-```
-  docker-compose up -d
-```
-
-### 4. Ejecutar Migraciones de Base de Datos
-
-Con la base de datos corriendo, crea las tablas:
-```
-  poetry run alembic upgrade head
-```
-
 ## Ejecución
 
-Para iniciar el servidor de desarrollo (escuchará en `http://127.0.0.1:8000`):
+Para una experiencia de desarrollo completa, necesitarás ejecutar ambos, el backend y el frontend, en terminales separadas.
 
-```
-  poetry run uvicorn src.app.main:app --reload
-```
-## Testing
+*   **Para el Backend (desde la carpeta `backend/`):**
+  (Asegúrate de que la base de datos Docker está corriendo)
+      poetry run uvicorn src.app.main:app --reload
 
-Para ejecutar la suite de tests:
-```
-  poetry run pytest
-```
+*   **Para el Frontend (desde la carpeta `frontend/`):**
+      npm run dev
+ 
+
