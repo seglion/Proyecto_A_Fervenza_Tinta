@@ -4,7 +4,7 @@ from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITip
 from src.app.users.application.repositories.i_user_repository import IUserRepository
 from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
-from src.app.cuotas.domain.entities import Cuota, TemporadaCuota, TipoCuota
+from src.app.cuotas.domain.entities import Cuota
 from src.app.cuotas.domain.value_objects import EstadoPago
 from src.app.cuotas.application.dtos import InformePendientesDTO, UsuarioPolicyDTO, UsuarioConCuotaPendienteDTO, CuotaDTO
 from src.app.users.application.dtos import UsuarioResponseDTO

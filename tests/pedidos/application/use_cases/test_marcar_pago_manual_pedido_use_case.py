@@ -14,7 +14,7 @@ from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido
 from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
 from src.app.pedidos.application.dtos import DatosPagoManualDTO, PedidoCompletadoDTO
-from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoValidoException
+from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoModificableException
 
 @pytest.fixture
 def mock_pedido_repository():
@@ -61,8 +61,19 @@ def pedido_encargado(admin_user):
     )
 
 @pytest.fixture
+def pedido_completado(admin_user):
+    return Pedido(
+        id=uuid4(),
+        usuario_id=admin_user.id,
+        temporada_id=1,
+        estado=EstadoPedido.COMPLETADO,
+        total_calculado=Decimal("20.00"),
+        fecha_creacion=datetime.now()
+    )
+
+@pytest.fixture
 def datos_pago_manual_dto():
-    return DatosPagoManualDTO(metodo_pago="MANUAL", notas="Pagado en efectivo")
+    return DatosPagoManualDTO(metodo_pago="MANUAL", id_transaccion_externa="test-tx-123")
 
 @pytest.mark.asyncio
 async def test_marcar_pago_manual_pedido(mock_pedido_repository, mock_user_repository, mock_email_service, mock_pedido_policy, admin_user, pedido_encargado, datos_pago_manual_dto):
@@ -77,10 +88,21 @@ async def test_marcar_pago_manual_pedido(mock_pedido_repository, mock_user_repos
     result = await use_case.execute(pedido_encargado.id, datos_pago_manual_dto, admin_user)
 
     # Assert
-    assert isinstance(result, PedidoCompletadoDTO)
+    assert isinstance(result, Pedido)
     assert result.estado == EstadoPedido.COMPLETADO
     mock_pedido_repository.guardar_pedido.assert_called_once()
     saved_pedido = mock_pedido_repository.guardar_pedido.call_args[0][0]
     assert saved_pedido.estado == EstadoPedido.COMPLETADO
     assert saved_pedido.metodo_pago == MetodoPago.MANUAL
     mock_email_service.enviar_confirmacion_pago_pedido.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_marcar_pago_manual_pedido_no_modificable(mock_pedido_repository, mock_user_repository, mock_email_service, mock_pedido_policy, admin_user, pedido_completado, datos_pago_manual_dto):
+    # Arrange
+    mock_pedido_repository.buscar_por_id_con_detalle.return_value = pedido_completado
+
+    use_case = MarcarPagoManualPedidoUseCase(mock_pedido_repository, mock_user_repository, mock_email_service, mock_pedido_policy)
+
+    # Act & Assert
+    with pytest.raises(PedidoNoModificableException):
+        await use_case.execute(pedido_completado.id, datos_pago_manual_dto, admin_user)

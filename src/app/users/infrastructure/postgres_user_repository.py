@@ -145,9 +145,7 @@ class PostgresUserRepository(IUserRepository):
     async def desactivar_usuarios(self, user_ids: List[UUID]) -> None:
         if not user_ids:
             return
-        # Convert UUIDs to string for the IN clause
         user_ids_str = [str(uid) for uid in user_ids]
-        # Using UNNEST for a more efficient way to pass a list of UUIDs
         query = """
         UPDATE usuarios
         SET esta_activo = FALSE, fecha_actualizacion = $1

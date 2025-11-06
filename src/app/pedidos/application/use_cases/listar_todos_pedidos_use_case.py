@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import  Optional
 
 from src.app.pedidos.application.dtos import ListaPedidosAdminDTO, PedidoDetalleAdminDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository

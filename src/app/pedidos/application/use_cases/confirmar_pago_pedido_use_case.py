@@ -1,12 +1,11 @@
-from uuid import UUID
-from typing import Optional
 
-from src.app.pedidos.application.dtos import IntentoPagoDTO
+
+from src.app.pedidos.application.dtos import IntentoPagoPedidoDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository
 from src.app.pedidos.application.repositories.i_temporada_pedido_repository import ITemporadaPedidoRepository
 from src.app.core.services.i_payment_gateway import IPaymentGateway
 from src.app.pedidos.application.policies.pedido_policy import PedidoPolicy
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoNoValidoException, AccesoDenegadoException
+from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoVacioException, AccesoDenegadoException
 from src.app.users.domain.entities import User
 from src.app.pedidos.domain.value_objects import EstadoPedido
 
@@ -24,7 +23,7 @@ class ConfirmarPagoPedidoUseCase:
         self.payment_gateway = payment_gateway
         self.pedido_policy = pedido_policy
 
-    async def execute(self, current_user: User) -> IntentoPagoDTO:
+    async def execute(self, current_user: User) -> IntentoPagoPedidoDTO:
         # 1. Comprobar temporada activa
         temporada_activa = await self.temporada_pedido_repository.get_temporada_activa()
         if not temporada_activa or not temporada_activa.esta_activa:
@@ -42,12 +41,29 @@ class ConfirmarPagoPedidoUseCase:
             raise AccesoDenegadoException()
 
         if not pedido_borrador.lineas:
-            raise PedidoNoValidoException("El pedido no tiene líneas para confirmar.")
+            raise PedidoVacioException("El pedido no tiene líneas para confirmar.")
 
         # 4. Crear sesión de Stripe
-        url_pago, id_transaccion = await self.payment_gateway.crear_sesion_pago(
-            pedido_borrador.total_calculado,
-            metadata={'pedido_id': str(pedido_borrador.id)}
+        line_items = [
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": linea.desc_variante_conxelada,
+                    },
+                    "unit_amount": int(linea.precio_unitario_conxelado * 100),
+                },
+                "quantity": linea.cantidad,
+            }
+            for linea in pedido_borrador.lineas
+        ]
+
+        url_pago, id_transaccion = await self.payment_gateway.crear_sesion_pago_pedido(
+            amount=int(pedido_borrador.total_calculado * 100),
+            currency="eur",
+            line_items=line_items,
+            pedido_id=pedido_borrador.id,
+            user_id=current_user.id
         )
 
         # 5. Actualizar pedido a 'pendiente_pago'
@@ -57,4 +73,4 @@ class ConfirmarPagoPedidoUseCase:
 
         await self.pedido_repository.guardar_pedido(pedido_borrador)
 
-        return IntentoPagoDTO(url_pago=url_pago)
+        return IntentoPagoPedidoDTO(url_pago=url_pago)

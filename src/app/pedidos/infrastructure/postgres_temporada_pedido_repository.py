@@ -1,10 +1,10 @@
 import asyncpg
 from typing import List, Optional
-from datetime import date, datetime
+
 
 from src.app.pedidos.application.repositories.i_temporada_pedido_repository import ITemporadaPedidoRepository
 from src.app.pedidos.domain.entities import TemporadaPedido
-from src.app.pedidos.infrastructure.models import TemporadaPedidoModel
+
 
 
 class PostgresTemporadaPedidoRepository(ITemporadaPedidoRepository):
@@ -23,6 +23,18 @@ class PostgresTemporadaPedidoRepository(ITemporadaPedidoRepository):
                 esta_activa=row['esta_activa'],
                 fecha_creacion=row['fecha_creacion']
             )
+        return None
+
+    async def get_all(self) -> List[TemporadaPedido]:
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, esta_activa, fecha_creacion FROM temporadapedidos ORDER BY fecha_inicio DESC"
+        rows = await self.db_connection.fetch(query)
+        return [TemporadaPedido(**row) for row in rows]
+
+    async def get_by_id(self, temporada_id: int) -> Optional[TemporadaPedido]:
+        query = "SELECT id, nombre_temporada, fecha_inicio, fecha_fin, esta_activa, fecha_creacion FROM temporadapedidos WHERE id = $1"
+        row = await self.db_connection.fetchrow(query, temporada_id)
+        if row:
+            return TemporadaPedido(**row)
         return None
 
     async def guardar(self, temporada: TemporadaPedido) -> TemporadaPedido:
@@ -51,20 +63,19 @@ class PostgresTemporadaPedidoRepository(ITemporadaPedidoRepository):
         else:
             # Insertar nueva temporada
             query = """
-            INSERT INTO temporadapedidos (id, nombre_temporada, fecha_inicio, fecha_fin, esta_activa, fecha_creacion)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO temporadapedidos (nombre_temporada, fecha_inicio, fecha_fin, esta_activa, fecha_creacion)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id
             """
             inserted_id = await self.db_connection.fetchval(
                 query,
-                temporada.id, # Usar el ID proporcionado por la entidad
                 temporada.nombre_temporada,
                 temporada.fecha_inicio,
                 temporada.fecha_fin,
                 temporada.esta_activa,
                 temporada.fecha_creacion
             )
-            temporada.id = inserted_id # Debería ser el mismo que el proporcionado, pero es una buena práctica asignar el ID devuelto
+            temporada.id = inserted_id # Asignar el ID devuelto por la base de datos
         return temporada
 
     async def marcar_temporadas_como_cerradas(self, lista_ids_temporadas: List[int]):

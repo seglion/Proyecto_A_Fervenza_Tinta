@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
-from uuid import UUID
+
 import hashlib
 
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.users.application.repositories.i_token_repository import ITokenRepository
 from app.users.application.repositories.i_user_repository import IUserRepository
-from app.users.domain.entities import Token, User
-from app.users.domain.value_objects import TipoToken, Rol
+
+from app.users.domain.value_objects import TipoToken
 from app.users.application.exceptions import InvalidTokenException, UserNotFoundException, EmailAlreadyVerifiedException
 
 class ConfirmarEmailUseCase:

@@ -13,8 +13,8 @@ from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido, TemporadaPedido, LineaDePedido
 from src.app.pedidos.domain.value_objects import EstadoPedido
-from src.app.pedidos.application.dtos import IntentoPagoDTO
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoNoValidoException, AccesoDenegadoException
+from src.app.pedidos.application.dtos import IntentoPagoPedidoDTO
+from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, AccesoDenegadoException
 
 @pytest.fixture
 def mock_pedido_repository():
@@ -26,7 +26,9 @@ def mock_temporada_pedido_repository():
 
 @pytest.fixture
 def mock_payment_gateway():
-    return AsyncMock(spec=IPaymentGateway)
+    mock = AsyncMock(spec=IPaymentGateway)
+    mock.crear_sesion_pago_pedido.return_value = ("https://checkout.stripe.com/pay/cs_test_123", "cs_test_123")
+    return mock
 
 @pytest.fixture
 def mock_pedido_policy():
@@ -95,7 +97,7 @@ async def test_confirmar_pago_pedido(mock_pedido_repository, mock_temporada_pedi
     result = await use_case.execute(user_registrado)
 
     # Assert
-    assert isinstance(result, IntentoPagoDTO)
+    assert isinstance(result, IntentoPagoPedidoDTO)
     assert result.url_pago == "https://checkout.stripe.com/pay/cs_test_123"
     mock_pedido_repository.guardar_pedido.assert_called_once()
     saved_pedido = mock_pedido_repository.guardar_pedido.call_args[0][0]

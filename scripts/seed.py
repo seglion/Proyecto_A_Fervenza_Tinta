@@ -235,7 +235,6 @@ async def seed_data():
         # === 5. Create Pedido Seasons ===
         print("Creating pedido seasons...")
         temporada_pedido_25_26 = TemporadaPedido(
-            id=1,
             nombre_temporada="Temporada Pedido 2025-2026",
             fecha_inicio=date(2025, 9, 1),
             fecha_fin=date(2026, 7, 31),

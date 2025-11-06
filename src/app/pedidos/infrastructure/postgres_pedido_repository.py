@@ -8,7 +8,7 @@ from src.app.pedidos.application.repositories.i_pedido_repository import IPedido
 from src.app.pedidos.domain.entities import Pedido, LineaDePedido
 from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago
 from src.app.prendas.domain.entities import Prenda, VariantePrenda
-from src.app.pedidos.infrastructure.models import PedidoModel, LineaDePedidoModel
+
 
 
 class PostgresPedidoRepository(IPedidoRepository):
@@ -33,7 +33,7 @@ class PostgresPedidoRepository(IPedidoRepository):
         query = "SELECT id, usuario_id, temporada_id, estado, total_calculado, metodo_pago, id_transaccion_externa, fecha_creacion, fecha_finalizacion FROM pedidos WHERE usuario_id = $1 AND temporada_id = $2 AND estado = $3::estado_pedido_enum"
         row = await self.db_connection.fetchrow(query, user_id, temporada_id, EstadoPedido.BORRADOR.value)
         if row:
-            return Pedido(
+            pedido = Pedido(
                 id=row['id'],
                 usuario_id=row['usuario_id'],
                 temporada_id=row['temporada_id'],
@@ -44,6 +44,19 @@ class PostgresPedidoRepository(IPedidoRepository):
                 fecha_creacion=row['fecha_creacion'],
                 fecha_finalizacion=row['fecha_finalizacion']
             )
+            query_lineas = "SELECT id, pedido_id, variante_prenda_id, cantidad, precio_unitario_conxelado, desc_variante_conxelada FROM lineadepedidos WHERE pedido_id = $1"
+            rows_lineas = await self.db_connection.fetch(query_lineas, pedido.id)
+            pedido.lineas = [
+                LineaDePedido(
+                    id=row_linea['id'],
+                    pedido_id=row_linea['pedido_id'],
+                    variante_prenda_id=row_linea['variante_prenda_id'],
+                    cantidad=row_linea['cantidad'],
+                    precio_unitario_conxelado=row_linea['precio_unitario_conxelado'],
+                    desc_variante_conxelada=row_linea['desc_variante_conxelada']
+                ) for row_linea in rows_lineas
+            ]
+            return pedido
         return None
 
     async def obtener_o_crear_borrador(self, user_id: UUID, temporada_id: int) -> Pedido:
@@ -138,12 +151,9 @@ class PostgresPedidoRepository(IPedidoRepository):
                     pedido.fecha_creacion,
                     pedido.fecha_finalizacion
                 )
-                pedido.id = inserted_id # Debería ser el mismo que el proporcionado, pero es una buena práctica asignar el ID devuelto
-
-            # Guardar líneas de pedido
+                pedido.id = inserted_id 
+            await self.db_connection.execute("DELETE FROM lineadepedidos WHERE pedido_id = $1", pedido.id)
             if pedido.lineas:
-                # Eliminar líneas existentes para re-insertar (simplificación para este ejemplo)
-                await self.db_connection.execute("DELETE FROM lineadepedidos WHERE pedido_id = $1", pedido.id)
                 for linea in pedido.lineas:
                     linea.id = uuid4()
                     query_linea = """
@@ -153,7 +163,7 @@ class PostgresPedidoRepository(IPedidoRepository):
                     await self.db_connection.execute(
                         query_linea,
                         linea.id,
-                        pedido.id, # Use the pedido.id that is now guaranteed to be in the DB
+                        pedido.id, #
                         linea.variante_prenda_id,
                         linea.cantidad,
                         linea.precio_unitario_conxelado,
@@ -215,7 +225,7 @@ class PostgresPedidoRepository(IPedidoRepository):
         query = "SELECT id, usuario_id, temporada_id, estado, total_calculado, metodo_pago, id_transaccion_externa, fecha_creacion, fecha_finalizacion FROM pedidos WHERE usuario_id = $1 AND estado = $2::estado_pedido_enum"
         row = await self.db_connection.fetchrow(query, user_id, EstadoPedido.BORRADOR.value)
         if row:
-            return Pedido(
+            pedido = Pedido(
                 id=row['id'],
                 usuario_id=row['usuario_id'],
                 temporada_id=row['temporada_id'],
@@ -226,6 +236,19 @@ class PostgresPedidoRepository(IPedidoRepository):
                 fecha_creacion=row['fecha_creacion'],
                 fecha_finalizacion=row['fecha_finalizacion']
             )
+            query_lineas = "SELECT id, pedido_id, variante_prenda_id, cantidad, precio_unitario_conxelado, desc_variante_conxelada FROM lineadepedidos WHERE pedido_id = $1"
+            rows_lineas = await self.db_connection.fetch(query_lineas, pedido.id)
+            pedido.lineas = [
+                LineaDePedido(
+                    id=row_linea['id'],
+                    pedido_id=row_linea['pedido_id'],
+                    variante_prenda_id=row_linea['variante_prenda_id'],
+                    cantidad=row_linea['cantidad'],
+                    precio_unitario_conxelado=row_linea['precio_unitario_conxelado'],
+                    desc_variante_conxelada=row_linea['desc_variante_conxelada']
+                ) for row_linea in rows_lineas
+            ]
+            return pedido
         return None
 
     async def buscar_historial_por_usuario(self, usuario_id: UUID) -> List[Pedido]:

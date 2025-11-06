@@ -1,11 +1,10 @@
-from uuid import UUID
-from typing import Optional
+
 
 from src.app.pedidos.application.dtos import PedidoDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository
 from src.app.pedidos.application.repositories.i_temporada_pedido_repository import ITemporadaPedidoRepository
 from src.app.pedidos.application.policies.pedido_policy import PedidoPolicy
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoNoValidoException, AccesoDenegadoException
+from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoVacioException, AccesoDenegadoException
 from src.app.users.domain.entities import User
 from src.app.pedidos.domain.value_objects import EstadoPedido
 
@@ -39,7 +38,7 @@ class ConfirmarEncargoUseCase:
             raise AccesoDenegadoException()
 
         if not pedido_borrador.lineas:
-            raise PedidoNoValidoException("El pedido no tiene líneas para confirmar.")
+            raise PedidoVacioException("El pedido no tiene líneas para confirmar.")
 
         # 4. Actualizar pedido a 'encargado'
         pedido_borrador.estado = EstadoPedido.ENCARGADO

@@ -32,7 +32,6 @@ class Password:
             raise ValueError("Password must contain at least one lowercase letter.")
         if not re.search(r"\d", password):
             raise ValueError("Password must contain at least one number.")
-        # Updated regex for special characters. Escaped characters that have special meaning in regex.
         if not re.search(r"[!@#$%^&*()_+\-=\[\]{}|;:\'\",.<>/?]", password):
             raise ValueError("Password must contain at least one special character.")
 

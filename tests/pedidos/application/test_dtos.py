@@ -7,8 +7,8 @@ from src.app.pedidos.application.dtos import (
     ListaPedidosAdminDTO,
     PedidoDetalleAdminDTO,
     TemporadaPedidoDTO,
-    CrearTemporadaPedidoDTO,
-    ActualizarPedidoManualDTO,
+    DatosTemporadaPedidoDTO,
+    DatosPagoManualDTO,
     PedidoCompletadoDTO
 )
 
@@ -37,10 +37,10 @@ def test_temporada_pedido_dto_existe():
     assert TemporadaPedidoDTO is not None
 
 def test_datos_temporada_pedido_dto_existe():
-    assert CrearTemporadaPedidoDTO is not None
+    assert DatosTemporadaPedidoDTO is not None
 
 def test_datos_pago_manual_dto_existe():
-    assert ActualizarPedidoManualDTO is not None
+    assert DatosPagoManualDTO is not None
 
 def test_pedido_completado_dto_existe():
     assert PedidoCompletadoDTO is not None

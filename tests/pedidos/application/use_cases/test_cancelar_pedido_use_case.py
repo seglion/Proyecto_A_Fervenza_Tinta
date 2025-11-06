@@ -12,7 +12,7 @@ from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido
 from src.app.pedidos.domain.value_objects import EstadoPedido
 from src.app.pedidos.application.dtos import PedidoDTO
-from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoValidoException
+from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoModificableException
 
 @pytest.fixture
 def mock_pedido_repository():
@@ -122,5 +122,5 @@ async def test_cancelar_pedido_ya_completado(mock_pedido_repository, mock_pedido
     use_case = CancelarPedidoUseCase(mock_pedido_repository, mock_pedido_policy)
 
     # Act & Assert
-    with pytest.raises(PedidoNoValidoException, match="No se puede cancelar un pedido que ya está completado."):
+    with pytest.raises(PedidoNoModificableException, match="No se puede cancelar un pedido que ya está completado."):
         await use_case.execute(pedido_completado.id, admin_user)

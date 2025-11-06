@@ -10,6 +10,14 @@ class ITemporadaPedidoRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all(self) -> List[TemporadaPedido]:
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, temporada_id: int) -> Optional[TemporadaPedido]:
+        pass
+
+    @abstractmethod
     async def guardar(self, temporada: TemporadaPedido) -> TemporadaPedido:
         pass
 

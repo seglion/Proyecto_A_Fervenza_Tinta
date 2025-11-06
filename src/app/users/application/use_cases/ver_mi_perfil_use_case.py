@@ -19,8 +19,6 @@ class VerMiPerfilUseCase:
         if not user:
             raise UserNotFoundException("User not found.")
 
-        # Assuming roles are fetched with the user or can be retrieved separately
-        # For now, we'll pass an empty list of roles
         return UsuarioResponseDTO(
             id=user.id,
             email=user.email,

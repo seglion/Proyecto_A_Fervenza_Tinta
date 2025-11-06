@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Optional
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -41,7 +41,7 @@ class ObtenerPedidoBorradorUseCase:
                 raise AccesoDenegadoException()
             return PedidoDTO.model_validate(pedido_borrador)
         else:
-            # Si no hay borrador, devolver un DTO de pedido vacío
+         
             return PedidoDTO(
                 id=UUID('00000000-0000-0000-0000-000000000000'), # Placeholder para un ID vacío
                 usuario_id=current_user.id,

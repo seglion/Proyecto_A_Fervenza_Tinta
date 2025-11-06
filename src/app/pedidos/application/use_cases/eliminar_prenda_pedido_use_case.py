@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Optional
+
 
 from src.app.pedidos.application.dtos import PedidoDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository

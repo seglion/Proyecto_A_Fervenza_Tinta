@@ -1,12 +1,12 @@
 from src.app.users.domain.entities import User
 from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido
-from uuid import UUID
+
 
 
 class PedidoPolicy:
     def es_administrador(self, current_user: User) -> bool:
-        return current_user.rol == Rol.ADMIN
+        return current_user.rol.value == Rol.ADMIN.value
 
     def ver_pedido(self, current_user: User, pedido: Pedido) -> bool:
         if self.es_administrador(current_user):

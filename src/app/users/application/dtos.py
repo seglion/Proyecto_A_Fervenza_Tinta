@@ -9,7 +9,7 @@ class RegistrarUsuarioDTO(BaseModel):
     apellidos: str
     numero_telefono: str
     apodo: Optional[str] = None
-    rol: str # Default to 'usuario' in use case
+    rol: str 
 
 class UsuarioCreadoDTO(BaseModel):
     id: UUID

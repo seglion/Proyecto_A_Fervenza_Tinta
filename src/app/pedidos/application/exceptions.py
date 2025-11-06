@@ -35,3 +35,14 @@ class PedidoVacioException(PedidoException):
 class MetodoPagoInvalidoException(PedidoException):
     def __init__(self, detail: str = "Método de pago inválido para esta operación."):
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+class AccesoDenegadoException(PedidoException):
+    def __init__(self, detail: str = "Acceso denegado. No tiene permisos para realizar esta acción."):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
+
+class TemporadaCerradaException(PedidoException):
+    def __init__(self, detail: str = "La temporada de pedidos está cerrada."):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+class TemporadaPedidoNoEncontradaException(PedidoException):
+    def __init__(self, detail: str = "La temporada de pedidos no encontrada."):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)

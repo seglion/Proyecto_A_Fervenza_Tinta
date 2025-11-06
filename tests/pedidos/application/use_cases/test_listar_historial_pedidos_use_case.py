@@ -84,8 +84,9 @@ async def test_listar_historial_pedidos(mock_pedido_repository, mock_pedido_poli
     result = await use_case.execute(user_registrado)
 
     # Assert
-    assert isinstance(result, ListaPedidosDTO)
-    assert len(result.pedidos) == 2
+    assert isinstance(result, list)
+    assert all(isinstance(pedido, Pedido) for pedido in result)
+    assert result == historial_pedidos
     mock_pedido_repository.buscar_historial_por_usuario.assert_called_once_with(user_registrado.id)
 
 @pytest.mark.asyncio

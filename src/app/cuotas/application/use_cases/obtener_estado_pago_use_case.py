@@ -30,7 +30,7 @@ class ObtenerEstadoPagoUseCase:
 
         temporada_activa = await self.temporada_cuota_repository.get_temporada_activa()
         if not temporada_activa:
-            # TODO: Handle case where there is no active season
+
             pass
 
         cuota = await self.cuota_repository.buscar_por_usuario_y_temporada(user.id, temporada_activa.id)

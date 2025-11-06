@@ -13,14 +13,14 @@ from pydantic import ConfigDict
 
 class TipoCuotaDTO(BaseModel):
     id: int
-    nombre: NombreTipoCuota # Changed from str
+    nombre: NombreTipoCuota 
     importe: Decimal
     fecha_creacion: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 class TipoCuotaCrearDTO(BaseModel):
-    nombre: NombreTipoCuota # Changed from str
+    nombre: NombreTipoCuota 
     importe: Decimal
 
 class CrearTemporadaDTO(BaseModel):
@@ -79,7 +79,7 @@ class HistorialCuotasDTO(BaseModel):
 class CuotaDetalleResponseDTO(CuotaDTO):
     usuario_nombre: str
     usuario_apellidos: str
-    tipo_cuota_nombre: NombreTipoCuota # Changed from str
+    tipo_cuota_nombre: NombreTipoCuota 
     temporada_nombre: str
 
 class DetalleCuotaDTO(BaseModel):

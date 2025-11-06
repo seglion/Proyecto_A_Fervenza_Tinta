@@ -13,7 +13,7 @@ from src.app.users.domain.value_objects import Rol
 from src.app.pedidos.domain.entities import Pedido, TemporadaPedido, LineaDePedido
 from src.app.pedidos.domain.value_objects import EstadoPedido
 from src.app.pedidos.application.dtos import PedidoDTO
-from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoNoValidoException, AccesoDenegadoException
+from src.app.pedidos.application.exceptions import TemporadaCerradaException, PedidoNoEncontradoException, PedidoVacioException, AccesoDenegadoException
 
 @pytest.fixture
 def mock_pedido_repository():
@@ -77,6 +77,18 @@ def pedido_borrador_con_linea(user_registrado, temporada_activa):
     pedido.lineas.append(linea)
     return pedido
 
+@pytest.fixture
+def pedido_borrador_vacio(user_registrado, temporada_activa):
+    return Pedido(
+        id=uuid4(),
+        usuario_id=user_registrado.id,
+        temporada_id=temporada_activa.id,
+        estado=EstadoPedido.BORRADOR,
+        total_calculado=Decimal("0.00"),
+        fecha_creacion=datetime.now(),
+        lineas=[]
+    )
+
 @pytest.mark.asyncio
 async def test_confirmar_encargo(mock_pedido_repository, mock_temporada_pedido_repository, mock_pedido_policy, user_registrado, temporada_activa, pedido_borrador_con_linea):
     # Arrange
@@ -94,3 +106,15 @@ async def test_confirmar_encargo(mock_pedido_repository, mock_temporada_pedido_r
     mock_pedido_repository.guardar_pedido.assert_called_once()
     saved_pedido = mock_pedido_repository.guardar_pedido.call_args[0][0]
     assert saved_pedido.estado == EstadoPedido.ENCARGADO
+
+@pytest.mark.asyncio
+async def test_confirmar_encargo_pedido_vacio(mock_pedido_repository, mock_temporada_pedido_repository, mock_pedido_policy, user_registrado, temporada_activa, pedido_borrador_vacio):
+    # Arrange
+    mock_temporada_pedido_repository.get_temporada_activa.return_value = temporada_activa
+    mock_pedido_repository.buscar_borrador_por_usuario.return_value = pedido_borrador_vacio
+
+    use_case = ConfirmarEncargoUseCase(mock_pedido_repository, mock_temporada_pedido_repository, mock_pedido_policy)
+
+    # Act & Assert
+    with pytest.raises(PedidoVacioException, match="El pedido no tiene líneas para confirmar."):
+        await use_case.execute(user_registrado)

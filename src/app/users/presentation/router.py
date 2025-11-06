@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 from unittest.mock import Mock
 
+from app.core.services.i_email_service import IEmailService
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
@@ -11,10 +12,9 @@ from app.users.application.dtos import (
     UsuarioResponseDTO, ActualizarMiPerfilDTO, CambiarContrasenaDTO,
     ConfirmarNuevaContrasenaDTO
 )
-from app.users.application.exceptions import UserException, UnauthorizedException, UserNotFoundException, EmailAlreadyVerifiedException, InvalidCredentialsException, AccountInactiveException, EmailNotVerifiedException, UserAlreadyExistsException, InvalidOldPasswordException, InvalidTokenException
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException, EmailAlreadyVerifiedException, InvalidCredentialsException, AccountInactiveException, EmailNotVerifiedException, UserAlreadyExistsException, InvalidOldPasswordException, InvalidTokenException
 
 
-from app.users.application.repositories.i_user_repository import IUserRepository
 
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.core.services.i_jwt_service import IJWTService
@@ -64,14 +64,12 @@ class SolicitarReseteoRequest(BaseModel):
 class RefrescarSesionRequest(BaseModel):
     refresh_token: str
 
-# Nota: si también defines TokensDTO en app.users.application.dtos, puedes eliminar esta clase local.
 
 def get_registrar_usuario_use_case(
     db_connection: typing.Any = Depends(get_db),
     password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
     email_service: IEmailService = Depends(get_email_service)
 ) -> "RegistrarUsuarioUseCase":
-    # import local para evitar importación circular / side-effects en import time
 
 
     user_repository = PostgresUserRepository(db_connection)
@@ -83,7 +81,6 @@ async def register_user(
     dto: RegistrarUsuarioDTO,
     use_case: "RegistrarUsuarioUseCase" = Depends(get_registrar_usuario_use_case)
 ):
-    # Temporarily removed try-except block for debugging
     return await use_case.execute(dto)
 
 def get_iniciar_sesion_use_case(
@@ -92,7 +89,6 @@ def get_iniciar_sesion_use_case(
     jwt_service: IJWTService = Depends(get_jwt_service),
     token_repository: ITokenRepository = Depends(get_token_repository),
 ) -> "IniciarSesionUseCase":
-    # import local para evitar importaciones circulares
     from app.users.application.use_cases.iniciar_sesion_use_case import IniciarSesionUseCase
     user_repository = PostgresUserRepository(db_connection)
     return IniciarSesionUseCase(user_repository, password_hasher, jwt_service, token_repository)
@@ -230,7 +226,6 @@ async def reenviar_email_verificacion(
         await use_case.execute(request.email)
         return {"message": "Verification email sent."}
     except Exception:
-        # To prevent user enumeration, always return a success message
         return {"message": "Verification email sent."}
 def get_solicitar_reseteo_contrasena_use_case(
     db_connection: typing.Any = Depends(get_db),

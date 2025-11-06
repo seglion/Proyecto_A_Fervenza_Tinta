@@ -24,7 +24,7 @@ class CrearTemporadaUseCase:
             raise UnauthorizedException("Not authorized to create a season.")
 
         temporada = TemporadaCuota(
-            id=None,  # Will be set by the database
+            id=None,  
             nombre_temporada=dto.nombre_temporada,
             fecha_inicio=dto.fecha_inicio,
             fecha_fin=dto.fecha_fin,
@@ -34,7 +34,7 @@ class CrearTemporadaUseCase:
 
         tipos_cuota = [
             TipoCuota(
-                id=None, # Will be set by the database
+                id=None, 
                 temporada_id=temporada_creada.id,
                 nombre=tipo_dto.nombre,
                 importe=tipo_dto.importe,

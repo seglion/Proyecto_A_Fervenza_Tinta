@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from typing import Any, List
+from typing import Any
 from uuid import UUID
 
 from src.app.core.database import get_db
@@ -223,13 +223,13 @@ async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin
 
 @router.put("/{cuota_id}/registrar-manual", response_model=CuotaCompletadaDTO, status_code=status.HTTP_200_OK)
 async def registrar_cuota_manual(
-    cuota_id: UUID, # New path parameter
-    dto: ActualizarCuotaManualDTO, # Changed DTO
+    cuota_id: UUID, 
+    dto: ActualizarCuotaManualDTO, 
     admin_user: User = Depends(get_admin_user),
     use_case: RegistrarCuotaManualUseCase = Depends(get_registrar_cuota_manual_use_case)
 ):
     try:
-        return await use_case.execute(admin_user, cuota_id, dto) # Updated execute call
+        return await use_case.execute(admin_user, cuota_id, dto) 
     except CuotaNoEncontrada as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except CuotaYaPagadaException as e:

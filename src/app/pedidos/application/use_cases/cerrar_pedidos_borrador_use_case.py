@@ -14,11 +14,7 @@ class CerrarPedidosBorradorUseCase:
         self.temporada_pedido_repository = temporada_pedido_repository
 
     async def execute(self) -> None:
-        # Este caso de uso es para ser ejecutado por un proceso automático (ej. un cron job).
-        # La seguridad no se basa en un usuario logueado, sino en quién puede ejecutar este proceso.
-        # Por lo tanto, no se aplica una política de usuario aquí.
 
-        # 1. Buscar temporadas que terminaron y no fueron cerradas
         temporadas_a_cerrar = await self.temporada_pedido_repository.get_temporadas_finalizadas_pendientes_cierre()
 
         if temporadas_a_cerrar:

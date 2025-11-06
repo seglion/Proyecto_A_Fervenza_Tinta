@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 from uuid import UUID
-from decimal import Decimal
 
-from src.app.pedidos.domain.entities import Pedido, TemporadaPedido, LineaDePedido
+
+from src.app.pedidos.domain.entities import Pedido
 from src.app.prendas.domain.entities import Prenda, VariantePrenda
 
 

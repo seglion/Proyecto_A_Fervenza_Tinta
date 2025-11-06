@@ -3,7 +3,7 @@ from typing import List
 from uuid import UUID
 from pydantic import BaseModel
 
-from app.users.application.dtos import UsuarioResponseDTO, ListaUsuariosResponseDTO
+from app.users.application.dtos import UsuarioResponseDTO
 from app.users.application.use_cases.listar_usuarios_use_case import ListarUsuariosUseCase
 from app.users.application.use_cases.ver_mi_perfil_use_case import VerMiPerfilUseCase
 from app.users.application.use_cases.ver_perfil_otro_usuario_use_case import VerPerfilOtroUsuarioUseCase
@@ -13,7 +13,7 @@ from app.users.application.use_cases.activar_desactivar_usuario_use_case import 
 from app.users.application.use_cases.modificar_roles_use_case import ModificarRolesUseCase
 from app.users.application.use_cases.eliminar_usuario_use_case import EliminarUsuarioUseCase
 from app.users.application.use_cases.forzar_reseteo_use_case import ForzarReseteoUseCase
-from app.users.application.repositories.i_user_repository import IUserRepository
+
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_email_service
@@ -21,7 +21,7 @@ from app.users.domain.entities import User
 from app.users.domain.value_objects import Rol
 from app.users.application.policies.user_policy import UserPolicy
 from app.core.services.i_email_service import IEmailService
-from app.users.application.repositories.i_token_repository import ITokenRepository
+
 from app.users.infrastructure.postgres_token_repository import PostgresTokenRepository
 from app.core.security.i_password_hasher import IPasswordHasher
 from app.infrastructure.security.argon2_password_hasher import Argon2PasswordHasher

@@ -31,13 +31,11 @@ class RefrescarSesionUseCase:
         if not user or not user.esta_activo:
             raise InvalidTokenException("Invalid token or inactive user.")
 
-        # Invalidate the old refresh token
         hashed_old_refresh_token = hashlib.sha256(refresh_token.encode()).hexdigest()
         await self.token_repository.invalidar_token(hashed_old_refresh_token)
 
         access_token, new_refresh_token = self.jwt_service.generar_tokens(user.id, [user.rol.value])
 
-        # Store the new refresh token in the database
         hashed_new_refresh_token = hashlib.sha256(new_refresh_token.encode()).hexdigest()
         new_token_entity = Token(
             id=uuid4(),

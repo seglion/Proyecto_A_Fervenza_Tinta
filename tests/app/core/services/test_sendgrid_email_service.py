@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
-from app.core.services.sendgrid_email_service import SendGridEmailService
+from app.core.services.sendgrid_email_service import SendgridEmailService
 from app.core.config import settings
 import os
 

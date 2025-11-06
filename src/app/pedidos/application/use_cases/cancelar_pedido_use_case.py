@@ -1,10 +1,10 @@
 from uuid import UUID
-from typing import Optional
+
 
 from src.app.pedidos.application.dtos import PedidoDTO
 from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository
 from src.app.pedidos.application.policies.pedido_policy import PedidoPolicy
-from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoValidoException
+from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoNoEncontradoException, PedidoNoModificableException
 from src.app.users.domain.entities import User
 from src.app.pedidos.domain.value_objects import EstadoPedido
 
@@ -27,7 +27,7 @@ class CancelarPedidoUseCase:
             raise PedidoNoEncontradoException("Pedido no encontrado.")
 
         if pedido.estado == EstadoPedido.COMPLETADO:
-            raise PedidoNoValidoException("No se puede cancelar un pedido que ya está completado.")
+            raise PedidoNoModificableException("No se puede cancelar un pedido que ya está completado.")
 
         pedido.estado = EstadoPedido.CANCELADO
 
