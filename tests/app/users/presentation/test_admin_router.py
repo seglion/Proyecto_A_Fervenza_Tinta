@@ -18,6 +18,7 @@ from app.users.presentation.admin_router import get_activar_desactivar_usuario_u
 from app.users.presentation.admin_router import get_modificar_roles_use_case
 from app.users.presentation.admin_router import get_eliminar_usuario_use_case
 from app.users.presentation.admin_router import get_forzar_reseteo_use_case # Will be created
+from app.core.config import settings
 
 @pytest.fixture(scope="module")
 def app_client():

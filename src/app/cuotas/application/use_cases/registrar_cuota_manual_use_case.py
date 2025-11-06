@@ -3,7 +3,7 @@ from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
 from src.app.cuotas.application.dtos import ActualizarCuotaManualDTO, CuotaCompletadaDTO, UsuarioPolicyDTO
 from src.app.cuotas.application.exceptions import UnauthorizedException, CuotaNoEncontrada, CuotaYaPagadaException
-from src.app.cuotas.domain.entities import Cuota
+
 from src.app.cuotas.domain.value_objects import EstadoPago
 from uuid import UUID
 from datetime import datetime

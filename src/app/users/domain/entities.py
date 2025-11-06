@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import  Optional
 from app.users.domain.value_objects import Rol, TipoToken
 
 @dataclass

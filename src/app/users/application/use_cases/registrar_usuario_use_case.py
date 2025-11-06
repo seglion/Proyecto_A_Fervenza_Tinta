@@ -26,34 +26,27 @@ class RegistrarUsuarioUseCase:
         self.token_repository = token_repository
 
     async def execute(self, dto: RegistrarUsuarioDTO) -> UsuarioCreadoDTO:
-        # 1. Check if user with email already exists
         existing_user = await self.user_repository.buscar_por_email(dto.email)
         if existing_user:
             raise UserAlreadyExistsException("User with this email already exists.")
 
-        # 2. Validate password using Value Object
         password_vo = Password.create(dto.contrasena)
 
-        # 3. Hash password
         hashed_password = self.password_hasher.hash(password_vo.value)
 
-        # 4. Create User entity
         new_user = User(
-            id=uuid4(), # Generate a new UUID for the user
+            id=uuid4(), 
             email=dto.email,
             contrasena_hasheada=hashed_password,
             nombre=dto.nombre,
             apellidos=dto.apellidos,
             apodo=dto.apodo,
             numero_telefono=dto.numero_telefono,
-            rol=Rol(dto.rol) # Convert string to Rol enum member
-            # Default values for other fields will be set by the User dataclass
+            rol=Rol(dto.rol) 
         )
 
-        # 5. Save user to repository
         created_user = await self.user_repository.crear(new_user)
 
-        # 6. Generate verification token and send email
         verification_token_value = str(uuid4()) # This will be the plain text token sent in email
         hashed_verification_token = hashlib.sha256(verification_token_value.encode()).hexdigest()
         
@@ -68,5 +61,4 @@ class RegistrarUsuarioUseCase:
 
         await asyncio.to_thread(self.email_service.send_verification_email, created_user.email, created_user.nombre, verification_token_value)
 
-        # 7. Return UsuarioCreadoDTO
         return UsuarioCreadoDTO(id=created_user.id, email=created_user.email)

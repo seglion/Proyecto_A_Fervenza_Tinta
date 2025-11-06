@@ -26,7 +26,7 @@ class ListarUsuariosUseCase:
                     numero_telefono=user.numero_telefono,
                     url_avatar=user.url_avatar,
                     esta_activo=user.esta_activo,
-                    rol = user.rol.value # Assuming no roles for now
+                    rol = user.rol.value 
                 )
                 for user in users
             ]

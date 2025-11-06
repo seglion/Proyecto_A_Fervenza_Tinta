@@ -50,7 +50,7 @@ class ProcesarWebhookUseCase:
                     "fecha_pago": cuota.fecha_pago.isoformat() if cuota.fecha_pago else None,
                     "metodo_pago": cuota.metodo_pago.value,
                 }
-                await self.email_service.enviar_email_confirmacion_pago(
+                self.email_service.enviar_email_confirmacion_pago(
                     email_to=user.email,
                     name=user.nombre,
                     cuota_info=cuota_info

@@ -3,7 +3,7 @@ from src.app.cuotas.application.repositories.i_cuota_repository import ICuotaRep
 from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.core.services.i_payment_gateway import IPaymentGateway
 from src.app.users.domain.entities import User
-from src.app.cuotas.domain.entities import Cuota
+
 from src.app.cuotas.application.dtos import IntentoPagoDTO, UsuarioPolicyDTO
 from src.app.cuotas.application.exceptions import UnauthorizedException, CuotaYaPagadaException
 from src.app.cuotas.domain.value_objects import EstadoPago

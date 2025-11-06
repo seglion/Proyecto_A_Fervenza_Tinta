@@ -34,5 +34,5 @@ class ActualizarMiPerfilUseCase:
             numero_telefono=updated_user.numero_telefono,
             url_avatar=updated_user.url_avatar,
             esta_activo=updated_user.esta_activo,
-            rol=updated_user.rol.value, # Assuming no roles for now
+            rol=updated_user.rol.value, 
         )

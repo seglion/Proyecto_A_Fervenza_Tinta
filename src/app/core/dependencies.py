@@ -1,13 +1,15 @@
 from fastapi import Depends, HTTPException, status
 from app.core.security.oauth2 import oauth2_scheme
 from app.core.services.i_jwt_service import IJWTService
-from app.users.application.repositories.i_user_repository import IUserRepository
 from app.users.domain.entities import User
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 from app.infrastructure.security.jwt_service import get_jwt_service
 from app.core.database import get_db
 import typing
-import asyncpg
+
+from app.core.services.i_email_service import IEmailService
+from app.core.services.sendgrid_email_service import SendgridEmailService
+
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -34,3 +36,7 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email not verified")
 
     return user
+
+
+def get_email_service() -> IEmailService:
+    return SendgridEmailService()

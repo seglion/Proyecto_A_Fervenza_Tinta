@@ -1,7 +1,7 @@
 import stripe
 from src.app.core.services.i_payment_gateway import IPaymentGateway
 from src.app.core.config import settings
-from typing import List, Optional
+from typing import  Optional
 from uuid import UUID
 
 class StripePaymentGateway(IPaymentGateway):
@@ -35,12 +35,29 @@ class StripePaymentGateway(IPaymentGateway):
             print(f"Error inesperado al crear sesión de pago: {e}")
             raise
 
-    async def validar_webhook(self, payload: bytes, sig_header: str) -> object:
+    async def crear_sesion_pago_pedido(self, amount: int, currency: str, line_items: list, pedido_id: UUID,user_id: UUID) -> str:
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=line_items,
+                mode="payment",
+                success_url="https://example.com/success", # Estas URLs deberían ser configurables
+                cancel_url="https://example.com/cancel",   # Estas URLs deberían ser configurables
+                metadata={'user_id': str(user_id), 'pedido_id': str(pedido_id)}
+            )
+            return checkout_session.url, checkout_session.id
+
+        except Exception as e:
+            # Manejo de otros errores inesperados
+            print(f"Error inesperado al crear sesión de pago de pedido: {e}")
+            raise
+
+    async def validar_webhook(self, payload: bytes, sig_header: str, webhook_secret: Optional[str] = None) -> object:
+        secret = webhook_secret if webhook_secret else settings.STRIPE_CUOTAS_WEBHOOK_SECRET
         try:
             event = stripe.Webhook.construct_event(
                 payload,
                 sig_header,
-                settings.STRIPE_WEBHOOK_SECRET
+                secret
             )
             return event
         except ValueError as e:

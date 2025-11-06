@@ -119,3 +119,6 @@ gemini.md
 test_sendgrid.py
 temp_test_session.py
 diagrama*
+server.py
+test_sendgrid.py
+scripts/

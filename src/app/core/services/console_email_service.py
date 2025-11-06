@@ -93,3 +93,15 @@ class ConsoleEmailService(IEmailService):
 
         fm = FastMail(conf)
         await fm.send_message(message, template_name="rejection.html")
+
+    async def enviar_confirmacion_pago_pedido(self, email_to: str, pedido_info: Dict[str, Any]) -> None:
+        print(f"--- CONSOLE EMAIL ---")
+        print(f"To: {email_to}")
+        print(f"Subject: Confirmación de Pago de Pedido")
+        print(f"Body:")
+        print(f"  Hola {pedido_info.get('name')},")
+        print(f"  Hemos recibido el pago de tu pedido {pedido_info.get('pedido_id')}.")
+        print(f"  Total: {pedido_info.get('total')} €")
+        print(f"  Estado: {pedido_info.get('estado')}")
+        print(f"---------------------")
+        await asyncio.sleep(0) # Simulate async operation

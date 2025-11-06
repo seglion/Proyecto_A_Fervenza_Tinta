@@ -38,10 +38,9 @@ class IniciarSesionUseCase:
 
         access_token, refresh_token = self.jwt_service.generar_tokens(user.id, [user.rol.value])
 
-        # Store refresh token in the database
         hashed_refresh_token = hashlib.sha256(refresh_token.encode()).hexdigest()
         new_token = Token(
-            id=uuid4(), # Generate a new UUID for the token
+            id=uuid4(), 
             usuario_id=user.id,
             tipo_token=TipoToken.REFRESH_TOKEN,
             hash_token=hashed_refresh_token,

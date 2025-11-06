@@ -5,7 +5,7 @@ from src.app.prendas.application.dtos import CrearPrendaDTO, PrendaCreadaDTO, Us
 from src.app.prendas.application.policies.prenda_policy import PrendaPolicy
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
 from src.app.prendas.domain.entities import Prenda
-from src.app.users.domain.entities import User # Añadido
+from src.app.users.domain.entities import User 
 from src.app.prendas.application.exceptions import NotAuthorizedError
 
 

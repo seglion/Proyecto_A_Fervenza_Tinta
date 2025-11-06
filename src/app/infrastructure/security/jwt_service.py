@@ -4,7 +4,7 @@ from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 
-from app.core.config import settings # Import settings
+from app.core.config import settings 
 
 class JWTService(IJWTService):
     def __init__(self, secret_key: str, algorithm: str, access_token_expire_minutes: int, refresh_token_expire_days: int):

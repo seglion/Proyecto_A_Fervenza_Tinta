@@ -10,3 +10,6 @@ class IPaymentGateway(ABC):
     @abstractmethod
     async def validar_webhook(self, payload: bytes, sig_header: str) -> object:
         pass
+    @abstractmethod
+    async def crear_sesion_pago_pedido(self, amount: int, currency: str, line_items: list, pedido_id: UUID,user_id: UUID) -> str:
+        pass

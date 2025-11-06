@@ -4,9 +4,9 @@ from src.app.cuotas.application.repositories.i_temporada_cuota_repository import
 from src.app.cuotas.application.policies.cuota_policy import CuotaPolicy
 from src.app.users.domain.entities import User
 from src.app.cuotas.application.dtos import CuotaDTO
-from uuid import UUID, uuid4
+from uuid import uuid4
 from datetime import datetime
-from decimal import Decimal
+
 from src.app.cuotas.domain.value_objects import EstadoPago
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, TipoCuotaNoEncontrado
 from src.app.cuotas.domain.entities import Cuota

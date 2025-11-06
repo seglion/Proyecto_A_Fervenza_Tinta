@@ -4,8 +4,7 @@ from src.app.cuotas.domain.entities import Cuota
 from src.app.users.domain.entities import User
 from typing import List, Optional
 from uuid import UUID
-from datetime import date, datetime
-
+from datetime import date
 from src.app.cuotas.domain.value_objects import MetodoPago, EstadoPago, NombreTipoCuota # Import MetodoPago from domain
 
 class PostgresCuotaRepository(ICuotaRepository):

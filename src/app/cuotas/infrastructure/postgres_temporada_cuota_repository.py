@@ -2,7 +2,7 @@ import asyncpg
 from src.app.cuotas.application.repositories.i_temporada_cuota_repository import ITemporadaCuotaRepository
 from src.app.cuotas.domain.entities import TemporadaCuota
 from typing import List, Optional
-from datetime import date, datetime
+
 
 class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
     def __init__(self, db_connection: asyncpg.Connection):
@@ -14,9 +14,7 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
         VALUES ($1, $2, $3, $4)
         RETURNING id
         """
-        # Execute the query and retrieve the generated ID
-        # Assuming the ID is autoincremental and returned by the RETURNING clause
-        # For asyncpg, fetchval is used to get a single value (like an ID)
+
         temporada_id = await self.db_connection.fetchval(
             query,
             temporada.nombre_temporada,
@@ -24,7 +22,7 @@ class PostgresTemporadaCuotaRepository(ITemporadaCuotaRepository):
             temporada.fecha_fin,
             temporada.fecha_creacion
         )
-        # Assign the retrieved ID to the temporada object
+
         temporada.id = temporada_id
         return temporada
 

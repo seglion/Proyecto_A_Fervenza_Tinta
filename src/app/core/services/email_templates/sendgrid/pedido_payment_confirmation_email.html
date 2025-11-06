@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Confirmación de Pago de Pedido</title>
+
+<style>
+    body {
+        background-color: #000000;
+        font-family: sans-serif;
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        margin: 0 auto;
+        max-width: 580px;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .content {
+        background: #FFFFFF;
+        border-radius: 4px;
+        padding: 30px;
+    }
+
+    .header-band {
+        background-color: #C8102E;
+        height: 8px;
+        width: 100%;
+        display: block;
+    }
+
+    .flag-img {
+        width: 100px;
+        display: block;
+        margin: 10px auto;
+    }
+
+    h1 {
+        color: #C8102E;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    p {
+        color: #333333;
+        margin-bottom: 18px;
+    }
+
+    .btn-primary a {
+        background-color: #C8102E;
+        border-radius: 5px;
+        color: #FFFFFF;
+        display: inline-block;
+        font-weight: bold;
+        padding: 12px 24px;
+        text-decoration: none;
+    }
+
+    .footer {
+        text-align: center;
+        color: #CCCCCC;
+        font-size: 12px;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+<span class="header-band"></span>
+
+<table role="presentation" class="container">
+<tr>
+<td>
+
+    <!-- Logo opcional -->
+    <img class="flag-img" src="TU_IMAGEN_LOGO_AQUI" alt="Logo">
+
+    <div class="content">
+        <h1>Confirmación de Pago de Pedido</h1>
+
+        <p>Hola {{name}},</p>
+
+        <p>
+            Nos complace confirmarte que hemos recibido el pago de tu pedido con éxito.
+        </p>
+
+        <h2>Detalles de tu pedido:</h2>
+        <ul>
+            <li><strong>ID de Pedido:</strong> {{pedido_id}}</li>
+            <li><strong>Total Pagado:</strong> {{total}} €</li>
+            <li><strong>Estado:</strong> {{estado}}</li>
+            <li><strong>Fecha de Finalización:</strong> {{fecha_finalizacion}}</li>
+        </ul>
+
+        <p>
+            ¡Gracias por tu compra!
+        </p>
+        <p>
+            Recibirás una notificación cuando tu pedido esté listo para ser recogido.
+        </p>
+    </div>
+
+    <div class="footer">
+        Asociación Cultural A Fervenza Tinta<br>
+        © 2025 — Todos los derechos reservados
+    </div>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

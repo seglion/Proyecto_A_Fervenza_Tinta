@@ -37,10 +37,18 @@ from app.prendas.application.repositories.i_variante_prenda_repository import IV
 from app.prendas.infrastructure.postgres_prenda_repository import PostgresPrendaRepository
 from app.prendas.infrastructure.postgres_variante_prenda_repository import PostgresVariantePrendaRepository
 
+# Pedidos imports
+from src.app.pedidos.application.repositories.i_pedido_repository import IPedidoRepository
+from src.app.pedidos.application.repositories.i_temporada_pedido_repository import ITemporadaPedidoRepository
+from src.app.pedidos.domain.entities import Pedido, LineaDePedido, TemporadaPedido
+from src.app.pedidos.domain.value_objects import EstadoPedido, MetodoPago as MetodoPagoPedido
+from src.app.pedidos.infrastructure.postgres_pedido_repository import PostgresPedidoRepository
+from src.app.pedidos.infrastructure.postgres_temporada_pedido_repository import PostgresTemporadaPedidoRepository
+
 # --- Configuration ---
 NUM_USERS_TO_CREATE = 15
-ADMIN_EMAIL = "admin@example.com"
-ADMIN_PASSWORD = "Admin123!"
+ADMIN_EMAIL = "mvigobaz@gmail.com"
+ADMIN_PASSWORD = "Surfear1+"
 DEFAULT_USER_PASSWORD = "User123!"
 
 async def seed_data():
@@ -59,11 +67,13 @@ async def seed_data():
 
         # Instantiate repositories
         user_repo: IUserRepository = PostgresUserRepository(db_connection)
-        temporada_repo: ITemporadaCuotaRepository = PostgresTemporadaCuotaRepository(db_connection)
+        temporada_cuota_repo: ITemporadaCuotaRepository = PostgresTemporadaCuotaRepository(db_connection)
         tipo_cuota_repo: ITipoCuotaRepository = PostgresTipoCuotaRepository(db_connection)
         cuota_repo: ICuotaRepository = PostgresCuotaRepository(db_connection)
         prenda_repo: IPrendaRepository = PostgresPrendaRepository(db_connection)
         variante_prenda_repo: IVariantePrendaRepository = PostgresVariantePrendaRepository(db_connection)
+        pedido_repo: IPedidoRepository = PostgresPedidoRepository(db_connection)
+        temporada_pedido_repo: ITemporadaPedidoRepository = PostgresTemporadaPedidoRepository(db_connection)
 
         # === 1. Create Users ===
         print(f"Creating {NUM_USERS_TO_CREATE} users and 1 admin...")
@@ -113,28 +123,28 @@ async def seed_data():
         fee_types_by_season = {}
 
         # Past Season
-        temporada_24_25 = TemporadaCuota(
+        temporada_cuota_24_25 = TemporadaCuota(
             id=20242025, # Using a predictable ID
             nombre_temporada="Temporada 2024-2025",
             fecha_inicio=date(2024, 8, 15),
             fecha_fin=date(2025, 8, 14),
             fecha_creacion=datetime.now(timezone.utc)
         )
-        await temporada_repo.guardar_temporada(temporada_24_25)
+        await temporada_cuota_repo.guardar_temporada(temporada_cuota_24_25)
 
         # Current Season
-        temporada_25_26 = TemporadaCuota(
+        temporada_cuota_25_26 = TemporadaCuota(
             id=20252026,
             nombre_temporada="Temporada 2025-2026",
             fecha_inicio=date(2025, 8, 15),
             fecha_fin=date(2026, 8, 14),
             fecha_creacion=datetime.now(timezone.utc)
         )
-        await temporada_repo.guardar_temporada(temporada_25_26)
+        await temporada_cuota_repo.guardar_temporada(temporada_cuota_25_26)
         print("- Created seasons: 2024-2025 and 2025-2026")
 
         # Fee Types for both seasons
-        for temporada in [temporada_24_25, temporada_25_26]:
+        for temporada in [temporada_cuota_24_25, temporada_cuota_25_26]:
             fee_types_by_season[temporada.id] = []
             alta = TipoCuota(
                 id=int(f"{temporada.id}1"), # Predictable ID
@@ -158,14 +168,14 @@ async def seed_data():
         print("Creating fees for users...")
         # All users have paid the fee for the past season
         for user in created_users:
-            past_season_fee_type = fee_types_by_season[temporada_24_25.id][1] # CUOTA ANUAL
+            past_season_fee_type = fee_types_by_season[temporada_cuota_24_25.id][1] # CUOTA ANUAL
             cuota = Cuota(
                 id=uuid4(),
                 usuario_id=user.id,
                 tipo_de_cuota_id=past_season_fee_type.id,
                 importe_pagado=past_season_fee_type.importe,
                 estado_pago=EstadoPago.COMPLETADO,
-                fecha_pago=faker.date_time_between(start_date=temporada_24_25.fecha_inicio, end_date=temporada_24_25.fecha_fin),
+                fecha_pago=faker.date_time_between(start_date=temporada_cuota_24_25.fecha_inicio, end_date=temporada_cuota_24_25.fecha_fin),
                 metodo_pago=random.choice(list(MetodoPago))
             )
             await cuota_repo.guardar(cuota)
@@ -173,7 +183,7 @@ async def seed_data():
 
         # Some users have fees for the current season
         for user in random.sample(created_users, k=int(len(created_users) * 0.8)):
-            current_season_fee_type = fee_types_by_season[temporada_25_26.id][1] # CUOTA ANUAL
+            current_season_fee_type = fee_types_by_season[temporada_cuota_25_26.id][1] # CUOTA ANUAL
             estado = random.choice([EstadoPago.PENDIENTE, EstadoPago.COMPLETADO])
             cuota = Cuota(
                 id=uuid4(),
@@ -195,6 +205,7 @@ async def seed_data():
             {"nombre": "Pantalón Corto", "descripcion": "Pantalón corto ideal para correr.", "precio": "20.00", "imagen_url": "https://via.placeholder.com/150"},
         ]
         created_prendas = []
+        created_variantes = []
         for prenda_data in prendas_data:
             prenda = Prenda(
                 id=uuid4(),
@@ -218,14 +229,114 @@ async def seed_data():
                         fecha_creacion=datetime.now(timezone.utc)
                     )
                     await variante_prenda_repo.guardar(variante)
+                    created_variantes.append(variante)
         print(f"- Created {len(created_prendas)} prendas with their variantes.")
 
-        # === 5. Test Trigger ===
+        # === 5. Create Pedido Seasons ===
+        print("Creating pedido seasons...")
+        temporada_pedido_25_26 = TemporadaPedido(
+            nombre_temporada="Temporada Pedido 2025-2026",
+            fecha_inicio=date(2025, 9, 1),
+            fecha_fin=date(2026, 7, 31),
+            esta_activa=True,
+            fecha_creacion=datetime.now(timezone.utc)
+        )
+        await temporada_pedido_repo.guardar(temporada_pedido_25_26)
+        print("- Created Temporada Pedido 2025-2026.")
+
+        # === 6. Create Pedidos ===
+        print("Creating pedidos...")
+        for user in created_users:
+            # Pedido en estado BORRADOR
+            pedido_borrador = Pedido(
+                id=uuid4(),
+                usuario_id=user.id,
+                temporada_id=temporada_pedido_25_26.id,
+                estado=EstadoPedido.BORRADOR,
+                total_calculado=Decimal("0.00"),
+                fecha_creacion=datetime.now(timezone.utc)
+            )
+            await pedido_repo.guardar_pedido(pedido_borrador)
+
+            # Pedido en estado PENDIENTEPAGO
+            if random.random() < 0.5: # 50% chance
+                pedido_pendiente = Pedido(
+                    id=uuid4(),
+                    usuario_id=user.id,
+                    temporada_id=temporada_pedido_25_26.id,
+                    estado=EstadoPedido.PENDIENTEPAGO,
+                    total_calculado=Decimal(faker.pydecimal(left_digits=2, right_digits=2, positive=True)),
+                    fecha_creacion=datetime.now(timezone.utc)
+                )
+                await pedido_repo.guardar_pedido(pedido_pendiente)
+
+                # Añadir líneas de pedido
+                num_lineas = random.randint(1, 3)
+                total_pedido = Decimal("0.00")
+                for _ in range(num_lineas):
+                    variante = random.choice(created_variantes)
+                    # Get the corresponding prenda for the variant
+                    prenda = next((p for p in created_prendas if p.id == variante.prenda_id), None)
+                    precio_unitario = prenda.precio if prenda else Decimal("0.00")
+                    cantidad_linea = random.randint(1, 2)  # Define cantidad_linea here
+                    linea = LineaDePedido(
+                        id=uuid4(),
+                        pedido_id=pedido_pendiente.id,
+                        variante_prenda_id=variante.id,
+                        cantidad=cantidad_linea,
+                        precio_unitario_conxelado=precio_unitario,
+                        desc_variante_conxelada=f"{variante.genero.value} {variante.talla.value} {prenda.nombre if prenda else 'N/A'}"
+                    )
+                    pedido_pendiente.lineas.append(linea)
+                    total_pedido += precio_unitario * cantidad_linea
+                pedido_pendiente.total_calculado = total_pedido
+                await pedido_repo.guardar_pedido(pedido_pendiente)
+
+            # Pedido en estado COMPLETADO
+            if random.random() < 0.3: # 30% chance
+                pedido_completado = Pedido(
+                    id=uuid4(),
+                    usuario_id=user.id,
+                    temporada_id=temporada_pedido_25_26.id,
+                    estado=EstadoPedido.COMPLETADO,\
+                    total_calculado=Decimal(faker.pydecimal(left_digits=2, right_digits=2, positive=True)),
+                    metodo_pago=random.choice(list(MetodoPagoPedido)),
+                    id_transaccion_externa=faker.uuid4() if random.random() < 0.7 else None,
+                    fecha_creacion=datetime.now(timezone.utc),
+                    fecha_finalizacion=datetime.now(timezone.utc)
+                )
+                await pedido_repo.guardar_pedido(pedido_completado)
+
+                # Añadir líneas de pedido
+                num_lineas = random.randint(1, 3)
+                total_pedido = Decimal("0.00")
+                for _ in range(num_lineas):
+                    variante = random.choice(created_variantes)
+                    # Get the corresponding prenda for the variant
+                    prenda = next((p for p in created_prendas if p.id == variante.prenda_id), None)
+                    precio_unitario = prenda.precio if prenda else Decimal("0.00")
+                    cantidad_linea = random.randint(1, 2)  # Define cantidad_linea here
+                    linea = LineaDePedido(
+                        id=uuid4(),
+                        pedido_id=pedido_completado.id,
+                        variante_prenda_id=variante.id,
+                        cantidad=cantidad_linea,
+                        precio_unitario_conxelado=precio_unitario,
+                        desc_variante_conxelada=f"{variante.genero.value} {variante.talla.value} {prenda.nombre if prenda else 'N/A'}"
+                    )
+                    pedido_completado.lineas.append(linea)
+                    total_pedido += precio_unitario * cantidad_linea
+                pedido_completado.total_calculado = total_pedido
+                await pedido_repo.guardar_pedido(pedido_completado)
+
+        print("- Created various pedidos for users.")
+
+        # === 7. Test Trigger ===
         print("--- Testing database trigger ---")
         user_to_test = created_users[5] # Pick a user who already has a fee
-        # This user already has a 'CUOTA ANUAL' for temporada_24_25
+        # This user already has a 'CUOTA ANUAL' for temporada_cuota_24_25
         # Let's try to add a 'CUOTA DE ALTA' for the same season. This should fail.
-        conflicting_fee_type = fee_types_by_season[temporada_24_25.id][0] # CUOTA DE ALTA
+        conflicting_fee_type = fee_types_by_season[temporada_cuota_24_25.id][0] # CUOTA DE ALTA
         
         conflicting_cuota = Cuota(
             id=uuid4(),

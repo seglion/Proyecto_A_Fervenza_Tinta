@@ -3,8 +3,8 @@
 import uuid # Added uuid import
 from app.core.database import Base
 from sqlalchemy import Column, String, Integer, Date, DateTime, func, ForeignKey, Numeric, UUID, Enum, Text # Added UUID, Enum, Text
-from datetime import date, datetime
-from app.users.infrastructure.models import UsuarioModel # Added UsuarioModel import
+
+ # Added UsuarioModel import
 from src.app.cuotas.domain.value_objects import MetodoPago, NombreTipoCuota # Import MetodoPago and NombreTipoCuota from domain
 
 class TemporadaCuotaModel(Base):

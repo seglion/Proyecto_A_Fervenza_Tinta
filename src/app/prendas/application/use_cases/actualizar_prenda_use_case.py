@@ -1,11 +1,11 @@
 from uuid import UUID
-from typing import Optional
+
 
 from src.app.prendas.application.dtos import ActualizarPrendaDTO, PrendaActualizadaDTO, UsuarioPolicyDTO
 from src.app.prendas.application.exceptions import NotAuthorizedError, PrendaNotFoundError
 from src.app.prendas.application.policies.prenda_policy import PrendaPolicy
 from src.app.prendas.application.repositories.i_prenda_repository import IPrendaRepository
-from src.app.users.domain.entities import User # Importar User
+from src.app.users.domain.entities import User 
 
 
 class ActualizarPrendaUseCase:

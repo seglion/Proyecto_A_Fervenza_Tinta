@@ -6,16 +6,23 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env.dev", env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", env_file_encoding='utf-8')
 
-    PROJECT_NAME: str = "FERVENZA App"
+
+    BASE_URL: str
+    PROJECT_NAME: str 
     API_V1_STR: str = "/api/v1"
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: List[str]
 
-    SENDGRID_API_KEY: Optional[str] = None
+    
+    SENDGRID_API_KEY: str
+    SENDGRID_SENDER_EMAIL: str
+    
+    
     STRIPE_SECRET_KEY: str
-    STRIPE_WEBHOOK_SECRET: str
+    STRIPE_CUOTAS_WEBHOOK_SECRET: str
 
+    STRIPE_PEDIDOS_WEBHOOK_SECRET: str
 
     POSTGRES_DB: str
     POSTGRES_USER: str
@@ -39,7 +46,7 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
     TEMPLATE_FOLDER: Optional[str] = None
 
-    STRIPE_SECRET_KEY: str
+
 
 
 settings = Settings()
