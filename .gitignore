@@ -127,4 +127,4 @@ backend/scripts/
 frontend/node_modules/
 frontend/dist/
 frontend/.env*
-.gitignore
+.gitignorec
