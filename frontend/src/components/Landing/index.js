@@ -1,0 +1,7 @@
+export { default as MainLayout } from './layout/MainLayout.vue'
+export { default as Footer } from './layout/FooterLayout.vue'
+export { default as HeroSection } from './sections/HeroSection.vue'
+export { default as HeadingBlock } from './sections/HeadingBlock.vue'
+export { default as ActionButtons } from './sections/ActionButtons.vue'
+export { default as NavLink } from './shared/NavLink.vue'
+export { default as SocialIcon } from './shared/SocialIcon.vue'

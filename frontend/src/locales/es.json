@@ -1,0 +1,30 @@
+{"landing": {
+    "welcomeMessage": "Bienvenidos a \"A FERVENZA TINTA\"",
+    "subtitle": "Accede a contenido exclusivo."
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "emailLabel": "Correo Electrónico",
+    "passwordLabel": "Contraseña",
+    "submit": "Entrar",
+    "noAccount": "¿Aún no tienes cuenta?",
+    "registerLink": "Regístrate"
+  },
+  "register": {
+    "title": "Registro"
+  },
+    "validation": {
+        "emailInvalid": "Correo electrónico inválido",
+        "emailRequired": "El correo electrónico es obligatorio",
+        "passwordRequired": "La contraseña es obligatoria"
+    },
+    "footer": {
+    "links": {
+      "about": "SOBRE NOSOTROS",
+      "contact": "CONTACTANOS",
+      "privacy": "POLITICA DE PRIVACIDAD",
+      "terms": "TERMINOS DE USO"
+    },
+    "copyright": "TODOS LOS DERECHOS RESERVADOS."
+    }
+}

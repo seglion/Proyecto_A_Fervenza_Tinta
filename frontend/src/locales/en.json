@@ -1,0 +1,30 @@
+{"landing": {
+    "welcomeMessage": "Welcome to \"A FERVENZA TINTA\"",
+    "subtitle": "Access exclusive content ."
+  },
+  "login": {
+    "title": "Login",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Sign In",
+    "noAccount": "Don't have an account yet?",
+    "registerLink": "Register"
+  },
+  "register": {
+    "title": "Register"
+  },
+  "validation": {
+    "emailInvalid": "Invalid email",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required"
+  },
+  "footer": {
+    "links": {
+      "about": "ABOUT US",
+      "contact": "CONTACT US",
+      "privacy": "PRIVACY POLICY",
+      "terms": "TERMS OF USE"
+    },
+    "copyright": "ALL RIGHTS RESERVED."
+  }
+}
