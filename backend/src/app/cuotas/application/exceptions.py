@@ -5,27 +5,29 @@ class CuotaException(HTTPException):
         super().__init__(status_code=status_code, detail=detail)
 
 class UnauthorizedException(CuotaException):
-    def __init__(self, detail: str = "Not authorized."):
+    def __init__(self, detail: str = "apiErrors.unauthorized"):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
 
 class TemporadaNoEncontrada(CuotaException):
-    def __init__(self, detail: str = "Season not found."):
+    def __init__(self, detail: str = "apiErrors.seasonNotFound"):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
 class TipoCuotaNoEncontrado(CuotaException):
-    def __init__(self, detail: str = "Fee Type not found."):
+    def __init__(self, detail: str = "apiErrors.feeTypeNotFound"):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
 class CuotaNoEncontrada(CuotaException):
-    def __init__(self, detail: str = "Fee not found."):
+    def __init__(self, detail: str = "apiErrors.feeNotFound"):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
 class IntentoDePagoFallido(CuotaException):
-    def __init__(self, detail: str = "Payment attempt failed."):
+    def __init__(self, detail: str = "apiErrors.paymentAttemptFailed"):
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 class EstadoDePagoNoValido(CuotaException):
-    def __init__(self, detail: str = "Invalid payment state."):
+    def __init__(self, detail: str = "apiErrors.invalidPaymentState"):
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 class CuotaYaPagadaException(CuotaException):
-    def __init__(self, detail: str = "La cuota ya ha sido pagada."):
+    def __init__(self, detail: str = "apiErrors.feeAlreadyPaid"):
         super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)

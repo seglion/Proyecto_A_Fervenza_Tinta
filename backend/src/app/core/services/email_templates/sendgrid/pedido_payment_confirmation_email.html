@@ -1,119 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Confirmación de Pago de Pedido</title>
 
 <style>
-    body {
-        background-color: #000000;
-        font-family: sans-serif;
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        margin: 0 auto;
-        max-width: 580px;
-        padding: 24px;
-        width: 100%;
-    }
-
-    .content {
-        background: #FFFFFF;
-        border-radius: 4px;
-        padding: 30px;
-    }
-
-    .header-band {
-        background-color: #C8102E;
-        height: 8px;
-        width: 100%;
-        display: block;
-    }
-
-    .flag-img {
-        width: 100px;
-        display: block;
-        margin: 10px auto;
-    }
-
-    h1 {
-        color: #C8102E;
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    p {
-        color: #333333;
-        margin-bottom: 18px;
-    }
-
-    .btn-primary a {
-        background-color: #C8102E;
-        border-radius: 5px;
-        color: #FFFFFF;
-        display: inline-block;
-        font-weight: bold;
-        padding: 12px 24px;
-        text-decoration: none;
-    }
-
-    .footer {
-        text-align: center;
-        color: #CCCCCC;
-        font-size: 12px;
-        margin-top: 20px;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 </style>
+
 </head>
 
-<body>
-<span class="header-band"></span>
+<body style="background-color: #0d0d0d; font-family: sans-serif; font-size: 14px; margin: 0; padding: 0;">
 
-<table role="presentation" class="container">
-<tr>
-<td>
+<table 
+  role="presentation" 
+  border="0" 
+  cellpadding="0" 
+  cellspacing="0" 
+  style="width: 100%; max-width: 580px; margin: 0 auto; padding: 24px;"
+>
+  <tr>
+    <td align="center">
 
-    <!-- Logo opcional -->
-    <img class="flag-img" src="TU_IMAGEN_LOGO_AQUI" alt="Logo">
+      <div 
+        style="background-color: #1a1a1a; border-top: 4px solid #dc2626; border-radius: 4px; padding: 30px; color: #ffffff;"
+      >
+        
+        <img 
+          src="{{logo_url}}" 
+          alt="Logo A Fervenza Tinta" 
+          style="width: 80px; display: block; margin: 20px auto;"
+        >
 
-    <div class="content">
-        <h1>Confirmación de Pago de Pedido</h1>
+        <h1 
+          style="font-family: 'Antonio', Arial, sans-serif; color: #dc2626; font-size: 30px; font-weight: bold; text-align: center; margin-top: 0; margin-bottom: 20px;"
+        >
+          Confirmación de Pago
+        </h1>
 
-        <p>Hola {{name}},</p>
-
-        <p>
-            Nos complace confirmarte que hemos recibido el pago de tu pedido con éxito.
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Hola {{name}},
         </p>
 
-        <h2>Detalles de tu pedido:</h2>
-        <ul>
-            <li><strong>ID de Pedido:</strong> {{pedido_id}}</li>
-            <li><strong>Total Pagado:</strong> {{total}} €</li>
-            <li><strong>Estado:</strong> {{estado}}</li>
-            <li><strong>Fecha de Finalización:</strong> {{fecha_finalizacion}}</li>
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Nos complace confirmarte que hemos recibido el pago de tu pedido con éxito.
+        </p>
+
+        <h2
+          style="font-family: 'Antonio', Arial, sans-serif; color: #ffffff; font-size: 22px; font-weight: bold; text-align: left; margin-top: 24px; margin-bottom: 15px;"
+        >
+          Detalles de tu pedido:
+        </h2>
+        
+        <ul style="padding-left: 20px; margin-bottom: 18px; list-style-type: square; color: #e5e5e5;">
+          <li style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 16px; line-height: 1.5; margin-bottom: 10px;">
+            <strong style="color: #ffffff;">ID de Pedido:</strong> {{pedido_id}}
+          </li>
+          <li style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 16px; line-height: 1.5; margin-bottom: 10px;">
+            <strong style="color: #ffffff;">Total Pagado:</strong> {{total}} €
+          </li>
+          <li style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 16px; line-height: 1.5; margin-bottom: 10px;">
+            <strong style="color: #ffffff;">Estado:</strong> {{estado}}
+          </li>
+          <li style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 16px; line-height: 1.5; margin-bottom: 10px;">
+            <strong style="color: #ffffff;">Fecha de Finalización:</strong> {{fecha_finalizacion}}
+          </li>
         </ul>
 
-        <p>
-            ¡Gracias por tu compra!
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          ¡Gracias por tu compra!
         </p>
-        <p>
-            Recibirás una notificación cuando tu pedido esté listo para ser recogido.
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
         </p>
-    </div>
+      </div>
 
-    <div class="footer">
+      <div 
+        style="text-align: center; color: #999999; font-size: 12px; margin-top: 20px; font-family: 'Space Mono', 'Courier New', monospace;"
+      >
         Asociación Cultural A Fervenza Tinta<br>
-        © 2025 — Todos los derechos reservados
-    </div>
+        © {{year}} — Todos los derechos reservados
+      </div>
 
-</td>
-</tr>
+    </td>
+  </tr>
 </table>
 
 </body>

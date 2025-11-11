@@ -54,7 +54,7 @@ def upgrade() -> None:
     sa.Column('fecha_expiracion', sa.DateTime(timezone=True), nullable=False),
     sa.Column('es_valido', sa.Boolean(), nullable=False),
     sa.Column('fecha_creacion', sa.DateTime(timezone=True), nullable=False),
-    sa.ForeignKeyConstraint(['usuario_id'], ['usuarios.id'], ),
+    sa.ForeignKeyConstraint(['usuario_id'], ['usuarios.id'], ondelete='CASCADE',),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tokens_hash_token'), 'tokens', ['hash_token'], unique=True)

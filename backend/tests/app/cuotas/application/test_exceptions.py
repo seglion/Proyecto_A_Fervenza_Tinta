@@ -38,7 +38,7 @@ def test_intento_de_pago_fallido_exception():
     with pytest.raises(IntentoDePagoFallido) as exc_info:
         raise IntentoDePagoFallido()
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
-    assert exc_info.value.detail == "Payment attempt failed."
+    assert exc_info.value.detail == "apiErrors.paymentAttemptFailed"
 
 import pytest
 from src.app.cuotas.application.exceptions import TemporadaNoEncontrada, UnauthorizedException, CuotaYaPagadaException, CuotaNoEncontrada

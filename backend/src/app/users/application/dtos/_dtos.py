@@ -27,8 +27,13 @@ class UsuarioResponseDTO(BaseModel):
     apodo: Optional[str] = None
     numero_telefono: Optional[str] = None
     url_avatar: Optional[str] = None
+    email_verificado: bool
+    aprobado_por_admin: bool
     esta_activo: bool
     rol: str
+    
+
+
 
     model_config = ConfigDict(from_attributes=True)
 

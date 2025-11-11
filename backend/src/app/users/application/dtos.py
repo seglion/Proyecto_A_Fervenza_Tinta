@@ -29,6 +29,8 @@ class UsuarioResponseDTO(BaseModel):
     url_avatar: Optional[str] = None
     esta_activo: bool
     rol: str
+    email_verificado: bool
+    aprobado_por_admin: bool
 
 class ActualizarMiPerfilDTO(BaseModel):
     nombre: Optional[str] = None

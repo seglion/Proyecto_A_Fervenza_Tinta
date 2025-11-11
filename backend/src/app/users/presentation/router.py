@@ -229,13 +229,12 @@ async def reenviar_email_verificacion(
         return {"message": "Verification email sent."}
 def get_solicitar_reseteo_contrasena_use_case(
     db_connection: typing.Any = Depends(get_db),
-    password_hasher: IPasswordHasher = Depends(Argon2PasswordHasher),
     email_service: IEmailService = Depends(get_email_service)
 ) -> "SolicitarReseteoContrasenaUseCase":
 
     user_repository = PostgresUserRepository(db_connection)
     token_repository = PostgresTokenRepository(db_connection)
-    return SolicitarReseteoContrasenaUseCase(user_repository, token_repository, email_service, password_hasher)
+    return SolicitarReseteoContrasenaUseCase(user_repository, token_repository,  email_service)
 
 @router.post("/solicitar-reseteo", status_code=status.HTTP_200_OK)
 async def solicitar_reseteo_contrasena(
@@ -267,9 +266,14 @@ async def confirmar_nueva_contrasena(
         await use_case.execute(dto.token, dto.nueva_contrasena)
         return {"message": "Password has been reset successfully."}
     except InvalidTokenException as e:
+        # Devuelve el error 400 con la clave "apiErrors.invalidToken"
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except UserNotFoundException as e:
+        # Devuelve el error 404 con la clave "apiErrors.userNotFound"
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        # Atrapa cualquier otro error (como el ValueError del hashing)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="apiErrors.genericError")
 def get_refrescar_sesion_use_case(
     db_connection: typing.Any = Depends(get_db),
     jwt_service: IJWTService = Depends(get_jwt_service),

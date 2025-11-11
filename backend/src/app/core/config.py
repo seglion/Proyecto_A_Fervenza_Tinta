@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
     TEMPLATE_FOLDER: Optional[str] = None
 
-
+    FRONTEND_BASE_URL: str
 
 
 settings = Settings()

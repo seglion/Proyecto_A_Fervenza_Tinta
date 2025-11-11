@@ -35,4 +35,6 @@ class ActualizarMiPerfilUseCase:
             url_avatar=updated_user.url_avatar,
             esta_activo=updated_user.esta_activo,
             rol=updated_user.rol.value, 
+            email_verificado=user.email_verificado,
+            aprobado_por_admin=user.aprobado_por_admin
         )

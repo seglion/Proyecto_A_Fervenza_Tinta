@@ -29,4 +29,6 @@ class VerMiPerfilUseCase:
             url_avatar=user.url_avatar,
             esta_activo=user.esta_activo,
             rol= user.rol,
+            email_verificado=user.email_verificado,
+            aprobado_por_admin=user.aprobado_por_admin
         )

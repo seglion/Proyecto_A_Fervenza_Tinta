@@ -28,5 +28,7 @@ class VerPerfilOtroUsuarioUseCase:
             numero_telefono=user.numero_telefono,
             url_avatar=user.url_avatar,
             esta_activo=user.esta_activo,
-            rol=user.rol.value
+            rol=user.rol.value,
+            email_verificado=user.email_verificado,
+            aprobado_por_admin=user.aprobado_por_admin
         )

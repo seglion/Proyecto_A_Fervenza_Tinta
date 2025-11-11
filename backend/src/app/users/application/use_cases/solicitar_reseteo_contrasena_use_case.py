@@ -7,18 +7,16 @@ from app.users.domain.value_objects import TipoToken
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 import asyncio
-
+import hashlib
 class SolicitarReseteoContrasenaUseCase:
     def __init__(
         self,
         user_repository: IUserRepository,
         token_repository: ITokenRepository,
-        password_hasher: IPasswordHasher,
         email_service: IEmailService
     ):
         self.user_repository = user_repository
         self.token_repository = token_repository
-        self.password_hasher = password_hasher
         self.email_service = email_service
 
     async def execute(self, email: str) -> None:
@@ -30,7 +28,7 @@ class SolicitarReseteoContrasenaUseCase:
         await self.token_repository.invalidar_tokens_por_usuario_y_tipo(user.id, TipoToken.RESETEO_CONTRASENA)
 
         plain_token_value = str(uuid4())
-        hashed_reset_token = self.password_hasher.hash(plain_token_value)
+        hashed_reset_token = hashlib.sha256(plain_token_value.encode()).hexdigest()
         
         new_token = Token(
             id=uuid4(),

@@ -1,108 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Registro rechazado</title>
 
 <style>
-    body {
-        background-color: #000000;
-        font-family: sans-serif;
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        margin: 0 auto;
-        max-width: 580px;
-        padding: 24px;
-        width: 100%;
-    }
-
-    .content {
-        background: #FFFFFF;
-        border-radius: 4px;
-        padding: 30px;
-    }
-
-    .header-band {
-        background-color: #C8102E;
-        height: 8px;
-        width: 100%;
-        display: block;
-    }
-
-    h1 {
-        color: #C8102E;
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    p {
-        color: #333333;
-        margin-bottom: 18px;
-    }
-
-    .btn-primary a {
-        background-color: #C8102E;
-        border-radius: 5px;
-        color: #FFFFFF;
-        display: inline-block;
-        font-weight: bold;
-        padding: 12px 24px;
-        text-decoration: none;
-    }
-
-    .footer {
-        text-align: center;
-        color: #CCCCCC;
-        font-size: 12px;
-        margin-top: 20px;
-    }
-
-    .flag-img {
-        width: 100px;
-        display: block;
-        margin: 10px auto;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 </style>
+
 </head>
 
-<body>
-<span class="header-band"></span>
+<body style="background-color: #0d0d0d; font-family: sans-serif; font-size: 14px; margin: 0; padding: 0;">
 
-<table role="presentation" class="container">
-<tr>
-<td>
+<table 
+  role="presentation" 
+  border="0" 
+  cellpadding="0" 
+  cellspacing="0" 
+  style="width: 100%; max-width: 580px; margin: 0 auto; padding: 24px;"
+>
+  <tr>
+    <td align="center">
 
-    <!-- Logo opcional -->
-    <img class="flag-img" src="TU_IMAGEN_LOGO_AQUI" alt="Logo">
+      <div 
+        style="background-color: #1a1a1a; border-top: 4px solid #dc2626; border-radius: 4px; padding: 30px; color: #ffffff;"
+      >
+        
+        <img 
+          src="{{logo_url}}" 
+          alt="Logo A Fervenza Tinta" 
+          style="width: 80px; display: block; margin: 20px auto;"
+        >
 
-    <div class="content">
-        <h1>Registro rechazado</h1>
+        <h1 
+          style="font-family: 'Antonio', Arial, sans-serif; color: #dc2626; font-size: 30px; font-weight: bold; text-align: center; margin-top: 0; margin-bottom: 20px;"
+        >
+          Registro rechazado
+        </h1>
 
-        <p>Hola {{name}},</p>
-
-        <p>
-            Lamentamos informarte que tu solicitud de registro ha sido rechazada.
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Hola {{name}},
         </p>
 
-        {{button_section}}
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Lamentamos informarte que tu solicitud de registro ha sido rechazada.
+        </p>
 
-        <p>Si tienes alguna duda o deseas más información, puedes ponerte en contacto con nosotros.</p>
-    </div>
+        <div style="text-align: center; margin: 30px 0;">
+          {{button_section}}
+          </div>
 
-    <div class="footer">
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Si tienes alguna duda o deseas más información, puedes ponerte en contacto con nosotros.
+        </p>
+      </div>
+
+      <div 
+        style="text-align: center; color: #999999; font-size: 12px; margin-top: 20px; font-family: 'Space Mono', 'Courier New', monospace;"
+      >
         Asociación Cultural A Fervenza Tinta<br>
         © {{year}} — Todos los derechos reservados
-    </div>
+      </div>
 
-</td>
-</tr>
+    </td>
+  </tr>
 </table>
 
 </body>

@@ -1,130 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Bienvenido/a</title>
 
 <style>
-    body {
-        background-color: #000000;
-        font-family: sans-serif;
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
-
-    table {
-        border-collapse: separate;
-        width: 100%;
-    }
-
-    .container {
-        margin: 0 auto;
-        max-width: 580px;
-        width: 100%;
-        padding-top: 24px;
-    }
-
-    .content {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .main {
-        background: #FFFFFF;
-        border-radius: 4px;
-        width: 100%;
-    }
-
-    .wrapper {
-        padding: 24px;
-    }
-
-    .header-band {
-        background-color: #C8102E;
-        height: 8px;
-        width: 100%;
-        display: block;
-    }
-
-    h1 {
-        color: #C8102E;
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 18px;
-    }
-
-    p {
-        color: #333333;
-        margin-bottom: 18px;
-    }
-
-    .btn table {
-        width: auto;
-        margin: 0 auto;
-    }
-
-    .btn-primary a {
-        background-color: #C8102E;
-        border-radius: 5px;
-        color: #FFFFFF;
-        display: inline-block;
-        font-weight: bold;
-        padding: 12px 24px;
-        text-decoration: none;
-        text-transform: none;
-        font-size: 14px;
-    }
-
-    .footer {
-        text-align: center;
-        padding-top: 24px;
-        color: #CCCCCC;
-        font-size: 11px;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 </style>
+
 </head>
 
-<body>
+<body style="background-color: #0d0d0d; font-family: sans-serif; font-size: 14px; margin: 0; padding: 0;">
 
-<span class="header-band"></span>
+<table 
+  role="presentation" 
+  border="0" 
+  cellpadding="0" 
+  cellspacing="0" 
+  style="width: 100%; max-width: 580px; margin: 0 auto; padding: 24px;"
+>
+  <tr>
+    <td align="center">
 
-<table role="presentation" class="container">
-<tr>
-<td>
+      <div 
+        style="background-color: #1a1a1a; border-top: 4px solid #dc2626; border-radius: 4px; padding: 30px; color: #ffffff;"
+      >
+        
+        <img 
+          src="{{logo_url}}" 
+          alt="Logo A Fervenza Tinta" 
+          style="width: 80px; display: block; margin: 20px auto;"
+        >
 
-    <table role="presentation" class="content">
-        <tr>
-            <td class="main">
+        <h1 
+          style="font-family: 'Antonio', Arial, sans-serif; color: #dc2626; font-size: 30px; font-weight: bold; text-align: center; margin-top: 0; margin-bottom: 20px;"
+        >
+          ¡Bienvenido/a!
+        </h1>
 
-                <div class="wrapper">
-                    <h1>Bienvenido/a</h1>
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Hola {{name}},
+        </p>
 
-                    <p>Hola {{name}},</p>
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Bienvenido/a a nuestra plataforma. Gracias por unirte.
+        </p>
 
-                    <p>
-                        Bienvenido/a a nuestra plataforma. Gracias por unirte.
-                    </p>
+        <div style="text-align: center; margin: 30px 0;">
+          {{button_section}}
+          </div>
 
-                    {{button_section}}
+        <p 
+          style="font-family: 'Space Mono', 'Courier New', monospace; color: #e5e5e5; font-size: 16px; line-height: 1.5; margin-bottom: 18px;"
+        >
+          Si necesitas ayuda, estamos para apoyarte. Avanza con confianza.
+        </p>
+      </div>
 
-                    <p>
-                        Si necesitas ayuda, estamos para apoyarte. Avanza con confianza.
-                    </p>
-                </div>
-            </td>
-        </tr>
-    </table>
-
-    <div class="footer">
+      <div 
+        style="text-align: center; color: #999999; font-size: 12px; margin-top: 20px; font-family: 'Space Mono', 'Courier New', monospace;"
+      >
         Asociación Cultural A Fervenza Tinta<br>
         © {{year}} — Todos los derechos reservados
-    </div>
+      </div>
 
-</td>
-</tr>
+    </td>
+  </tr>
 </table>
 
 </body>

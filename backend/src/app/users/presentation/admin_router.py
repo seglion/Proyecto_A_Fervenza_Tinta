@@ -1,3 +1,4 @@
+from app.users.application.exceptions import UnauthorizedException, UserNotFoundException
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from uuid import UUID
@@ -13,6 +14,7 @@ from app.users.application.use_cases.activar_desactivar_usuario_use_case import 
 from app.users.application.use_cases.modificar_roles_use_case import ModificarRolesUseCase
 from app.users.application.use_cases.eliminar_usuario_use_case import EliminarUsuarioUseCase
 from app.users.application.use_cases.forzar_reseteo_use_case import ForzarReseteoUseCase
+from asyncpg.exceptions import ForeignKeyViolationError
 
 from app.users.infrastructure.postgres_user_repository import PostgresUserRepository
 from app.core.database import get_db
@@ -169,17 +171,25 @@ def get_eliminar_usuario_use_case(
     user_policy = UserPolicy()
     return EliminarUsuarioUseCase(user_repository, user_policy)
 
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
-async def delete_user(
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def admin_delete_or_deactivate_user(
     user_id: UUID,
     admin_user: User = Depends(get_admin_user),
-    use_case: EliminarUsuarioUseCase = Depends(get_eliminar_usuario_use_case)
+    eliminar_use_case: EliminarUsuarioUseCase = Depends(get_eliminar_usuario_use_case),
+    toggle_use_case: ActivarDesactivarUsuarioUseCase = Depends(get_activar_desactivar_usuario_use_case)
 ):
     try:
-        await use_case.execute(admin_user, user_id)
-        return {"message": "User deleted successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        # ... (tu lógica de try/except/ForeignKeyViolationError es correcta) ...
+        await eliminar_use_case.execute(admin_user, user_id)
+    except ForeignKeyViolationError as e:
+        if "cuotas_usuario_id_fkey" in str(e) or "pedidos_usuario_id_fkey" in str(e):
+            await toggle_use_case.execute(admin_user, user_id, new_status=False)
+        else:
+            raise HTTPException(status_code=500, detail="apiErrors.databaseConfigurationError")
+    except (UnauthorizedException, UserNotFoundException) as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+    return 
 
 def get_forzar_reseteo_use_case(
     db_connection: typing.Any = Depends(get_db),
@@ -191,3 +201,16 @@ def get_forzar_reseteo_use_case(
     password_hasher = Argon2PasswordHasher()
     user_policy = UserPolicy()
     return ForzarReseteoUseCase(user_repository, token_repository, password_hasher, user_policy, email_service)
+
+@router.post("/{user_id}/forzar-reseteo", status_code=status.HTTP_200_OK)
+async def force_password_reset(
+    user_id: UUID,
+    admin_user: User = Depends(get_admin_user),
+    use_case: ForzarReseteoUseCase = Depends(get_forzar_reseteo_use_case)
+):
+    try:
+        await use_case.execute(admin_user, user_id)
+        return {"message": "Password reset forced successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+

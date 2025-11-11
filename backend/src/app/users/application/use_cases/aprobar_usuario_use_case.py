@@ -29,6 +29,7 @@ class AprobarUsuarioUseCase:
             raise EmailNotVerifiedException("User email not verified.")
 
         user.aprobado_por_admin = True
+        user.esta_activo = True
         user.fecha_actualizacion = datetime.now(timezone.utc)
         await self.user_repository.actualizar(user)
 
