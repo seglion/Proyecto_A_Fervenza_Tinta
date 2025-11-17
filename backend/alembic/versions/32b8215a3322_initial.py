@@ -89,7 +89,7 @@ def upgrade() -> None:
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('prenda_id', sa.UUID(), nullable=False),
         sa.Column('genero', sa.Enum('HOMBRE', 'MUJER', 'UNISEX', name='genero_prenda_enum'), nullable=False),
-        sa.Column('talla', sa.Enum('XS', 'S', 'M', 'L', 'XL', 'XXL', name='talla_prenda_enum'), nullable=False),
+        sa.Column('talla', sa.Enum('XS', 'S', 'M', 'L', 'XL', 'XXL','UNICA', name='talla_prenda_enum'), nullable=False),
         sa.Column('fecha_creacion', sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['prenda_id'], ['prendas.id'], ),
         sa.PrimaryKeyConstraint('id')

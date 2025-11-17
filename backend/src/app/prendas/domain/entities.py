@@ -14,7 +14,6 @@ class Prenda:
     imagen_url: str
     fecha_creacion: datetime
     variantes: List["VariantePrenda"] = field(default_factory=list)
-
 @dataclass
 class VariantePrenda:
     id: UUID

@@ -7,8 +7,8 @@
     <div class="absolute inset-0 z-10 bg-red-600/70"></div>
 
     <!-- Content -->
-    <div class="relative z-20 flex w-full h-full p-4 lg:p-8 items-end justify-end">
-      <div class="bg-black/80 p-6 sm:p-10 lg:p-12 text-white flex flex-col gap-6 w-full max-w-full sm:max-w-[70%] lg:max-w-[60%] xl:max-w-[50%] h-auto min-h-[300px] justify-center items-start text-left">
+<div class="relative z-20 flex w-full h-full p-3 sm:p-4 lg:p-8 items-end justify-end">
+        <div class="bg-black/80 p-6 sm:p-10 lg:p-12 text-white flex flex-col gap-6 w-full max-w-full sm:max-w-[70%] lg:max-w-[60%] xl:max-w-[50%] h-auto min-h-[300px] justify-center items-start text-left">
         <HeadingBlock />
         <ActionButtons />
       </div>

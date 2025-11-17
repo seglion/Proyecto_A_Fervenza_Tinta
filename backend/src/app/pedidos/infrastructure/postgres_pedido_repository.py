@@ -254,6 +254,7 @@ class PostgresPedidoRepository(IPedidoRepository):
     async def buscar_historial_por_usuario(self, usuario_id: UUID) -> List[Pedido]:
         query = "SELECT id, usuario_id, temporada_id, estado, total_calculado, metodo_pago, id_transaccion_externa, fecha_creacion, fecha_finalizacion FROM pedidos WHERE usuario_id = $1 ORDER BY fecha_creacion DESC"
         rows = await self.db_connection.fetch(query, usuario_id)
+        
         return [
             Pedido(
                 id=row['id'],
@@ -266,6 +267,7 @@ class PostgresPedidoRepository(IPedidoRepository):
                 fecha_creacion=row['fecha_creacion'],
                 fecha_finalizacion=row['fecha_finalizacion']
             ) for row in rows
+            
         ]
 
     async def buscar_pedidos_finalizados_por_temporada(self, temporada_id: int) -> List[Pedido]:
@@ -288,3 +290,32 @@ class PostgresPedidoRepository(IPedidoRepository):
     async def cancelar_pedidos_borrador(self, temporada_id: int) -> None:
         query = "UPDATE pedidos SET estado = $1::estado_pedido_enum WHERE temporada_id = $2 AND estado = $3::estado_pedido_enum"
         await self.db_connection.execute(query, EstadoPedido.CANCELADO.value, temporada_id, EstadoPedido.BORRADOR.value)
+        
+    async def obtener_resumen_produccion(self, temporada_id: int) -> List[asyncpg.Record]:
+        query = """
+            SELECT 
+                lp.variante_prenda_id,
+                lp.desc_variante_conxelada,
+                SUM(lp.cantidad) AS total_cantidad,
+                p.temporada_id,
+                tp.nombre_temporada AS temporada_nombre 
+                
+            FROM 
+                lineadepedidos lp
+            JOIN 
+                pedidos p ON lp.pedido_id = p.id
+            JOIN
+                temporadapedidos tp ON p.temporada_id = tp.id
+            WHERE 
+                p.temporada_id = $1
+                AND p.estado NOT IN ('BORRADOR', 'CANCELADO')
+            GROUP BY 
+                p.temporada_id, 
+                lp.variante_prenda_id, 
+                lp.desc_variante_conxelada,
+                tp.nombre_temporada
+            ORDER BY
+                tp.nombre_temporada, 
+                lp.desc_variante_conxelada;
+        """
+        return await self.db_connection.fetch(query, temporada_id)

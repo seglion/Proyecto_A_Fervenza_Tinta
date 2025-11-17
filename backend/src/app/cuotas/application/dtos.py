@@ -109,3 +109,5 @@ class UsuarioPolicyDTO(BaseModel):
 
 class CuotaCompletadaDTO(BaseModel):
     id: UUID
+class ListaCuotasRecientesDTO(BaseModel):
+    cuotas: List[CuotaDetalleResponseDTO]

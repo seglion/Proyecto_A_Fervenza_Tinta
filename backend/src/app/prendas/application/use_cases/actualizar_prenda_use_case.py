@@ -18,7 +18,7 @@ class ActualizarPrendaUseCase:
         if not self.prenda_policy.es_administrador(user_policy_dto):
             raise NotAuthorizedError("No tienes permiso para actualizar una prenda.")
 
-        prenda = await self.prenda_repository.get_by_id(prenda_id)
+        prenda = await self.prenda_repository.buscar_por_id_con_variantes(prenda_id)
         if not prenda:
             raise PrendaNotFoundError("Prenda no encontrada.")
 
@@ -31,5 +31,5 @@ class ActualizarPrendaUseCase:
         if data.imagen_url is not None:
             prenda.imagen_url = data.imagen_url
 
-        await self.prenda_repository.save(prenda)
+        await self.prenda_repository.actualizar(prenda)
         return PrendaActualizadaDTO(id=prenda.id)

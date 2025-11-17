@@ -31,19 +31,65 @@ class PostgresPrendaRepository(IPrendaRepository):
         return None
 
     async def listar_todas(self) -> List[Prenda]:
-        query = "SELECT id, nombre, descripcion, precio, imagen_url, fecha_creacion FROM prendas"
+        """
+        Obtiene todas las prendas, incluyendo sus variantes,
+        usando un JOIN y agrupando en Python.
+        """
+        
+        # 1. Ejecuta la misma consulta JOIN que 'buscar_por_id', pero sin el WHERE
+        query = inspect.cleandoc("""
+            SELECT
+                p.id AS prenda_id,
+                p.nombre,
+                p.descripcion,
+                p.precio,
+                p.imagen_url,
+                p.fecha_creacion,
+                vp.id AS variante_id,
+                vp.genero,
+                vp.talla,
+                vp.fecha_creacion AS variante_fecha_creacion
+            FROM prendas p
+            LEFT JOIN varianteprendas vp ON p.id = vp.prenda_id
+            ORDER BY p.fecha_creacion DESC
+        """)
         rows = await self.db_connection.fetch(query)
-        return [
-            Prenda(
-                id=row["id"],
-                nombre=row["nombre"],
-                descripcion=row["descripcion"],
-                precio=row["precio"],
-                imagen_url=row["imagen_url"],
-                fecha_creacion=row["fecha_creacion"],
-            )
-            for row in rows
-        ]
+
+        if not rows:
+            return []
+
+        # 2. Agrupa los resultados (porque el JOIN devuelve filas duplicadas por prenda)
+        prendas_map = {}
+
+        for row in rows:
+            prenda_id = row["prenda_id"]
+            
+            # Si es la primera vez que vemos esta prenda, la creamos
+            if prenda_id not in prendas_map:
+                prendas_map[prenda_id] = Prenda(
+                    id=row["prenda_id"],
+                    nombre=row["nombre"],
+                    descripcion=row["descripcion"],
+                    precio=row["precio"],
+                    imagen_url=row["imagen_url"],
+                    fecha_creacion=row["fecha_creacion"],
+                    
+                    variantes=[] # Inicializa la lista de variantes
+                )
+
+            # Si la fila tiene una variante (LEFT JOIN puede traer nulls)
+            if row["variante_id"]:
+                variante = VariantePrenda(
+                    id=row["variante_id"],
+                    prenda_id=row["prenda_id"],
+                    genero=self._get_genero_prenda_from_value(row["genero"]),
+                    talla=self._get_talla_prenda_from_value(row["talla"]),
+                    fecha_creacion=row["variante_fecha_creacion"],
+                )
+                prendas_map[prenda_id].variantes.append(variante)
+
+        # 3. Devuelve la lista de prendas del diccionario
+        return list(prendas_map.values())
 
     async def buscar_por_id_con_variantes(self, prenda_id: UUID) -> Optional[Prenda]:
         query = inspect.cleandoc("""

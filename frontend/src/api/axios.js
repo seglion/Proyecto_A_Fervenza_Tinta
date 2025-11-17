@@ -13,7 +13,7 @@ const apiClient = axios.create({
 })
 
 // === INTERCEPTOR DE PETICIÓN (Request) ===
-// (Este no cambia: añade el token a cada petición)
+
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('jwt_token')
@@ -28,16 +28,16 @@ apiClient.interceptors.request.use(
 )
 
 // === INTERCEPTOR DE RESPUESTA (Response) ===
-// (Aquí aplicamos tus nuevas especificaciones)
+
 apiClient.interceptors.response.use(
   (response) => {
-    // Si la respuesta es 2xx, simplemente devuélvela.
+
     return response
   },
   async (error) => {
     const originalRequest = error.config
 
-    // Si el error es 401 (Token Expirado) Y NO hemos reintentado ya:
+
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true // Marcamos la petición para no entrar en un bucle infinito
 
@@ -48,13 +48,13 @@ apiClient.interceptors.response.use(
         }
 
         // --- 1. Preparamos el body para el refresh ---
-        // (Según tu API: JSON con "refresh_token")
+
         const body = {
           refresh_token: refreshToken
         }
 
         // --- 2. Pedimos los nuevos tokens ---
-        // Usamos 'axios.post' (el global) para evitar un bucle de interceptores.
+        // Usamos 'axios.post' (el global) 
         // Usamos el endpoint que especificaste: /users/auth/refresh
         const res = await axios.post(`${baseURL}/users/auth/refresh`, body, {
           headers: {
@@ -63,7 +63,7 @@ apiClient.interceptors.response.use(
         })
 
         // --- 3. Guardamos los nuevos tokens ---
-        // (Según tu schema de respuesta)
+
         const newAccessToken = res.data.access_token
         const newRefreshToken = res.data.refresh_token
 

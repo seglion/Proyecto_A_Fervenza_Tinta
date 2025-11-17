@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from src.app.cuotas.domain.value_objects import EstadoPago
 from src.app.cuotas.application.repositories.i_cuota_repository import ICuotaRepository
 from src.app.cuotas.application.repositories.i_tipo_cuota_repository import ITipoCuotaRepository
 from src.app.cuotas.application.repositories.i_temporada_cuota_repository import ITemporadaCuotaRepository
@@ -29,6 +30,9 @@ class ConsultarHistorialCuotasUseCase:
         
         historial_detallado = []
         for cuota in cuotas:
+            if cuota.estado_pago != EstadoPago.COMPLETADO:
+                
+                continue
             tipo_cuota = await self._tipo_cuota_repository.buscar_por_id(cuota.tipo_de_cuota_id)
             if not tipo_cuota:
                 continue

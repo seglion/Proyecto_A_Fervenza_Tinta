@@ -1,11 +1,22 @@
 <template>
-  <a href="#" class="text-white text-base font-normal leading-normal hover:text-red-600 transition-colors font-space">
+  <RouterLink 
+    :to="to" 
+    class="text-white text-base font-normal leading-normal hover:text-red-600 transition-colors font-space"
+  >
     {{ label }}
-  </a>
+  </RouterLink>
 </template>
 
 <script setup>
-defineProps({ label: String })
+import { RouterLink } from 'vue-router'
+
+defineProps({ 
+  label: String,
+  to: { 
+    type: [String, Object],
+    required: true
+  } 
+})
 </script>
 
 <style scoped>

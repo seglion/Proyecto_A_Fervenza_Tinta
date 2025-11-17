@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from typing import Any
 from uuid import UUID
-
+from src.app.cuotas.application.use_cases.listar_cuotas_recientes_use_case import ListarCuotasRecientesUseCase
+from src.app.cuotas.application.dtos import ListaCuotasRecientesDTO
 from src.app.core.database import get_db
 from src.app.cuotas.application.repositories.i_cuota_repository import ICuotaRepository
 from src.app.cuotas.infrastructure.postgres_cuota_repository import PostgresCuotaRepository
@@ -145,6 +146,16 @@ def get_procesar_webhook_use_case(
 ) -> ProcesarWebhookUseCase:
     return ProcesarWebhookUseCase(payment_gateway=payment_gateway, cuota_repository=cuota_repository, email_service=email_service, user_repository=user_repository)
 
+def get_listar_cuotas_recientes_use_case(
+    cuota_repository: ICuotaRepository = Depends(get_cuota_repository),
+) -> ListarCuotasRecientesUseCase:
+    cuota_policy = CuotaPolicy()
+    return ListarCuotasRecientesUseCase(cuota_repository, cuota_policy)
+
+
+
+
+
 @router.post("/crear-intento-pago", response_model=IntentoPagoDTO, status_code=status.HTTP_200_OK)
 async def crear_intento_pago(
     current_user: User = Depends(get_current_user),
@@ -216,7 +227,30 @@ async def obtener_generar_mi_cuota_activa(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except TipoCuotaNoEncontrado as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+@router.post("/webhooks/stripe", status_code=status.HTTP_200_OK)
+async def procesar_webhook(
+    request: Request,
+    use_case: ProcesarWebhookUseCase = Depends(get_procesar_webhook_use_case)
+):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    await use_case.execute(payload, sig_header)
+    return {"status": "ok"}
 
+@router.get("/recientes", response_model=ListaCuotasRecientesDTO, status_code=status.HTTP_200_OK)
+async def listar_cuotas_recientes(
+    admin_user: User = Depends(get_admin_user),
+    use_case: ListarCuotasRecientesUseCase = Depends(get_listar_cuotas_recientes_use_case)
+):
+    """
+    Obtiene las últimas 5 cuotas completadas (pagadas) para el dashboard.
+    """
+    try:
+        return await use_case.execute(admin_user, limit=5)
+    except UnauthorizedException as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 @router.get("/{cuota_id}", response_model=DetalleCuotaDTO, status_code=status.HTTP_200_OK)
 async def ver_detalle_cuota(cuota_id: UUID, admin_user: User = Depends(get_admin_user), use_case: VerDetalleCuotaUseCase = Depends(get_ver_detalle_cuota_use_case)):
     return await use_case.execute(admin_user, cuota_id)
@@ -237,12 +271,3 @@ async def registrar_cuota_manual(
     except UnauthorizedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
-@router.post("/webhooks/stripe", status_code=status.HTTP_200_OK)
-async def procesar_webhook(
-    request: Request,
-    use_case: ProcesarWebhookUseCase = Depends(get_procesar_webhook_use_case)
-):
-    payload = await request.body()
-    sig_header = request.headers.get('stripe-signature')
-    await use_case.execute(payload, sig_header)
-    return {"status": "ok"}

@@ -194,3 +194,27 @@ class PostgresCuotaRepository(ICuotaRepository):
         return [row['id'] for row in rows]
 
 
+    async def listar_recientes_completadas_con_detalle(self,limit:int)->List[asyncpg.Record]:
+        query = """
+            SELECT 
+                c.*, 
+                u.nombre AS usuario_nombre,
+                u.apellidos AS usuario_apellidos,
+                tc.nombre AS tipo_cuota_nombre,
+                temp.nombre_temporada AS temporada_nombre
+            FROM 
+                cuotas c
+            JOIN 
+                usuarios u ON c.usuario_id = u.id
+            JOIN 
+                tipocuotas tc ON c.tipo_de_cuota_id = tc.id
+            JOIN 
+                temporadacuotas temp ON tc.temporada_id = temp.id
+            WHERE 
+                c.estado_pago = $1
+            ORDER BY 
+                c.fecha_pago DESC
+            LIMIT $2;
+        """
+        return await self.db_connection.fetch(query, EstadoPago.COMPLETADO.value, limit)
+        

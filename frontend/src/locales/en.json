@@ -1,6 +1,7 @@
-{"landing": {
+{
+  "landing": {
     "welcomeMessage": "Welcome to \"A FERVENZA TINTA\"",
-    "subtitle": "Access exclusive content ."
+    "subtitle": "Access exclusive content..."
   },
   "login": {
     "title": "Login",
@@ -8,15 +9,96 @@
     "passwordLabel": "Password",
     "submit": "Sign In",
     "noAccount": "Don't have an account yet?",
-    "registerLink": "Register"
+    "registerLink": "Register",
+    "forgotPassword": "Forgot your password?",
+    "resendVerification": "Didn't receive a verification email?"
   },
   "register": {
-    "title": "Register"
+    "title": "Create Account",
+    "submit": "Register",
+    "successMessage": "Registration complete! Please check your email to verify your account.",
+    "alreadyAccount": "Already have an account?",
+    "loginLink": "Log In",
+    "nombreLabel": "Name",
+    "apellidosLabel": "Surnames",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "nicknameLabel": "Nickname (Optional)",
+    "passwordLabel": "Password",
+    "passwordConfirmLabel": "Confirm Password"
   },
   "validation": {
     "emailInvalid": "Invalid email",
     "emailRequired": "Email is required",
-    "passwordRequired": "Password is required"
+    "passwordRequired": "Password is required",
+    "nameRequired": "Name is required",
+    "surnameRequired": "Surnames are required",
+    "phoneRequired": "Phone is required",
+    "passwordMin": "Must be at least 8 characters",
+    "passwordLowercase": "Must contain at least one lowercase letter",
+    "passwordUppercase": "Must contain at least one uppercase letter",
+    "passwordNumber": "Must contain at least one number",
+    "passwordSpecial": "Must contain at least one special character",
+    "passwordConfirmMatch": "Passwords do not match",
+    "urlInvalid": "Must be a valid URL",
+    "dateRequired": "Date is required",
+    "dateMin": "End date must be after start date",
+    "amountRequired": "Amount is required",
+    "descriptionRequired": "Description is required",
+    "imageRequired": "Image is required"
+  },
+  "verifyEmail": {
+    "title": "Verify Email",
+    "verifying": "Verifying your account...",
+    "success": "Account Verified!",
+    "successDetail": "Your email has been verified. An administrator must now approve your account. You will be notified.",
+    "noToken": "No verification token found.",
+    "errorDetail": "The link may be expired or incorrect. Please try registering again."
+  },
+  "apiErrors": {
+    "userAlreadyExists": "This email is already in use. Please log in.",
+    "invalidCredentials": "Invalid credentials.",
+    "accountInactive": "Your account is inactive.",
+    "emailNotVerified": "Your email has not been verified.",
+    "invalidToken": "The token is invalid or has expired.",
+    "userNotFound": "User not found.",
+    "genericError": "An unexpected error occurred.",
+    "unauthorized": "Not authorized.",
+    "emailAlreadyVerified": "Email already verified.",
+    "invalidOldPassword": "Invalid old password.",
+    "userAlreadyApproved": "User is already approved.",
+    "phoneAlreadyExists": "That phone number is already in use.",
+    "seasonNotFound": "Season not found.",
+    "feeTypeNotFound": "Fee Type not found.",
+    "feeNotFound": "Fee not found.",
+    "paymentAttemptFailed": "Payment attempt failed.",
+    "invalidPaymentState": "Invalid payment state.",
+    "feeAlreadyPaid": "This fee has already been paid.",
+    "notAuthorized": "You are not authorized to perform this action.",
+    "garmentNotFound": "Garment not found.",
+    "orderSeasonNotActive": "There is no active order season at this time.",
+    "orderNotFound": "Order not found.",
+    "orderLineNotFound": "Order line not found.",
+    "orderNotModifiable": "The order cannot be modified in its current state.",
+    "garmentVariantNotFound": "Garment variant not found.",
+    "invalidQuantity": "The garment quantity must be greater than zero.",
+    "emptyOrder": "The order cannot be empty to confirm.",
+    "invalidPaymentMethod": "Invalid payment method for this operation.",
+    "accessDenied": "Access denied. You do not have permission to perform this action.",
+    "orderSeasonClosed": "The order season is closed.",
+    "orderSeasonNotFound": "Order season not found.",
+    "paymentLinkError": "Could not generate payment link."
+  },
+  "resetPassword": {
+    "requestTitle": "Reset Password",
+    "requestDetail": "Enter your email and we'll send you a link to reset your password.",
+    "sending": "Sending...",
+    "sendLink": "Send Link",
+    "requestSuccess": "Link sent! Check your email.",
+    "backToLogin": "Back to Login",
+    "newTitle": "Create New Password",
+    "saveButton": "Save Password",
+    "newSuccess": "Password updated! You can now log in."
   },
   "footer": {
     "links": {
@@ -26,5 +108,393 @@
       "terms": "TERMS OF USE"
     },
     "copyright": "ALL RIGHTS RESERVED."
+  },
+  "dashboard": {
+    "nav": {
+      "home": "Dashboard",
+      "profile": "My Profile",
+      "orders": "My Orders",
+      "adminTitle": "Admin",
+      "adminUsers": "User Management",
+      "logout": "Log Out",
+      "currentRole": "Current Role",
+      "paymentshistory": "My fees",
+      "seasons": "Manage Seasons",
+      "store": "Store"
+    },
+    "feeTypes": {
+      "SOCIO": "Annual Fee",
+      "ALTA": "New Member Fee"
+    },
+    "roles": {
+      "ADMIN": "Administrator",
+      "USUARIO": "Member",
+      "GUEST": "Guest"
+    },
+    "view": {
+      "title": "Dashboard",
+      "feeTitle": "Annual Membership Fee",
+      "feeStatus": "Status:",
+      "feeButton": "Pay Now",
+      "storeTitle": "Merchandise Store",
+      "storeButton": "View Store",
+      "feeLoading": "Loading fee status...",
+      "feeProcessing": "Processing payment...",
+      "feePaid": "Paid",
+      "feePaidOn": "Paid on",
+      "feeNone": "No active fee found for this season.",
+      "feeRetry": "Retry Payment"
+    },
+    "feeStatus": {
+      "pendiente": "Pending",
+      "completado": "Completed",
+      "fallido": "Failed"
+    },
+    "profile": {
+      "viewTitle": "My Profile",
+      "avatarAlt": "User profile picture",
+      "guest": "User",
+      "tabs": {
+        "account": "Account Settings",
+        "security": "Security"
+      },
+      "form": {
+        "title": "Update Profile",
+        "submit": "Save Changes",
+        "success": "Profile updated successfully.",
+        "edit": "Edit Profile",
+        "avatarLabel": "Avatar URL"
+      }
+    },
+    "admin": {
+      "nav": {
+        "dashboard": "Admin Dashboard",
+        "orders": "Manage Orders",
+        "payments": "Manage Fees",
+        "seasons": "Manage Seasons",
+        "prendas": "Manage Apparel"
+      },
+      "view": {
+        "title": "Admin Dashboard",
+        "subtitle": "Welcome, {name}. Here's a summary of the activity.",
+        "viewAll": "View all"
+      },
+      "stats": {
+        "title": "At-a-Glance",
+        "activeMembers": "Active Members",
+        "newMembers": "New Members (30d)",
+        "totalUsers": "Total Users"
+      },
+      "pendingOrders": {
+        "title": "Pending Merchandise Orders"
+      },
+      "recentPayments": {
+        "title": "Recent Membership Payments",
+        "member": "Member",
+        "plan": "Plan",
+        "date": "Date",
+        "status": "Status",
+        "amount": "Amount",
+        "annual": "Annual"
+      }
+    }
+  },
+
+  "password": {
+    "form": {
+      "title": "Change Password",
+      "oldPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Update Password",
+      "success": "Password updated successfully."
+    }
+  },
+
+  "adminUsers": {
+    "view": {
+      "title": "All Users"
+    },
+    "table": {
+      "user": "User",
+      "email": "Email",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions",
+      "edit": "Edit",
+      "manage": "Manage",
+      "view": "View"
+    },
+    "detail": {
+      "title": "User Details"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "pendingWithCount": "Pending ({count})"
+    },
+    "filter": {
+      "all": "All"
+    },
+    "search": {
+      "label": "Search user",
+      "placeholder": "Search by name, surnames, nickname or email...",
+      "noResults": "No users matching the search were found."
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "confirmReject": "Are you sure you want to reject and delete this user? This action is irreversible.",
+      "updateRole": "Update Role",
+      "forceReset": "Force Password Reset",
+      "deleteUser": "Delete User (Irreversible)",
+      "resetSuccess": "Password reset email sent successfully.",
+      "confirmReset": "Are you sure? A new password reset email will be sent to their email.",
+      "confirmDelete": "DANGER! Are you sure you want to permanently delete this user? This action cannot be undone."
+    },
+    "modal": {
+      "title": "Advanced User Management",
+      "roleTitle": "Modify Role",
+      "actionsTitle": "Dangerous Actions",
+      "rejectTitle": "Confirm User Rejection",
+      "rejectMessage": "This action will permanently delete the user and all their data. Do you wish to continue?",
+      "approveTitle": "Confirm Approval",
+      "approveMessage": "Are you sure you want to approve the account for {name}? This will grant them access to the dashboard.",
+      "toggleTitle": "Change Account Status",
+      "activateMessage": "Are you sure you want to reactivate the account for {name}?",
+      "deactivateMessage": "Are you sure you want to deactivate the account for {name}? The user will lose access."
+    }
+  },
+  "resendVerification": {
+    "title": "Resend Verification",
+    "detail": "Enter your email and we will resend the verification link.",
+    "sendLink": "Resend Link",
+    "success": "Email sent! Check your inbox."
+  },
+  "adminPayments": {
+    "view": {
+      "title": "All Fees"
+    },
+    "filter": {
+      "season": "Filter by Season",
+      "allSeasons": "All Seasons",
+      "allFees": "All Fees",
+      "pendingReport": "Pending Report"
+    },
+    "table": {
+      "member": "Member",
+      "season": "Season",
+      "plan": "Plan",
+      "status": "Status",
+      "amount": "Amount",
+      "viewDetail": "Details",
+      "email": "Email",
+      "registerManual": "Manual Register"
+    },
+    "detail": {
+      "title": "Fee Details",
+      "userSection": "User Information",
+      "feeSection": "Fee Information",
+      "paymentSection": "Payment Information",
+      "paymentDate": "Payment Date",
+      "paymentMethod": "Paid method",
+      "transactionId": "Transaction Id",
+      "adminNotes": "Admin Notes"
+    },
+    "search": {
+      "label": "Search fee",
+      "placeholder": "Search by member or plan..."
+    },
+    "manualPay": {
+      "title": "Register Manual Payment",
+      "description": "Registering payment for {name}.",
+      "amount": "Amount Paid",
+      "method": "Payment Method",
+      "cash": "Cash",
+      "transfer": "Manual Transfer",
+      "notes": "Notes (Optional)",
+      "notesPlaceholder": "e.g., Paid at venue...",
+      "submit": "Confirm Payment"
+    }
+  },
+  "userPayments": {
+    "view": {
+      "title": "Membership Payment History",
+      "noHistory": "You do not have any completed payments yet."
+    },
+    "table": {
+      "season": "Season",
+      "plan": "Plan",
+      "paymentDate": "Payment Date",
+      "amount": "Amount"
+    }
+  },
+  "adminSeasons": {
+    "view": {
+      "title": "Manage Fee Seasons",
+      "noSeasons": "No seasons found."
+    },
+    "table": {
+      "name": "Season Name",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "Create New",
+      "edit": "Edit"
+    },
+    "modal": {
+      "createTitle": "Create New Season",
+      "editTitle": "Edit Season",
+      "feeTypesTitle": "Fee Types",
+      "submitCreate": "Create Season",
+      "submitEdit": "Save Changes"
+    }
+  },
+  "imageUploader": {
+    "loading": "Uploading...",
+    "button": "Upload Image"
+  },
+  "adminPrendas": {
+    "view": {
+      "title": "All Apparel"
+    },
+    "actions": {
+      "create": "Create Apparel",
+      "confirmDelete": "Are you sure you want to delete this apparel item? If it has associated variants, they will be deleted too. This action is irreversible."
+    },
+    "table": {
+      "prenda": "Apparel",
+      "variants": "Variants",
+      "price": "Price",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "search": {
+      "noResults": "No apparel items found."
+    },
+    "form": {
+      "name": "Apparel Name",
+      "description": "Description",
+      "image": "Apparel Image"
+    },
+    "modal": {
+      "createTitle": "Create New Apparel",
+      "editTitle": "Edit Apparel",
+      "submitCreate": "Create Apparel",
+      "submitEdit": "Save Changes"
+    },
+    "enums": {
+      "GeneroPrenda": {
+        "title": "Gender",
+        "HOMBRE": "Men",
+        "MUJER": "Women",
+        "UNISEX": "Unisex"
+      },
+      "TallaPrenda": {
+        "title": "Size",
+        "XS": "XS",
+        "S": "S",
+        "M": "M",
+        "L": "L",
+        "XL": "XL",
+        "UNICA": "One Size"
+      }
+    }
+  },
+  "merchandise": {
+    "title": "Official Store",
+    "cartTitle": "My Cart",
+    "total": "Total",
+    "buttons": {
+      "pay": "Pay",
+      "commission": "Commission Order"
+    },
+    "list": {
+      "selectVariant": "Select Size",
+      "addToCart": "Add to Cart",
+      "quantity": "Quantity"
+    },
+    "cart": {
+      "empty": "Your cart is empty."
+    }
+  },
+  "paymentStatus": {
+    "successTitle": "Payment Completed",
+    "successCardTitle": "Thank you for your payment!",
+    "successMessage": "We have received your payment successfully. You will receive an email confirmation shortly.",
+    "backButton": "Back to Dashboard",
+
+    "cancelTitle": "Payment Canceled",
+    "cancelCardTitle": "Payment was not completed",
+    "cancelMessage": "The payment process was canceled or failed. You have not been charged.",
+    "backToStoreButton": "Back to Store",
+
+    "commissionTitle": "Order Commissioned",
+    "commissionCardTitle": "Thank you for your order!",
+    "commissionMessage": "We have registered your order as a 'commission'. We will contact you shortly to coordinate payment and delivery."
+  },
+  "userOrders": {
+    "view": {
+      "title": "Order History",
+      "noHistory": "You do not have any orders yet."
+    },
+    "table": {
+      "id": "Order ID",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "actions": "Actions",
+      "viewDetail": "View Detail"
+    },
+    "detail": {
+      "title": "Order Detail",
+      "items": "Items Included"
+    },
+    "status": {
+      "PENDIENTEPAGO": "Pending Payment",
+      "COMPLETADO": "Completed",
+      "ENCARGADO": "Commissioned",
+      "CANCELADO": "Canceled"
+    }
+  },
+  "adminOrders": {
+    "view": {
+      "title": "All Orders"
+    },
+    "filter": {
+      "season": "Filter by Season",
+      "allSeasons": "All Seasons"
+    },
+    "search": {
+      "label": "Search Order",
+      "placeholder": "Search by ID, name or email...",
+      "noResults": "No orders found."
+    },
+    "table": {
+      "id": "ID",
+      "member": "Member",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "actions": "Actions",
+      "view": "View"
+    },
+    "detail": {
+      "title": "Order Detail",
+      "userSection": "Member Information",
+      "orderSection": "Order Summary"
+    },
+    "actions": {
+      "markPaid": "Mark Paid",
+      "cancel": "Cancel",
+      "confirmCancel": "Are you sure you want to cancel this order?"
+    }
   }
+  
 }

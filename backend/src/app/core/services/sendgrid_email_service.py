@@ -11,7 +11,6 @@ from src.app.core.config import settings
 
 class SendgridEmailService(IEmailService):
     def __init__(self):
-        print(f"SendGrid API Key: {settings.SENDGRID_API_KEY}")
         self.sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
         self.sender_email = settings.SENDGRID_SENDER_EMAIL
 

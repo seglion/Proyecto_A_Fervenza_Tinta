@@ -1,7 +1,8 @@
 from app.pedidos.application.use_cases.actualizar_temporada_pedido_use_case import ActualizarTemporadaPedidoUseCase
 from app.pedidos.application.use_cases.listar_temporadas_pedido_use_case import ListarTemporadasPedidoUseCase
 from app.pedidos.application.use_cases.obtener_temporada_activa_use_case import ObtenerTemporadaActivaUseCase
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from src.app.pedidos.application.use_cases.crear_resumen_produccion_use_case import CrearResumenProduccionUseCase
+from fastapi import APIRouter, Depends, HTTPException, status, Request,Query
 from typing import Any,  Optional
 from uuid import UUID
 from dataclasses import asdict # Add this import
@@ -34,7 +35,7 @@ from src.app.pedidos.application.use_cases.ver_detalle_mi_pedido_use_case import
 from src.app.pedidos.application.use_cases.anadir_prenda_pedido_use_case import AnadirPrendaPedidoUseCase
 from src.app.pedidos.application.use_cases.eliminar_prenda_pedido_use_case import EliminarPrendaPedidoUseCase
 from src.app.pedidos.application.use_cases.confirmar_pago_pedido_use_case import ConfirmarPagoPedidoUseCase
-from src.app.pedidos.application.dtos import ActualizarTemporadaPedidoDTO, ListaPedidosAdminDTO, ListaPedidosDTO, ListaTemporadasPedidoDTO, PedidoDTO, PedidoDetalleDTO, CrearLineaDePedidoDTO, IntentoPagoPedidoDTO # Import PedidoDTO for conversion
+from src.app.pedidos.application.dtos import ActualizarTemporadaPedidoDTO, ListaPedidosAdminDTO, ListaPedidosDTO, ListaTemporadasPedidoDTO, PedidoDTO, PedidoDetalleDTO, CrearLineaDePedidoDTO, IntentoPagoPedidoDTO, ResumenProduccionDTO # Import PedidoDTO for conversion
 from src.app.pedidos.application.exceptions import AccesoDenegadoException, PedidoException, PedidoNoEncontradoException, TemporadaCerradaException, LineaDePedidoNoEncontradaException, PedidoVacioException, TemporadaPedidoNoEncontradaException # Import specific exceptions
 from src.app.pedidos.application.use_cases.confirmar_encargo_use_case import ConfirmarEncargoUseCase 
 from src.app.pedidos.application.use_cases.listar_todos_pedidos_use_case import ListarTodosPedidosUseCase 
@@ -145,8 +146,9 @@ def get_listar_todos_pedidos_use_case(
 def get_ver_detalle_pedido_admin_use_case(
     pedido_repository: IPedidoRepository = Depends(get_pedido_repository),
     pedido_policy: PedidoPolicy = Depends(get_pedido_policy),
+    user_repository: IUserRepository = Depends(get_user_repository),
 ) -> VerDetallePedidoAdminUseCase:
-    return VerDetallePedidoAdminUseCase(pedido_repository, pedido_policy)
+    return VerDetallePedidoAdminUseCase(pedido_repository, pedido_policy,user_repository)
 
 def get_marcar_pago_manual_pedido_use_case(
     pedido_repository: IPedidoRepository = Depends(get_pedido_repository),
@@ -180,8 +182,50 @@ def get_actualizar_temporada_pedido_use_case(
     ) -> ActualizarTemporadaPedidoUseCase:
     return ActualizarTemporadaPedidoUseCase(temporada_pedido_repository, pedido_policy)
 
+def get_crear_resumen_produccion_use_case(
+    pedido_repository: IPedidoRepository = Depends(get_pedido_repository),
+    pedido_policy: PedidoPolicy = Depends(get_pedido_policy)
+) -> CrearResumenProduccionUseCase:
+    """
+    Crea una instancia del caso de uso para generar el resumen de producción.
+    """
+    return CrearResumenProduccionUseCase(
+        pedido_repository=pedido_repository,
+        pedido_policy=pedido_policy
+    )
 
+@router_admin.get("/", response_model=ListaPedidosAdminDTO, status_code=status.HTTP_200_OK)
+async def listar_todos_pedidos(
+    admin_user: User = Depends(get_admin_user),
+    temporada_id: Optional[int] = None,
+    use_case: ListarTodosPedidosUseCase = Depends(get_listar_todos_pedidos_use_case)
+):
+    try:
+        pedidos_admin_dto = await use_case.execute(admin_user, temporada_id)
+        return pedidos_admin_dto
+    except AccesoDenegadoException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+@router_admin.get("/resumen-produccion/{temporada_id}", response_model=ResumenProduccionDTO)
+async def get_resumen_produccion(
+    temporada_id: int,
+    admin_user: User = Depends(get_admin_user),
+    use_case: CrearResumenProduccionUseCase = Depends(get_crear_resumen_produccion_use_case),
 
+):
+    """
+    Obtiene el resumen de producción (total de variantes pedidas) 
+    para una temporada específica.
+    """
+    try:
+        return await use_case.execute(admin_user, temporada_id)
+    except AccesoDenegadoException  as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    except Exception as e:
+        # (Es buena idea loggear el error 'e' aquí)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=e)
+    return await use_case.execute(admin_user, temporada_id)    
 
 
 
@@ -242,35 +286,27 @@ async def actualizar_temporada_pedido(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-@router_admin.get("/", response_model=ListaPedidosAdminDTO, status_code=status.HTTP_200_OK)
-async def listar_todos_pedidos(
-    admin_user: User = Depends(get_admin_user),
-    temporada_id: Optional[int] = None,
-    use_case: ListarTodosPedidosUseCase = Depends(get_listar_todos_pedidos_use_case)
+
+
+
+@router.get("/borrador", response_model=PedidoDTO, status_code=status.HTTP_200_OK)
+async def obtener_pedido_borrador(
+    current_user: User = Depends(get_current_user),
+    use_case: ObtenerPedidoBorradorUseCase = Depends(get_obtener_pedido_borrador_use_case)
 ):
     try:
-        pedidos_admin_dto = await use_case.execute(admin_user, temporada_id)
-        return pedidos_admin_dto
+        pedido_borrador_domain = await use_case.execute(current_user)
+        return PedidoDTO.model_validate(pedido_borrador_domain)
+    except PedidoNoEncontradoException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
     except AccesoDenegadoException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+    
+    
+    
 
-@router_admin.get("/{pedido_id}", response_model=PedidoDetalleAdminDTO, status_code=status.HTTP_200_OK)
-async def ver_detalle_pedido_admin(
-    pedido_id: UUID,
-    admin_user: User = Depends(get_admin_user),
-    use_case: VerDetallePedidoAdminUseCase = Depends(get_ver_detalle_pedido_admin_use_case)
-):
-    try:
-        pedido_detalle_admin_domain = await use_case.execute(pedido_id, admin_user)
-        return PedidoDetalleAdminDTO.model_validate(pedido_detalle_admin_domain)
-    except PedidoNoEncontradoException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except AccesoDenegadoException as e:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.get("/", response_model=ListaPedidosDTO, status_code=status.HTTP_200_OK)
 async def listar_pedidos(
@@ -299,20 +335,7 @@ async def listar_pedidos(
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
-@router.get("/borrador/", response_model=PedidoDTO, status_code=status.HTTP_200_OK)
-async def obtener_pedido_borrador(
-    current_user: User = Depends(get_current_user),
-    use_case: ObtenerPedidoBorradorUseCase = Depends(get_obtener_pedido_borrador_use_case)
-):
-    try:
-        pedido_borrador_domain = await use_case.execute(current_user)
-        return PedidoDTO.model_validate(pedido_borrador_domain)
-    except PedidoNoEncontradoException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
-    except AccesoDenegadoException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+
 
 @router.get("/{pedido_id}", response_model=PedidoDetalleDTO, status_code=status.HTTP_200_OK)
 async def ver_detalle_mi_pedido(
@@ -329,7 +352,21 @@ async def ver_detalle_mi_pedido(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
+@router_admin.get("/{pedido_id}", response_model=PedidoDetalleAdminDTO, status_code=status.HTTP_200_OK)
+async def ver_detalle_pedido_admin(
+    pedido_id: UUID,
+    admin_user: User = Depends(get_admin_user),
+    use_case: VerDetallePedidoAdminUseCase = Depends(get_ver_detalle_pedido_admin_use_case)
+):
+    try:
+        pedido_detalle_admin_domain = await use_case.execute(pedido_id, admin_user)
+        return PedidoDetalleAdminDTO.model_validate(pedido_detalle_admin_domain)
+    except PedidoNoEncontradoException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except AccesoDenegadoException as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 @router.post("/borrador/lineas", response_model=PedidoDTO, status_code=status.HTTP_200_OK)
 async def anadir_prenda_pedido(
     crear_linea_dto: CrearLineaDePedidoDTO,

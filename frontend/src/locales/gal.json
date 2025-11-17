@@ -1,4 +1,5 @@
-{"landing": {
+{
+  "landing": {
     "welcomeMessage": "Benvidos a \"A FERVENZA TINTA\"",
     "subtitle": "Accede a contido exclusivo.."
   },
@@ -8,15 +9,96 @@
     "passwordLabel": "Contrasinal",
     "submit": "Entrar",
     "noAccount": "Aínda non tes conta?",
-    "registerLink": "Rexístrate"
+    "registerLink": "Rexístrate",
+    "forgotPassword": "¿Esqueciches o teu contrasinal?",
+    "resendVerification": "¿Non recibiches o email de verificación?"
   },
   "register": {
-    "title": "Rexistro"
+    "title": "Crear Conta",
+    "submit": "Rexistrarse",
+    "successMessage": "Rexistro completado! Revisa o teu email para verificar a conta.",
+    "alreadyAccount": "Xa tes unha conta?",
+    "loginLink": "Inicia Sesión",
+    "nombreLabel": "Nome",
+    "apellidosLabel": "Apelidos",
+    "phoneLabel": "Teléfono",
+    "emailLabel": "Email",
+    "nicknameLabel": "Alcume (Opcional)",
+    "passwordLabel": "Contrasinal",
+    "passwordConfirmLabel": "Confirmar Contrasinal"
   },
   "validation": {
     "emailInvalid": "Email inválido",
     "emailRequired": "O email é obrigatorio",
-    "passwordRequired": "O contrasinal é obrigatorio"
+    "passwordRequired": "O contrasinal é obrigatorio",
+    "nameRequired": "O nome é obrigatorio",
+    "surnameRequired": "Os apelidos son obligatorios",
+    "phoneRequired": "O teléfono é obrigatorio",
+    "passwordMin": "Debe ter polo menos 8 caracteres",
+    "passwordLowercase": "Debe conter polo menos unha letra minúscula",
+    "passwordUppercase": "Debe conter polo menos unha letra maiúscula",
+    "passwordNumber": "Debe conter polo menos un número",
+    "passwordSpecial": "Debe conter polo menos un carácter especial",
+    "passwordConfirmMatch": "Os contrasinais non coinciden",
+    "urlInvalid": "Debe ser unha URL válida",
+    "dateRequired": "A data é obrigatoria",
+    "dateMin": "A data de fin debe ser posterior á de inicio",
+    "amountRequired": "O importe é obrigatorio",
+    "descriptionRequired": "A descrición é obrigatoria",
+    "imageRequired": "A imaxe é obrigatoria"
+  },
+  "verifyEmail": {
+    "title": "Verificar Email",
+    "verifying": "Verificando a túa conta...",
+    "success": "Conta verificada!",
+    "successDetail": "O teu email foi verificado. Agora un administrador debe aprobar a túa conta. Serás notificado.",
+    "noToken": "Non se atopou ningún token de verificación.",
+    "errorDetail": "O enlace pode ter expirado ou ser incorrecto. Por favor, tenta rexistrarte de novo."
+  },
+  "apiErrors": {
+    "userAlreadyExists": "Este email xa está en uso. Por favor, inicia sesión.",
+    "invalidCredentials": "Credenciais incorrectas.",
+    "accountInactive": "A túa conta está inactiva.",
+    "emailNotVerified": "O teu email non foi verificado.",
+    "invalidToken": "O token é inválido ou expirou.",
+    "userNotFound": "Usuario non atopado.",
+    "genericError": "Ocorreu un erro inesperado.",
+    "unauthorized": "Non autorizado.",
+    "emailAlreadyVerified": "O email xa foi verificado.",
+    "invalidOldPassword": "O contrasinal antigo non é correcto.",
+    "userAlreadyApproved": "O usuario xa foi aprobado.",
+    "phoneAlreadyExists": "Ese número de teléfono xa está en uso.",
+    "seasonNotFound": "Tempada non atopada.",
+    "feeTypeNotFound": "Tipo de cota non atopado.",
+    "feeNotFound": "Cota non atopada.",
+    "paymentAttemptFailed": "O intento de pago fallou.",
+    "invalidPaymentState": "O estado do pago non é válido.",
+    "feeAlreadyPaid": "Esta cota xa foi pagada.",
+    "notAuthorized": "Non tes permiso para realizar esta acción.",
+    "garmentNotFound": "Prenda non atopada.",
+    "orderSeasonNotActive": "Non hai tempada de pedidos activa neste momento.",
+    "orderNotFound": "Pedido non atopado.",
+    "orderLineNotFound": "Liña de pedido non atopada.",
+    "orderNotModifiable": "O pedido non se pode modificar no seu estado actual.",
+    "garmentVariantNotFound": "Variante de prenda non atopada.",
+    "invalidQuantity": "A cantidade da prenda debe ser maior que cero.",
+    "emptyOrder": "O pedido non pode estar baleiro para confirmar.",
+    "invalidPaymentMethod": "Método de pago inválido para esta operación.",
+    "accessDenied": "Acceso denegado. Non ten permisos para realizar esta acción.",
+    "orderSeasonClosed": "A tempada de pedidos está pechada.",
+    "orderSeasonNotFound": "A tempada de pedidos non atopada.",
+    "paymentLinkError": "Non se puido xerar o enlace de pago."
+  },
+  "resetPassword": {
+    "requestTitle": "Restablecer Contrasinal",
+    "requestDetail": "Introduce o teu email e enviarémosche un enlace para restablecer o teu contrasinal.",
+    "sending": "Enviando...",
+    "sendLink": "Enviar Enlace",
+    "requestSuccess": "Enlace enviado! Revisa o teu email.",
+    "backToLogin": "Voltar a Iniciar Sesión",
+    "newTitle": "Crear Novo Contrasinal",
+    "saveButton": "Gardar Contrasinal",
+    "newSuccess": "Contrasinal actualizado! Xa podes iniciar sesión."
   },
   "footer": {
     "links": {
@@ -26,6 +108,389 @@
       "terms": "TERMOS DE USO"
     },
     "copyright": "TÓDOLOS DEREITOS RESERVADOS."
+  },
+  "dashboard": {
+    "nav": {
+      "home": "Panel",
+      "profile": "O Meu Perfil",
+      "orders": "Os Meus Pedidos",
+      "adminTitle": "Admin",
+      "adminUsers": "Xestionar Usuarios",
+      "logout": "Pechar Sesión",
+      "currentRole": "Rol Actual",
+      "paymentshistory": "Miñas Cotas",
+      "seasons": "Xestionar Tempadas",
+      "store": "Tenda"
+    },
+    "feeTypes": {
+      "SOCIO": "Cota Anual",
+      "ALTA": "Cota de Alta"
+    },
+    "roles": {
+      "ADMIN": "Administrador",
+      "USUARIO": "Socio",
+      "GUEST": "Invitado"
+    },
+    "view": {
+      "title": "Panel",
+      "feeTitle": "Cota Anual de Socio",
+      "feeStatus": "Estado:",
+      "feeButton": "Pagar Agora",
+      "storeTitle": "Tenda de Merchandising",
+      "storeButton": "Ver Tenda",
+      "feeLoading": "Cargando estado da cota...",
+      "feeProcessing": "Procesando pago...",
+      "feePaid": "Pagado",
+      "feePaidOn": "Pagado o",
+      "feeNone": "Non se atopou unha cota activa para esta tempada.",
+      "feeRetry": "Tentar Pago de Novo"
+    },
+    "feeStatus": {
+      "pendiente": "Pendente",
+      "completado": "Completado",
+      "fallido": "Fallido"
+    },"profile": {
+    "viewTitle": "O Meu Perfil",
+    "avatarAlt": "Foto de perfil do usuario",
+    "guest": "Usuario",
+    "tabs": {
+      "account": "Datos da Conta",
+      "security": "Seguridade"
+    },
+    "form": {
+      "title": "Actualizar Perfil",
+      "submit": "Gardar Cambios",
+      "success": "Perfil actualizado con éxito.",
+      "edit": "Editar Perfil",
+      "avatarLabel": "URL do Avatar"
+    }
+  },
+    "admin": {
+      "nav": {
+        "dashboard": "Panel de Admin",
+        "orders": "Xestionar Pedidos",
+        "payments": "Xestionar Cotas",
+        "seasons": "Xestionar Tempadas Cotas",
+        "prendas": "Xestionar Prendas"
+      },
+      "view": {
+        "title": "Panel de Administrador",
+        "subtitle": "Benvido, {name}. Aquí tes un resumo da actividade.",
+        "viewAll": "Ver todo"
+      },
+      "stats": {
+        "title": "Estatísticas",
+        "activeMembers": "Socios Activos",
+        "newMembers": "Novos Socios (30d)",
+        "totalUsers": "Usuarios Totais"
+      },
+      "pendingOrders": {
+        "title": "Pedidos Pendentes"
+      },
+      "recentPayments": {
+        "title": "Pagos de Cota Recentes",
+        "member": "Socio",
+        "plan": "Plan",
+        "date": "Data",
+        "status": "Estado",
+        "amount": "Importe",
+        "annual": "Anual"
+      }
+    }
+  },
+  
+  "password": {
+    "form": {
+      "title": "Cambiar Contrasinal",
+      "oldPassword": "Contrasinal Actual",
+      "newPassword": "Novo Contrasinal",
+      "confirmPassword": "Confirmar Novo Contrasinal",
+      "submit": "Actualizar Contrasinal",
+      "success": "Contrasinal actualizado con éxito."
+    }
+  },
+
+  "adminUsers": {
+    "view": {
+      "title": "Tódolos Usuarios"
+    },
+    "table": {
+      "user": "Usuario",
+      "email": "Email",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "actions": "Accións",
+      "edit": "Editar",
+      "manage": "Xestionar",
+      "view": "Ver"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "pending": "Pendente",
+      "pendingWithCount": "Pendente ({count})"
+    },
+        "detail": {
+      "title": "Detalle do Usuario" 
+    },
+    "filter": {
+      "all": "Todos" 
+    },
+    "search": {
+      "label": "Buscar usuario",
+      "placeholder": "Buscar por nome, apelidos, alcume ou email...",
+      "noResults": "Non se atoparon usuarios que coincidan coa busca."
+    },
+    "actions": {
+      "approve": "Aprobar",
+      "reject": "Rexeitar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "confirmReject": "Estás seguro de que queres rexeitar e borrar este usuario? Esta acción é irreversible.",
+      "updateRole": "Actualizar Rol",
+      "forceReset": "Forzar Reseteo Contrasinal",
+      "deleteUser": "Borrar Usuario (Irreversible)",
+      "resetSuccess": "Enviouse o correo de reseteo de contrasinal.",
+      "confirmReset": "Estás seguro? Enviarase un novo correo de reseteo ó seu email.",
+      "confirmDelete": "PERIGO! Estás seguro de que queres borrar permanentemente a este usuario? Esta acción non se pode desfacer."
+    },
+    "modal": {
+      "title": "Xestión Avanzada de Usuario",
+      "roleTitle": "Modificar Rol",
+      "actionsTitle": "Accións Perigosas",
+      "rejectTitle": "Confirmar Rexeitamento de Usuario",
+      "rejectMessage": "Esta acción eliminará o usuario e tódolos seus datos permanentemente. Desexas continuar?",
+      "approveTitle": "Confirmar Aprobación",
+      "approveMessage": "Estás seguro de que desexas aprobar a conta de {name}? Isto daralle acceso ó panel.",
+      "toggleTitle": "Cambiar Estado de Conta",
+      "activateMessage": "Estás seguro de que desexas reactivar a conta de {name}?",
+      "deactivateMessage": "Estás seguro de que desexas desactivar a conta de {name}? O usuario perderá o acceso."
+    }
+  },
+  "resendVerification": {
+    "title": "Reenviar Verificación",
+    "detail": "Introduce o teu email e reenviarémosche o enlace de verificación.",
+    "sendLink": "Reenviar Enlace",
+    "success": "Email enviado! Revisa a túa bandexa de entrada."
+  },"adminPayments": {
+    "view": {
+      "title": "Tódalas Cotas"
+    },
+    "filter": {
+      "season": "Filtrar por Tempada",
+      "allSeasons": "Tódalas Tempadas",
+      "allFees": "Todalas Cotas",
+      "pendingReport": "Informe de Pendentes"
+    },
+    "table": {
+      "member": "Socio",
+      "season": "Tempada",
+      "plan": "Plan",
+      "status": "Estado",
+      "amount": "Importe",
+      "viewDetail": "Ver Detalle",
+      "email": "Email",
+      "registerManual": "Existro Manual"
+
+    },
+    "detail": {
+      "title": "Detalle de la Cota",
+      "userSection": "Información do Socio",
+      "feeSection": "Información da Cota",
+      "paymentSection": "Información do Pago",
+      "paymentDate": "Fecha do Pago",
+      "paymentMethod": "Método do Pago",
+      "transactionId": "ID Transacción",
+      "adminNotes": "Notas do Admin"
+    },
+    "search": {
+      "label": "Buscar cota",
+      "placeholder": "Buscar por socio ou plan..."
+    },
+    "manualPay": {
+      "title": "Rexistrar Pago Manual",
+      "description": "Rexistrando pago para {name}.",
+      "amount": "Importe Pagado",
+      "method": "Método de Pago",
+      "cash": "Efectivo",
+      "transfer": "Transferencia Manual",
+      "notes": "Notas (Opcional)",
+      "notesPlaceholder": "Ex: Pagado no local...",
+      "submit": "Confirmar Pago"
+    }
+    },
+    "userPayments": {
+    "view": {
+      "title": "Historial de Pagos de Cotas",
+      "noHistory": "Aínda non tes pagos completados."
+    },
+    "table": {
+      "season": "Tempada",
+      "plan": "Plan",
+      "paymentDate": "Data de Pago",
+      "amount": "Importe"
+    }
+  },"adminSeasons": {
+    "view": {
+      "title": "Xestionar Tempadas de Cotas",
+      "noSeasons": "Non se atoparon tempadas."
+    },
+    "table": {
+      "name": "Nome Tempada",
+      "startDate": "Data Inicio",
+      "endDate": "Data Fin",
+      "actions": "Accións"
+    },
+    "actions": {
+      "create": "Crear Nova",
+      "edit": "Editar"
+    },
+    "modal": {
+      "createTitle": "Crear Nova Tempada",
+      "editTitle": "Editar Tempada",
+      "feeTypesTitle": "Tipos de Cota",
+      "submitCreate": "Crear Tempada",
+      "submitEdit": "Gardar Cambios"
+    }
+  },
+  "imageUploader": {
+    "loading": "Subindo...",
+    "button": "Subir Imaxe"
+  },
+  "adminPrendas": {
+    "view": {
+      "title": "Tódalas Prendas"
+    },
+    "actions": {
+      "create": "Crear Prenda",
+      "confirmDelete": "Estás seguro de que queres borrar esta prenda? Se ten variantes asociadas, tamén se borrarán. Esta acción é irreversible."
+    },
+    "table": {
+      "prenda": "Prenda",
+      "variants": "Variantes",
+      "price": "Prezo",
+      "actions": "Accións",
+      "edit": "Editar",
+      "delete": "Borrar"
+    },
+    "search": {
+      "noResults": "Non se atoparon prendas."
+    },
+    "form": {
+      "name": "Nome da Prenda",
+      "description": "Descrición",
+      "image": "Imaxe da Prenda"
+    },
+    "modal": {
+      "createTitle": "Crear Nova Prenda",
+      "editTitle": "Editar Prenda",
+      "submitCreate": "Crear Prenda",
+      "submitEdit": "Gardar Cambios"
+    },
+    "enums": {
+      "GeneroPrenda": {
+        "title": "Xénero",
+        "HOMBRE": "Home",
+        "MUJER": "Muller",
+        "UNISEX": "Unisex"
+      },
+      "TallaPrenda": {
+        "title": "Talla",
+        "XS": "XS",
+        "S": "S",
+        "M": "M",
+        "L": "L",
+        "XL": "XL",
+        "UNICA": "Talla Única"
+      }
+  },
+  "merchandise": {
+    "title": "Tenda Oficial",
+    "cartTitle": "O Meu Carriño",
+    "total": "Total",
+    "buttons": {
+      "pay": "Pagar",
+      "commission": "Encargar"
+    },
+    "list": {
+      "selectVariant": "Selecciona Talla e Xénero",
+      "addToCart": "Engadir ao Carriño",
+      "quantity": "Cantidade"
+    }
   }
+
+  },
+  "paymentStatus": {
+    "successTitle": "Pago Completado",
+    "successCardTitle": "Grazas polo teu pago!",
+    "successMessage": "Recibimos o teu pago correctamente. Recibirás unha confirmación por email en breve.",
+    "backButton": "Volver ao Panel",
+    
+    "cancelTitle": "Pago Cancelado",
+    "cancelCardTitle": "O pago non se completou",
+    "cancelMessage": "O proceso de pago foi cancelado ou fallou. Non se realizou ningún cargo.",
+    "backToStoreButton": "Volver á Tenda",
+    
+    "commissionTitle": "Pedido Encargado",
+    "commissionCardTitle": "Grazas polo teu encargo!",
+    "commissionMessage": "Rexistramos o teu pedido como un 'encargo'. Poñerémonos en contacto contigo para coordinar o pago e a entrega."
+  },
+  "userOrders": {
+    "view": {
+      "title": "Historial de Pedidos",
+      "noHistory": "Aínda non tes pedidos."
+    },
+    "table": {
+      "id": "ID Pedido",
+      "date": "Data",
+      "status": "Estado",
+      "total": "Total",
+      "actions": "Accións",
+      "viewDetail": "Ver Detalle"
+    },
+    "detail": {
+      "title": "Detalle do Pedido",
+      "items": "Artigos Incluídos"
+    },
+    "status": {
+      "PENDIENTEPAGO": "Pendente de Pago",
+      "COMPLETADO": "Completado",
+      "ENCARGADO": "Encargo",
+      "CANCELADO": "Cancelado"
+    }
+  },"adminOrders": {
+    "view": {
+      "title": "Tódolos Pedidos"
+    },
+    "filter": {
+      "season": "Filtrar por Tempada",
+      "allSeasons": "Tódalas Tempadas"
+    },
+    "search": {
+      "label": "Buscar Pedido",
+      "placeholder": "Buscar por ID, nome ou email...",
+      "noResults": "Non se atoparon pedidos."
+    },
+    "table": {
+      "id": "ID",
+      "member": "Socio",
+      "date": "Data",
+      "status": "Estado",
+      "total": "Total",
+      "actions": "Accións",
+      "view": "Ver"
+    },
+    "detail": {
+      "title": "Detalle do Pedido",
+      "userSection": "Información do Socio",
+      "orderSection": "Resumo do Pedido"
+    },
+    "actions": {
+      "markPaid": "Marcar Pagado",
+      "cancel": "Cancelar",
+      "confirmCancel": "Estás seguro de que queres cancelar este pedido?"
+    }
+  }
+  
 
 }

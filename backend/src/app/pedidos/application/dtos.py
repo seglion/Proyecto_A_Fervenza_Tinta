@@ -112,3 +112,16 @@ class ActualizarEstadoPedidoDTO(BaseModel):
 class DatosPagoManualDTO(BaseModel):
     metodo_pago: MetodoPago
     id_transaccion_externa: Optional[str] = None
+
+
+class ResumenVarianteDTO(BaseModel):
+    temporada_id: int
+    variante_prenda_id: UUID
+    desc_variante_conxelada: str
+    total_cantidad: Decimal
+    temporada_nombre: str 
+    class Config: 
+        from_attributes = True
+
+class ResumenProduccionDTO(BaseModel):
+    resumen: List[ResumenVarianteDTO]

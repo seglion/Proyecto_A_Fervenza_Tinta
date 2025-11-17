@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 from uuid import UUID
-
+import asyncpg
 
 from src.app.pedidos.domain.entities import Pedido
 from src.app.prendas.domain.entities import Prenda, VariantePrenda
@@ -50,4 +50,7 @@ class IPedidoRepository(ABC):
 
     @abstractmethod
     async def eliminar_linea_y_recalcular(self, pedido: Pedido, linea_a_eliminar_id: UUID) -> Pedido:
+        pass
+    @abstractmethod
+    async def obtener_resumen_produccion(self, temporada_id: int) -> List[asyncpg.Record]:
         pass

@@ -24,8 +24,8 @@ class StripePaymentGateway(IPaymentGateway):
                     }
                 ],
                 mode="payment",
-                success_url="https://example.com/success", # Estas URLs deberían ser configurables
-                cancel_url="https://example.com/cancel",   # Estas URLs deberían ser configurables
+                success_url=settings.FRONTEND_BASE_URL+"/dashboard/payment/success", # Estas URLs deberían ser configurables
+                cancel_url=settings.FRONTEND_BASE_URL+"/dashboard/payment/cancel",   # Estas URLs deberían ser configurables
                 metadata={'user_id': str(user_id), 'cuota_id': str(cuota_id)}
             )
             return checkout_session.url
@@ -40,8 +40,8 @@ class StripePaymentGateway(IPaymentGateway):
             checkout_session = stripe.checkout.Session.create(
                 line_items=line_items,
                 mode="payment",
-                success_url="https://example.com/success", # Estas URLs deberían ser configurables
-                cancel_url="https://example.com/cancel",   # Estas URLs deberían ser configurables
+                success_url=settings.FRONTEND_BASE_URL+"/dashboard/payment/success", # Estas URLs deberían ser configurables
+                cancel_url=settings.FRONTEND_BASE_URL+"/dashboard/payment/cancel",  # Estas URLs deberían ser configurables
                 metadata={'user_id': str(user_id), 'pedido_id': str(pedido_id)}
             )
             return checkout_session.url, checkout_session.id

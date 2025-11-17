@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 from datetime import date
 
@@ -42,3 +42,8 @@ class ICuotaRepository(ABC):
     @abstractmethod
     async def get_usuarios_inactivos_desde(self, fecha_limite: date) -> List[UUID]:
         pass
+    @abstractmethod
+    async def listar_recientes_completadas_con_detalle(self,limit:int)->List[Any]:
+        pass
+
+

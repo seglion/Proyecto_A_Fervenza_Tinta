@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <h1 class="text-white text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight font-antonio">
+  <div class="flex flex-col gap-4 items-center">
+    <h1 class="text-white text-3xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight font-antonio">
       {{t('landing.welcomeMessage')}}
     </h1>
     <p class="text-white text-base sm:text-lg font-normal leading-normal font-space">

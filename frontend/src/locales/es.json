@@ -1,6 +1,7 @@
-{"landing": {
+{
+  "landing": {
     "welcomeMessage": "Bienvenidos a \"A FERVENZA TINTA\"",
-    "subtitle": "Accede a contenido exclusivo."
+    "subtitle": "Accede a contenido exclusivo..."
   },
   "login": {
     "title": "Iniciar Sesión",
@@ -8,17 +9,98 @@
     "passwordLabel": "Contraseña",
     "submit": "Entrar",
     "noAccount": "¿Aún no tienes cuenta?",
-    "registerLink": "Regístrate"
+    "registerLink": "Regístrate",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resendVerification": "¿No recibiste el email de verificación?"
   },
   "register": {
-    "title": "Registro"
+    "title": "Crear Cuenta",
+    "submit": "Registrarse",
+    "successMessage": "¡Registro completado! Revisa tu email para verificar tu cuenta.",
+    "alreadyAccount": "¿Ya tienes una cuenta?",
+    "loginLink": "Inicia Sesión",
+    "nombreLabel": "Nombre",
+    "apellidosLabel": "Apellidos",
+    "phoneLabel": "Teléfono",
+    "emailLabel": "Email",
+    "nicknameLabel": "Apodo (Opcional)",
+    "passwordLabel": "Contraseña",
+    "passwordConfirmLabel": "Confirmar Contraseña"
   },
-    "validation": {
-        "emailInvalid": "Correo electrónico inválido",
-        "emailRequired": "El correo electrónico es obligatorio",
-        "passwordRequired": "La contraseña es obligatoria"
-    },
-    "footer": {
+  "validation": {
+    "emailInvalid": "Email inválido",
+    "emailRequired": "El email es obligatorio",
+    "passwordRequired": "La contraseña es obligatoria",
+    "nameRequired": "El nombre es obligatorio",
+    "surnameRequired": "Los apellidos son obligatorios",
+    "phoneRequired": "El teléfono es obligatorio",
+    "passwordMin": "Debe tener al menos 8 caracteres",
+    "passwordLowercase": "Debe contener al menos una minúscula",
+    "passwordUppercase": "Debe contener al menos una mayúscula",
+    "passwordNumber": "Debe contener al menos un número",
+    "passwordSpecial": "Debe contener al menos un caracter especial",
+    "passwordConfirmMatch": "Las contraseñas no coinciden",
+    "urlInvalid": "Debe ser una URL válida",
+    "dateRequired": "La fecha es obligatoria",
+    "dateMin": "La fecha fin debe ser posterior a la de inicio",
+    "amountRequired": "El importe es obligatorio",
+    "descriptionRequired": "La descripción es obligatoria",
+    "imageRequired": "La imagen es obligatoria"
+  },
+  "verifyEmail": {
+    "title": "Verificar Email",
+    "verifying": "Verificando tu cuenta...",
+    "success": "¡Cuenta verificada!",
+    "successDetail": "Tu email ha sido verificado. Ahora un administrador debe aprobar tu cuenta. Serás notificado.",
+    "noToken": "No se encontró ningún token de verificación.",
+    "errorDetail": "El enlace puede haber expirado o ser incorrecto. Por favor, intenta registrarte de nuevo."
+  },
+  "apiErrors": {
+    "userAlreadyExists": "Este email ya está en uso. Por favor, inicia sesión.",
+    "invalidCredentials": "Credenciales incorrectas.",
+    "accountInactive": "Tu cuenta está inactiva.",
+    "emailNotVerified": "Tu email no ha sido verificado.",
+    "invalidToken": "El token es inválido o ha expirado.",
+    "userNotFound": "Usuario no encontrado.",
+    "genericError": "Ha ocurrido un error inesperado.",
+    "unauthorized": "No autorizado.",
+    "emailAlreadyVerified": "El email ya ha sido verificado.",
+    "invalidOldPassword": "La contraseña antigua no es correcta.",
+    "userAlreadyApproved": "El usuario ya ha sido aprobado.",
+    "phoneAlreadyExists": "Ese número de teléfono ya está en uso.",
+    "seasonNotFound": "Temporada no encontrada.",
+    "feeTypeNotFound": "Tipo de cuota no encontrado.",
+    "feeNotFound": "Cuota no encontrada.",
+    "paymentAttemptFailed": "El intento de pago ha fallado.",
+    "invalidPaymentState": "El estado del pago no es válido.",
+    "feeAlreadyPaid": "Esta cuota ya ha sido pagada.",
+    "notAuthorized": "No tienes permiso para realizar esta acción.",
+    "garmentNotFound": "Prenda no encontrada.",
+    "orderSeasonNotActive": "No hay temporada de pedidos activa en este momento.",
+    "orderNotFound": "Pedido no encontrado.",
+    "orderLineNotFound": "Línea de pedido no encontrada.",
+    "orderNotModifiable": "El pedido no se puede modificar en su estado actual.",
+    "garmentVariantNotFound": "Variante de prenda no encontrada.",
+    "invalidQuantity": "La cantidad de la prenda debe ser mayor que cero.",
+    "emptyOrder": "El pedido no puede estar vacío para confirmar.",
+    "invalidPaymentMethod": "Método de pago inválido para esta operación.",
+    "accessDenied": "Acceso denegado. No tiene permisos para realizar esta acción.",
+    "orderSeasonClosed": "La temporada de pedidos está cerrada.",
+    "orderSeasonNotFound": "La temporada de pedidos no encontrada.",
+    "paymentLinkError": "No se pudo generar el enlace de pago."
+  },
+  "resetPassword": {
+    "requestTitle": "Restablecer Contraseña",
+    "requestDetail": "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.",
+    "sending": "Enviando...",
+    "sendLink": "Enviar Enlace",
+    "requestSuccess": "Enlace enviado! Revisa tu email.",
+    "backToLogin": "Volver a Iniciar Sesión",
+    "newTitle": "Crear Nueva Contraseña",
+    "saveButton": "Guardar Contraseña",
+    "newSuccess": "¡Contraseña actualizada! Ya puedes iniciar sesión."
+  },
+  "footer": {
     "links": {
       "about": "SOBRE NOSOTROS",
       "contact": "CONTACTANOS",
@@ -26,5 +108,427 @@
       "terms": "TERMINOS DE USO"
     },
     "copyright": "TODOS LOS DERECHOS RESERVADOS."
+  },
+  "dashboard": {
+    "nav": {
+      "home": "Dashboard",
+      "profile": "Mi Perfil",
+      "orders": "Mis Pedidos",
+      "adminTitle": "Admin",
+      "adminUsers": "Gestionar Usuarios",
+      "logout": "Cerrar Sesión",
+      "currentRole": "Rol Actual",
+      "paymentshistory": "Mis Cuotas",
+      "seasons": "Gestionar Temporadas",
+      "store": "Tienda"
+    },
+    "feeTypes": {
+      "SOCIO": "Cuota Anual",
+      "ALTA": "Cuota de Alta"
+    },
+    "roles": {
+      "ADMIN": "Administrador",
+      "USUARIO": "Socio",
+      "GUEST": "Invitado"
+    },
+      "profile": {
+    "viewTitle": "Mi Perfil",
+    "avatarAlt": "Foto de perfil del usuario",
+    "guest": "Usuario",
+    "tabs": {
+      "account": "Datos de la Cuenta",
+      "security": "Seguridad"
+    },
+    "form": {
+      "title": "Actualizar Perfil",
+      "submit": "Guardar Cambios",
+      "success": "Perfil actualizado con éxito.",
+      "edit": "Editar Perfil",
+      "avatarLabel": "URL del Avatar"
     }
+  },
+    "view": {
+      "title": "Dashboard",
+      "feeTitle": "Cuota Anual de Socio",
+      "feeStatus": "Estado:",
+      "feeButton": "Pagar Ahora",
+      "storeTitle": "Tienda de Merchandising",
+      "storeButton": "Ver Tienda",
+      "feeLoading": "Cargando estado de la cuota...",
+      "feeProcessing": "Procesando pago...",
+      "feePaid": "Pagado",
+      "feePaidOn": "Pagado el",
+      "feeNone": "No se encontró una cuota activa para esta temporada.",
+      "feeRetry": "Reintentar Pago"
+    },
+    "feeStatus": {
+      "pendiente": "Pendiente",
+      "completado": "Completado",
+      "fallido": "Fallido"
+    },
+    "admin": {
+      "nav": {
+        "dashboard": "Panel de Admin",
+        "orders": "Gestionar Pedidos",
+        "payments": "Gestionar Cuotas",
+        "seasons": "Gestionar Temporadas Cuotas",
+        "prendas": "Gestionar Prendas",
+        "orderSeasons": "Config. Temporadas Pedidos"
+      },
+      "view": {
+        "title": "Panel de Administrador",
+        "subtitle": "Bienvenido, {name}. Aquí tienes un resumen de la actividad.",
+        "viewAll": "Ver todo"
+      },
+      "stats": {
+        "title": "Estadísticas",
+        "activeMembers": "Socios Activos",
+        "newMembers": "Nuevos Socios (30d)",
+        "totalUsers": "Usuarios Totales"
+      },
+      "pendingOrders": {
+        "title": "Pedidos Pendientes"
+      },
+      "recentPayments": {
+        "title": "Pagos de Cuota Recientes",
+        "member": "Socio",
+        "plan": "Plan",
+        "date": "Fecha",
+        "status": "Estado",
+        "amount": "Importe",
+        "annual": "Anual"
+      }
+    }
+  },
+
+  "password": {
+    "form": {
+      "title": "Cambiar Contraseña",
+      "oldPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmPassword": "Confirmar Nueva Contraseña",
+      "submit": "Actualizar Contraseña",
+      "success": "Contraseña actualizada con éxito."
+    }
+  },
+
+    "adminUsers": {
+    "view": {
+      "title": "Todos los Usuarios"
+    },
+    "table": {
+      "user": "Usuario",
+      "email": "Email",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "actions": "Acciones",
+      "edit": "Editar",
+      "manage": "Gestionar",
+      "view": "Ver"
+    },
+    "detail": {
+      "title": "Detalle del Usuario" 
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "pending": "Pendiente",
+      "pendingWithCount": "Pendiente ({count})"
+    },
+    "filter": {
+      "all": "Todos" 
+    },
+    "search": {
+      "label": "Buscar usuario",
+      "placeholder": "Buscar por nombre, apellidos, apodo o email...",
+      "noResults": "No se encontraron usuarios que coincidan con la búsqueda."
+    },
+    "actions": {
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "confirmReject": "¿Estás seguro de que quieres rechazar y borrar a este usuario? Esta acción es irreversible.",
+      "updateRole": "Actualizar Rol",
+      "forceReset": "Forzar Reseteo Contraseña",
+      "deleteUser": "Borrar Usuario (Irreversible)",
+      "resetSuccess": "Se ha enviado el correo de reseteo de contraseña.",
+      "confirmReset": "¿Estás seguro? Se enviará un nuevo correo de reseteo a su email.",
+      "confirmDelete": "¡PELIGRO! ¿Estás seguro de que quieres borrar permanentemente a este usuario? Esta acción no se puede deshacer."
+    },
+    "modal": {
+      "title": "Gestión Avanzada de Usuario",
+      "roleTitle": "Modificar Rol",
+      "actionsTitle": "Acciones Peligrosas",
+      "rejectTitle": "Confirmar Rechazo de Usuario",
+      "rejectMessage": "Esta acción eliminará al usuario y todos sus datos permanentemente. ¿Deseas continuar?",
+      "approveTitle": "Confirmar Aprobación",
+      "approveMessage": "¿Estás seguro de que deseas aprobar la cuenta de {name}? Esto le dará acceso al dashboard.",
+      "toggleTitle": "Cambiar Estado de Cuenta",
+      "activateMessage": "¿Estás seguro de que deseas reactivar la cuenta de {name}?",
+      "deactivateMessage": "¿Estás seguro de que deseas desactivar la cuenta de {name}? El usuario perderá el acceso."
+    }
+  },
+  "resendVerification": {
+    "title": "Reenviar Verificación",
+    "detail": "Introduce tu email y te reenviaremos el enlace de verificación.",
+    "sendLink": "Reenviar Enlace",
+    "success": "¡Email enviado! Revisa tu bandeja de entrada."
+  },
+  "adminPayments": {
+    "view": {
+      "title": "Todas las Cuotas"
+    },
+    "filter": {
+      "season": "Filtrar por Temporada",
+      "allSeasons": "Todas las Temporadas",
+      "allFees": "Todas las Cuotas",
+      "pendingReport": "Informe de Pendientes"
+    },
+    "table": {
+      "member": "Socio",
+      "season": "Temporada",
+      "plan": "Plan",
+      "status": "Estado",
+      "amount": "Importe",
+      "actions": "Acciones",
+      "viewDetail": "Ver Detalle",
+      "email": "Email",
+      "registerManual": "Registrar Pago Manual"
+    },
+    "detail": {
+      "title": "Detalle de la Cuota",
+      "userSection": "Información del Socio",
+      "feeSection": "Información de la Cuota",
+      "paymentSection": "Información del Pago",
+      "paymentDate": "Fecha de Pago",
+      "paymentMethod": "Método de Pago",
+      "transactionId": "ID Transacción",
+      "adminNotes": "Notas del Admin"
+    },
+    "search": {
+      "label": "Buscar cuota",
+      "placeholder": "Buscar por socio o plan..."
+    },
+    "manualPay": {
+      "title": "Registrar Pago Manual",
+      "description": "Registrando pago para {name}.",
+      "amount": "Importe Pagado",
+      "method": "Método de Pago",
+      "cash": "Efectivo",
+      "transfer": "Transferencia Manual",
+      "notes": "Notas (Opcional)",
+      "notesPlaceholder": "Ej: Pagado en local...",
+      "submit": "Confirmar Pago"
+    }
+  },
+
+  "userPayments": {
+    "view": {
+      "title": "Historial de Pagos de Cuotas",
+      "noHistory": "Aún no tienes pagos completados."
+    },
+    "table": {
+      "season": "Temporada",
+      "plan": "Plan",
+      "paymentDate": "Fecha de Pago",
+      "amount": "Importe"
+    }
+  },"adminSeasons": {
+    "view": {
+      "title": "Gestionar Temporadas de Cuotas",
+      "noSeasons": "No se encontraron temporadas."
+    },
+    "table": {
+      "name": "Nombre Temporada",
+      "startDate": "Fecha Inicio",
+      "endDate": "Fecha Fin",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "create": "Crear Nueva",
+      "edit": "Editar"
+    },
+    "modal": {
+      "createTitle": "Crear Nueva Temporada",
+      "editTitle": "Editar Temporada",
+      "feeTypesTitle": "Tipos de Cuota",
+      "submitCreate": "Crear Temporada",
+      "submitEdit": "Guardar Cambios"
+    }
+  },
+  "imageUploader": {
+    "loading": "Subiendo...",
+    "button": "Subir Imagen"
+  },
+  "adminPrendas": {
+    "view": {
+      "title": "Todas las Prendas"
+    },
+    "actions": {
+      "create": "Crear Prenda",
+      "confirmDelete": "¿Estás seguro de que quieres borrar esta prenda? Si tiene variantes asociadas, también se borrarán. Esta acción es irreversible."
+    },
+    "table": {
+      "prenda": "Prenda",
+      "variants": "Variantes",
+      "price": "Precio",
+      "actions": "Acciones",
+      "edit": "Editar",
+      "delete": "Borrar"
+    },
+    "search": {
+      "noResults": "No se encontraron prendas."
+    },
+    "form": {
+      "name": "Nombre de la Prenda",
+      "description": "Descripción",
+      "image": "Imagen de la Prenda"
+    },
+    "modal": {
+      "createTitle": "Crear Nueva Prenda",
+      "editTitle": "Editar Prenda",
+      "submitCreate": "Crear Prenda",
+      "submitEdit": "Guardar Cambios"
+    },"variants": {
+      "title": "Gestionar Variantes",
+      "noVariants": "Esta prenda aún no tiene variantes.",
+      "selectGender": "Selecciona género",
+      "selectSize": "Selecciona talla",
+      "add": "Añadir Variante",
+      "confirmDelete": "¿Estás seguro de que quieres borrar esta variante?"
+    },
+    "enums": {
+      "GeneroPrenda": {
+        "title": "Género",
+        "HOMBRE": "Hombre",
+        "MUJER": "Mujer",
+        "UNISEX": "Unisex"
+      },
+      "TallaPrenda": {
+        "title": "talla",
+        "XS": "XS",
+        "S": "S",
+        "M": "M",
+        "L": "L",
+        "XL": "XL",
+        "UNICA": "Talla Única"
+      }
+    }
+  
+  
+  },
+"merchandise": {
+    "title": "Tienda Oficial",
+    "cartTitle": "Mi Carrito",
+    "total": "Total",
+    "buttons": {
+      "pay": "Pagar",
+      "commission": "Encargar"
+    },
+    "list": {
+      "selectVariant": "Seleccionar Talla",
+      "addToCart": "Añadir al Carrito",
+      "quantity": "Cantidad"
+    },
+    "cart": {
+      "empty": "Tu carrito está vacío."
+    }
+  },
+  "paymentStatus": {
+    "successTitle": "Pago Completado",
+    "successCardTitle": "¡Gracias por tu pago!",
+    "successMessage": "Hemos recibido tu pago correctamente. Recibirás una confirmación por email en breve.",
+    "backButton": "Volver al Panel",
+    
+    "cancelTitle": "Pago Cancelado",
+    "cancelCardTitle": "El pago no se completó",
+    "cancelMessage": "El proceso de pago fue cancelado o falló. No se ha realizado ningún cargo.",
+    "backToStoreButton": "Volver a la Tienda",
+    
+    "commissionTitle": "Pedido Encargado",
+    "commissionCardTitle": "¡Gracias por tu encargo!",
+    "commissionMessage": "Hemos registrado tu pedido como un 'encargo'. Nos pondremos en contacto contigo para coordinar el pago y la entrega."
+  },
+  "userOrders": {
+    "view": {
+      "title": "Historial de Pedidos",
+      "noHistory": "Aún no tienes pedidos."
+    },
+    "table": {
+      "id": "Pedido ID",
+      "date": "Fecha",
+      "status": "Estado",
+      "total": "Total",
+      "actions": "Acciones",
+      "viewDetail": "Ver Detalle"
+    },"detail": {
+      "title": "Detalle del Pedido",
+      "items": "Artículos Incluidos"
+    },
+    "status": {
+      "PENDIENTEPAGO": "Pendiente de Pago",
+      "COMPLETADO": "Completado",
+      "ENCARGADO": "Encargo",
+      "CANCELADO": "Cancelado"
+    }
+  },
+  "adminOrders": {
+    "view": { "title": "Todos los Pedidos" },
+    "filter": {
+      "season": "Filtrar por Temporada",
+      "allSeasons": "Todas las Temporadas"
+    },
+    "search": {
+      "label": "Buscar Pedido",
+      "placeholder": "Buscar por ID, nombre o email...",
+      "noResults": "No se encontraron pedidos."
+    },
+    "table": {
+      "id": "ID",
+      "member": "Socio",
+      "date": "Fecha",
+      "status": "Estado",
+      "total": "Total","actions": "Acciones",
+      "view": "Ver"
+    },
+    "actions": {
+      "markPaid": "Marcar Pagado",
+      "cancel": "Cancelar",
+      "confirmCancel": "¿Estás seguro de que quieres cancelar este pedido?"
+    },
+    "report": {
+      "title": "Resumen de Inventario / Producción",
+      "viewSummary": "Ver Resumen",
+      "item": "Prenda / Variante",
+      "season": "Temporada",
+      "totalQuantity": "Cantidad Total",
+      "noItems": "No se encontraron pedidos válidos para el informe."
+    },
+    "detail": {
+      "title": "Detalle del Pedido",
+      "userSection": "Información del Socio",
+      "orderSection": "Resumen del Pedido"
+    }
+  },
+  "adminOrderSeasons": {
+    "view": {
+      "title": "Gestionar Temporadas de Pedidos"
+    },
+    "table": {
+      "status": "Estado"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "modal": {
+      "createTitle": "Crear Temporada de Pedidos",
+      "editTitle": "Editar Temporada de Pedidos"
+    },
+    "form": {
+      "isActive": "Marcar como temporada activa"
+    }
+  }
+
 }

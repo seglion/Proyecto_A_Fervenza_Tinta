@@ -18,6 +18,17 @@ const i18n = createI18n({
     en: enMessages,
     gal: galMessages,
   },
+  datetimeFormats: {
+    'es': {
+      short: { year: 'numeric', month: '2-digit', day: '2-digit' }
+    },
+    'en': {
+      short: { year: 'numeric', month: 'short', day: 'numeric' }
+    },
+    'gal': {
+      short: { year: 'numeric', month: '2-digit', day: '2-digit' }
+    }
+  }
 })
 
 export default i18n
