@@ -6,6 +6,8 @@ FROM python:3.12-slim
 # 2. Establecer el directorio de trabajo
 WORKDIR /app
 ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 # 3. Instalar Poetry
 RUN pip install poetry
 
@@ -25,6 +27,7 @@ COPY ./alembic.ini .
 COPY ./entrypoint.sh .
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
+EXPOSE 8000
 # 6. El comando para iniciar el servidor FastAPI
 # El host 0.0.0.0 es necesario para que sea accesible desde fuera del contenedor
 CMD ["poetry", "run", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

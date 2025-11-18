@@ -79,7 +79,7 @@ import { useAdminStore } from '@/stores/adminStore'
 import { useI18n } from 'vue-i18n'
 import AdminCard from '@/components/Dashboard/shared/AdminCard.vue'
 // (Crearemos este componente en el sig. paso)
-import SeasonEditModal from '@/components/dashboard/sections/SeasonEditModal.vue'
+import SeasonEditModal from '@/components/Dashboard/sections/SeasonEditModal.vue'
 
 const { t, d } = useI18n()
 const adminStore = useAdminStore()

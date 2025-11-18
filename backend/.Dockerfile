@@ -27,10 +27,9 @@ WORKDIR /app
 COPY ./pyproject.toml ./poetry.lock* /app/
 
 # Instalamos las dependencias (incluyendo las de desarrollo)
-RUN poetry install --no-interaction --no-ansi
-RUN poetry run python scripts/reset_db.py
-RUN poetry run alembic upgrade head
-RUN poetry run python scripts/seed.py         
+RUN poetry install --no-interaction --no-ansi --no-root
+COPY . /app
+EXPOSE 8000
 
 # 7. Comando de Ejecución
 # Este es el comando que arrancará tu servidor

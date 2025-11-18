@@ -1,33 +1,19 @@
 import { createI18n } from 'vue-i18n'
+import messages from '@intlify/unplugin-vue-i18n/messages'
 
-// Importa tus archivos de idioma
-import esMessages from './locales/es.json'
-import enMessages from './locales/en.json'
-import galMessages from './locales/gal.json'
+// Lee el idioma guardado o usa español por defecto
+const savedLocale = localStorage.getItem('lang') || 'es'
 
-// 1. Detecta el idioma guardado o usa 'es' por defecto
-const defaultLocale = localStorage.getItem('lang') || 'gal'
-
-// 2. Crea la instancia de i18n
 const i18n = createI18n({
-  legacy: false, // ¡IMPORTANTE! Usa el modo Composition API
-  locale: defaultLocale, // Idioma por defecto
-  fallbackLocale: 'es', // Idioma de respaldo si falta una traducción
-  messages: {
-    es: esMessages,
-    en: enMessages,
-    gal: galMessages,
-  },
+  legacy: false,             // Composition API
+  globalInjection: true,     // Permite usar $t() en templates sin importar el componente
+  locale: savedLocale,
+  fallbackLocale: 'es',
+  messages,
   datetimeFormats: {
-    'es': {
-      short: { year: 'numeric', month: '2-digit', day: '2-digit' }
-    },
-    'en': {
-      short: { year: 'numeric', month: 'short', day: 'numeric' }
-    },
-    'gal': {
-      short: { year: 'numeric', month: '2-digit', day: '2-digit' }
-    }
+    es: { short: { year: 'numeric', month: '2-digit', day: '2-digit' } },
+    en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+    gal:{ short:{ year: 'numeric', month: '2-digit', day: '2-digit' } }
   }
 })
 

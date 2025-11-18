@@ -61,8 +61,8 @@ import { onMounted, ref } from 'vue'
 import { useAdminStore } from '@/stores/adminStore'
 import { usePedidosStore } from '@/stores/pedidosStore'
 import { useI18n } from 'vue-i18n'
-import ProductCard from '@/components/dashboard/shared/ProductCard.vue'
-import ProductVariantModal from '@/components/dashboard/sections/ProductVariantModal.vue'
+import ProductCard from '@/components/Dashboard/shared/ProductCard.vue'
+import ProductVariantModal from '@/components/Dashboard/sections/ProductVariantModal.vue'
 import ShoppingCart from '@/components/Dashboard/sections/ShoppingCart.vue' // <-- Columna Desktop
 import CartModal from '@/components/Dashboard/sections/CartModal.vue' // <-- Modal Móvil
 

@@ -86,7 +86,7 @@ import { useAdminStore } from '@/stores/adminStore'
 import { useI18n } from 'vue-i18n'
 import AdminCard from '@/components/Dashboard/shared/AdminCard.vue'
 // ¡Importa el nuevo modal (siguiente paso)!
-import OrderSeasonEditModal from '@/components/dashboard/sections/OrderSeasonEditModal.vue'
+import OrderSeasonEditModal from '@/components/Dashboard/sections/OrderSeasonEditModal.vue'
 
 const { t, d } = useI18n()
 const adminStore = useAdminStore()

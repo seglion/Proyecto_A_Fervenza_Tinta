@@ -1,0 +1,17 @@
+# Ignora las dependencias locales, deben ser instaladas DENTRO del contenedor
+node_modules
+
+# Ignora la carpeta de 'build' local
+dist
+
+# Ignora el .env de desarrollo (el Dockerfile solo copia .env.production)
+.env
+
+# Ignora los logs de npm
+npm-debug.log
+yarn-error.log
+
+# Ignora los archivos del editor y del sistema
+.vscode
+.git
+.gitignore

@@ -141,8 +141,8 @@ import { useI18n } from 'vue-i18n'
 import AdminCard from '@/components/Dashboard/shared/AdminCard.vue'
 import CuotaStatusBadge from '@/components/Dashboard/shared/CuotaStatusBadge.vue'
 // 4. IMPORTA EL NUEVO MODAL
-import AdminPaymentDetailModal from '@/components/dashboard/sections/AdminPaymentDetailModal.vue'
-import PendingPaymentsTable from '@/components/dashboard/sections/PendingPaymentsTable.vue'
+import AdminPaymentDetailModal from '@/components/Dashboard/sections/AdminPaymentDetailModal.vue'
+import PendingPaymentsTable from '@/components/Dashboard/sections/PendingPaymentsTable.vue'
 const { t } = useI18n()
 const adminStore = useAdminStore()
 const activeTab = ref('all') // 'all' o 'pending'

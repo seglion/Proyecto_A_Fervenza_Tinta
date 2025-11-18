@@ -87,7 +87,7 @@ import { useI18n } from 'vue-i18n'
 import InfoCard from '@/components/Dashboard/shared/InfoCard.vue'
 // Reutilizamos el badge de Cuotas, pero le pasamos el texto traducido
 import PedidoStatusBadge from '@/components/Dashboard/shared/PedidoStatusBadge.vue'
-import UserOrderDetailModal from '@/components/dashboard/sections/UserOrderDetailModal.vue'
+import UserOrderDetailModal from '@/components/Dashboard/sections/UserOrderDetailModal.vue'
 import OrderProductionSummaryModal from '@/components/Dashboard/sections/OrderProductionSummaryModal.vue'
 const { t, d } = useI18n()
 const store = usePedidosStore()

@@ -89,7 +89,7 @@ import { onMounted,ref } from 'vue'
 import { useAdminStore } from '@/stores/adminStore'
 import { useI18n } from 'vue-i18n'
 import AdminCard from '@/components/Dashboard/shared/AdminCard.vue'
-import PrendaEditModal from '@/components/dashboard/sections/PrendaEditModal.vue'
+import PrendaEditModal from '@/components/Dashboard/sections/PrendaEditModal.vue'
 const { t } = useI18n()
 const adminStore = useAdminStore()
 const loadingPrendaId = ref(null) // <-- 2. Añade ref para el spinner

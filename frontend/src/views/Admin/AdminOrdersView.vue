@@ -162,7 +162,7 @@ import { useAdminStore } from '@/stores/adminStore'
 import { useI18n } from 'vue-i18n'
 import AdminCard from '@/components/Dashboard/shared/AdminCard.vue'
 import PedidoStatusBadge from '@/components/Dashboard/shared/PedidoStatusBadge.vue'
-import AdminOrderDetailModal from '@/components/dashboard/sections/AdminOrderDetailModal.vue'
+import AdminOrderDetailModal from '@/components/Dashboard/sections/AdminOrderDetailModal.vue'
 import OrderProductionSummaryModal from '@/components/Dashboard/sections/OrderProductionSummaryModal.vue'
 
 const isSummaryModalOpen = ref(false)

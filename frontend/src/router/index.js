@@ -18,17 +18,17 @@ import AdminDashboardView from '@/views/Admin/AdminDashboardView.vue'
 import { Role } from '@/constants/roles'
 import AdminUsersView from '@/views/Admin/AdminUsersView.vue'
 import AdminPaymentsView from '@/views/Admin/AdminPaymentsView.vue' 
-import UserPaymentsView from '@/views/Dashboard/UserPaymentsView.vue'
+import UserPaymentsView from '@/views/DashBoard/UserPaymentsView.vue'
 import AdminSeasonsView from '@/views/Admin/AdminSeasonsView.vue'
 import AdminPrendasView from '@/views/Admin/AdminPrendasView.vue'
-import UserMerchandiseView from '@/views/Dashboard/UserMerchandiseView.vue'
+import UserMerchandiseView from '@/views/DashBoard/UserMerchandiseView.vue'
 
 
-import PaymentSuccessView from '@/views/Dashboard/PaymentSuccessView.vue'
-import PaymentCancelView from '@/views/Dashboard/PaymentCancelView.vue'
-import OrderCommissionedView from '@/views/Dashboard/OrderCommissionedView.vue'
+import PaymentSuccessView from '@/views/DashBoard/PaymentSuccessView.vue'
+import PaymentCancelView from '@/views/DashBoard/PaymentCancelView.vue'
+import OrderCommissionedView from '@/views/DashBoard/OrderCommissionedView.vue'
 
-import UserOrdersView from '@/views/Dashboard/UserOrdersView.vue'
+import UserOrdersView from '@/views/DashBoard/UserOrdersView.vue'
 import AdminOrdersView from '@/views/Admin/AdminOrdersView.vue'
 import AdminOrderSeasonsView from '@/views/Admin/AdminOrderSeasonsView.vue'
 

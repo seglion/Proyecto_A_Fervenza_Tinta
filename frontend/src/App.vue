@@ -10,13 +10,13 @@ import { watch } from 'vue'
 // el 'locale' del plugin de traducción (i18n).
 const settingsStore = useSettingsStore()
 const { locale: i18nLocale } = useI18n()
-i18nLocale.value = settingsStore.locale
-watch(
-  () => settingsStore.locale,
-  (newLocale) => {
-    i18nLocale.value = newLocale
-  },
-)
+i18nLocale.value = 'es' // Temporarily set to 'es' for debugging
+// watch(
+//   () => settingsStore.locale,
+//   (newLocale) => {
+//     i18nLocale.value = newLocale
+//   },
+// )
 
 // --- Sincronización de Autenticación ---
 // Carga los datos del perfil del usuario (apodo, rol, etc.)
