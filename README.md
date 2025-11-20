@@ -1,5 +1,5 @@
 # Proyecto de Gestion de A Fervenza Tinta
-Este es un proyecto full-stack para la gestión de un club deportivo, compuesto por un backend con FastAPI y un frontend con
+Este es un proyecto full-stack para la gestión de una asociacion, compuesto por un backend con FastAPI y un frontend con
      Vue.js.
 
 ## Estructura del Monorepo
