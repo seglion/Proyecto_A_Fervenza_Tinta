@@ -1,0 +1,119 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam package {
+    BorderColor #1C6EA4
+    BackgroundColor #A9DCDF
+}
+skinparam class {
+    BorderColor #1C6EA4
+    BackgroundColor #FEFECE
+}
+skinparam interface {
+    BorderColor #1C6EA4
+    BackgroundColor #FFFFFF
+}
+package "Domain" {
+    class User {
+        + id: UUID
+        + nombre: str
+        + email: Email
+        + password: Password
+        + rol: Rol
+        + is_active: bool
+    }
+    class Token {
+        + id: UUID
+        + user_id: UUID
+        + token: str
+        + tipo: TipoToken
+        + expires_at: datetime
+    }
+    class Email <<ValueObject>> {
+        + value: str
+    }
+    class Password <<ValueObject>> {
+        + hashed_value: str
+        + set(password: str)
+        + check(password: str): bool
+    }
+    enum Rol {
+        SOCIO
+        ADMIN
+    }
+    enum TipoToken {
+        ACCESS
+        REFRESH
+    }
+}
+package "Application" {
+    interface IUserRepository {
+        + find_by_id(id: UUID): User
+        + find_by_email(email: str): User
+        + get_all(): List[User]
+        + add(user: User)
+        + update(user: User)
+    }
+    interface ITokenRepository {
+        + add(token: Token)
+        + find_by_token(token: str): Token
+    }
+    class RegistrarUsuarioUseCase {
+        - user_repository: IUserRepository
+        + execute(user_dto: UserCreateDTO)
+    }
+    class IniciarSesionUseCase {
+        - user_repository: IUserRepository
+        - token_repository: ITokenRepository
+        + execute(login_dto: LoginDTO): TokenPairDTO
+    }
+    class UserCreateDTO <<DTO>>
+    class LoginDTO <<DTO>>
+    class TokenPairDTO <<DTO>>
+}
+package "Infrastructure" {
+    class PostgresUserRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): User
+        + find_by_email(email: str): User
+        + get_all(): List[User]
+        + add(user: User)
+        + update(user: User)
+    }
+    note right of PostgresUserRepository: Implementación concreta para PostgreSQL
+    class PostgresTokenRepository {
+        - session: AsyncSession
+        + add(token: Token)
+        + find_by_token(token: str): Token
+    }
+    class UserModel <<SQLModel>> {
+        + id: UUID
+        + nombre: str
+        ...
+    }
+    note right of UserModel: Modelo de la base de datos (SQLAlchemy/SQLModel)
+}
+package "Presentation" {
+    class UserRouter {
+        + register_user(user_dto: UserCreateDTO)
+        + login(login_dto: LoginDTO)
+    }
+}
+User "1" *-- "1" Email
+User "1" *-- "1" Password
+User "1" *-- "1" Rol
+Application ..> Domain
+Infrastructure ..> Domain
+Presentation ..> Application
+PostgresUserRepository .up.|> IUserRepository
+PostgresTokenRepository .up.|> ITokenRepository
+RegistrarUsuarioUseCase ..> IUserRepository
+IniciarSesionUseCase ..> IUserRepository
+IniciarSesionUseCase ..> ITokenRepository
+PostgresUserRepository ..> UserModel
+PostgresTokenRepository ..> UserModel
+UserRouter ..> RegistrarUsuarioUseCase
+UserRouter ..> IniciarSesionUseCase
+UserRouter ..> UserCreateDTO
+UserRouter ..> LoginDTO
+@enduml

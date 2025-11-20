@@ -1,0 +1,69 @@
+@startuml
+'left to right direction
+skinparam actorStyle awesome
+
+' --- Actores ---
+actor "Invitado" as Invitado
+actor "Socio" as Socio
+actor "Administrador" as Administrador
+actor "Sistema de Pago" as SistemaPago
+
+' --- Casos de Uso por Módulo ---
+
+rectangle "1. Gestión de Autenticación y Usuarios" {
+  usecase "Registrar cuenta" as UC_REGISTER
+  usecase "Iniciar sesión" as UC_LOGIN
+  usecase "Cerrar sesión" as UC_LOGOUT
+  usecase "Gestionar mi perfil" as UC_PROFILE
+  usecase "Gestionar usuarios" as UC_MANAGE_USERS
+}
+
+rectangle "2. Gestión de Prendas (Catálogo)" {
+  usecase "Gestionar prendas" as UC_MANAGE_PRODUCTS
+  usecase "Consultar catálogo" as UC_VIEW_CATALOG
+}
+
+rectangle "3. Gestión de Pedidos" {
+  usecase "Crear y modificar pedido" as UC_CREATE_ORDER
+  usecase "Confirmar y pagar pedido" as UC_PAY_ORDER
+  usecase "Consultar mis pedidos" as UC_VIEW_MY_ORDERS
+  usecase "Gestionar todos los pedidos" as UC_MANAGE_ALL_ORDERS
+}
+
+rectangle "4. Gestión de Cuotas" {
+  usecase "Pagar cuota de socio" as UC_PAY_FEE
+  usecase "Gestionar cuotas" as UC_MANAGE_FEES
+}
+
+rectangle "5. Interacciones del Sistema" {
+    usecase "Procesar Webhook de Pago" as UC_WEBHOOK
+}
+
+' --- Relaciones Actor -> Caso de Uso ---
+
+' Invitado
+Invitado -- UC_REGISTER
+Invitado -- UC_LOGIN
+
+' Socio
+Socio -- UC_LOGOUT
+Socio -- UC_PROFILE
+Socio -- UC_VIEW_CATALOG
+Socio -- UC_CREATE_ORDER
+Socio -- UC_PAY_ORDER
+Socio -- UC_VIEW_MY_ORDERS
+Socio -- UC_PAY_FEE
+
+' Administrador (Hereda de Socio y añade los suyos)
+Administrador --|> Socio
+Administrador -- UC_MANAGE_USERS
+Administrador -- UC_MANAGE_PRODUCTS
+Administrador -- UC_MANAGE_ALL_ORDERS
+Administrador -- UC_MANAGE_FEES
+
+' Sistema de Pago
+(UC_PAY_ORDER) ..> SistemaPago : Notifica
+(UC_PAY_FEE) ..> SistemaPago : Notifica
+SistemaPago ..> (UC_WEBHOOK) : Procesa
+
+@enduml

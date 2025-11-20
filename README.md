@@ -31,8 +31,8 @@ Cada paquete tiene su propio `README.md` con instrucciones de instalación y des
 
 1.  **Clonar el repositorio:**
 ```
-      git clone <URL_DEL_REPOSITORIO>
-      cd <NOMBRE_DEL_REPOSITORIO>
+      git clone https://github.com/seglion/Proyecto_A_Fervenza_Tinta.git
+      cd Proyecto_A_Fervenza_Tinta
 ```
 
 2.  **Configurar y ejecutar el Backend:**
@@ -52,4 +52,20 @@ Para una experiencia de desarrollo completa, necesitarás ejecutar ambos, el bac
 *   **Para el Frontend (desde la carpeta `frontend/`):**
       npm run dev
  
+## Artefactos de Diseño
+
+Este proyecto incluye una serie de diagramas UML y de planificación para documentar su arquitectura y diseño.
+
+### Diagramas de Casos de Uso
+*   [Diagrama de Casos de Uso (Markdown)](./use_case_diagram.md)
+*   [Diagrama de Casos de Uso (PlantUML)](./use_case_diagram_semantic.puml)
+
+### Diagramas de Clases (por Slice)
+*   [Diagrama de Clases - Usuarios](./class_diagram_users.puml)
+*   [Diagrama de Clases - Pedidos](./class_diagram_pedidos.puml)
+*   [Diagrama de Clases - Prendas](./class_diagram_prendas.puml)
+*   [Diagrama de Clases - Cuotas](./class_diagram_cuotas.puml)
+
+### Planificación
+*   [Diagrama de Gantt - Planificación del Proyecto](./gantt_chart_proyecto.puml)
 

@@ -1,44 +1,76 @@
-# Frontend
+# Frontend - A Fervenza Tinta
 
-This template should help get you started developing with Vue 3 in Vite.
+Este directorio contiene el frontend del proyecto, una Single-Page Application (SPA) desarrollada con Vue.js.
 
-## Recommended IDE Setup
+**Nota:** Este es un paquete dentro de un monorepo. Para la visión general del proyecto, consulta el `README.md` en la raíz.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Stack Tecnológico
 
-## Recommended Browser Setup
+*   **Framework:** Vue.js 3
+*   **Bundler:** Vite
+*   **Routing:** Vue Router
+*   **Gestión de Estado:** Pinia
+*   **Estilos:** TailwindCSS
+*   **Internacionalización (i18n):** vue-i18n
+*   **Peticiones HTTP:** Axios
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Customize configuration
+## Puesta en Marcha del Entorno de Desarrollo
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### 1. Prerrequisitos
 
-## Project Setup
+Asegúrate de tener una versión de Node.js compatible con la especificada en `package.json` (por ejemplo, v20+).
+
+### 2. Instalar Dependencias
+
+Desde el directorio `Frontend/`, ejecuta el siguiente comando para instalar todas las dependencias del proyecto:
 
 ```sh
 npm install
 ```
+*(Si prefieres usar `yarn`, puedes ejecutar `yarn install`)*
 
-### Compile and Hot-Reload for Development
+### 3. Configurar Variables de Entorno
+
+Crea un archivo `.env.local` en el directorio `Frontend/`. Este archivo contendrá la URL base de la API del backend.
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+
+---
+
+## Comandos del Proyecto
+
+### Compilar y Recargar en Caliente para Desarrollo
+
+Para iniciar el servidor de desarrollo de Vite (normalmente en `http://localhost:5173`):
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
+### Compilar y Minificar para Producción
+
+Para generar la versión de producción del sitio en el directorio `dist/`:
 
 ```sh
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Ejecutar Linter
+
+Para encontrar y corregir problemas en el código con ESLint:
 
 ```sh
 npm run lint
+```
+
+### Formatear Código
+
+Para formatear todo el código del proyecto con Prettier:
+
+```sh
+npm run format
 ```

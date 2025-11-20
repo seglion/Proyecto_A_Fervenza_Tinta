@@ -1,0 +1,168 @@
+@startuml
+' Diagrama de Casos de Uso Anotado con Descripciones
+'left to right direction
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #A9DCDF
+    BorderColor #1C6EA4
+}
+skinparam rectangle {
+    BorderColor #1C6EA4
+}
+skinparam note {
+    BackgroundColor #FEFECE
+    BorderColor #A9A9A9
+}
+
+' --- Actores ---
+actor "Invitado" as Invitado
+actor "Socio" as Socio
+actor "Administrador" as Administrador
+actor "Sistema de Pago" as SistemaPago
+
+' --- Herencia de Roles ---
+Administrador --|> Socio
+
+' --- Casos de Uso y sus Descripciones ---
+
+rectangle "1. Gestión de Usuarios y Autenticación" {
+  usecase "1.2. Iniciar Sesión" as UC_LOGIN
+  note right of UC_LOGIN
+    **Actor**: Invitado
+    Un usuario se autentica en el sistema.
+    **Extendido por**: `Solicitar reseteo de contraseña`.
+  end note
+
+  usecase "1.1. Registrarse" as UC_REGISTER
+  note left of UC_REGISTER
+    **Actor**: Invitado
+    Un nuevo usuario solicita acceso al sistema.
+  end note
+
+  usecase "1.3. Solicitar reseteo de contraseña" as UC_FORGOT_PASSWORD
+  note right of UC_FORGOT_PASSWORD
+    **Actor**: Invitado
+    Inicia el flujo para recuperar la contraseña.
+    **Extiende a**: `Iniciar Sesión`.
+  end note
+
+  usecase "1.4. Listar usuarios" as UC_LIST_USERS
+  note right of UC_LIST_USERS
+    **Actor**: Administrador
+    Visualiza una lista de todos los usuarios.
+    **Extendido por**: `Aprobar registro`, `Modificar roles`.
+  end note
+
+  usecase "1.5. Aprobar registro" as UC_APPROVE_USER
+  note right of UC_APPROVE_USER
+    **Actor**: Administrador
+    Aprueba la solicitud de un nuevo usuario.
+    **Extiende a**: `Listar usuarios`.
+  end note
+
+  usecase "1.6. Modificar roles" as UC_MODIFY_ROLES
+  note right of UC_MODIFY_ROLES
+    **Actor**: Administrador
+    Cambia los permisos de un usuario.
+    **Extiende a**: `Listar usuarios`.
+  end note
+}
+
+rectangle "2. Gestión de Catálogo y Pedidos" {
+  usecase "2.1. Listar prendas" as UC_LIST_PRODUCTS
+  note bottom of UC_LIST_PRODUCTS
+    **Actor**: Socio
+    Un usuario ve el catálogo de prendas.
+    **Incluido por**: `Añadir prenda al pedido`.
+    **Extendido por**: `Actualizar prenda`.
+  end note
+
+  usecase "2.2. Actualizar prenda" as UC_UPDATE_PRODUCT
+  note right of UC_UPDATE_PRODUCT
+    **Actor**: Administrador
+    Modifica una prenda existente.
+    **Extiende a**: `Listar prendas`.
+  end note
+
+  usecase "2.3. Añadir prenda al pedido" as UC_ADD_ITEM
+  note right of UC_ADD_ITEM
+    **Actor**: Socio
+    Añade un artículo a su pedido.
+    **Incluye a**: `Listar prendas`.
+  end note
+
+  usecase "2.4. Pagar Pedido" as UC_PAY_ORDER
+  note right of UC_PAY_ORDER
+    **Actor**: Socio
+    Finaliza y paga su pedido.
+    **Incluye a**: `Realizar Pago Online`.
+  end note
+  
+  usecase "2.5. Listar todos los pedidos" as UC_LIST_ALL_ORDERS
+  note left of UC_LIST_ALL_ORDERS
+    **Actor**: Administrador
+    Visualiza todos los pedidos del sistema.
+    **Extendido por**: `Cancelar pedido`.
+  end note
+
+  usecase "2.6. Cancelar pedido" as UC_CANCEL_ORDER
+  note left of UC_CANCEL_ORDER
+    **Actor**: Administrador
+    Cancela un pedido existente.
+    **Extiende a**: `Listar todos los pedidos`.
+  end note
+}
+
+rectangle "3. Gestión de Cuotas" {
+  usecase "3.1. Pagar cuota" as UC_PAY_FEE
+  note left of UC_PAY_FEE
+    **Actor**: Socio
+    Realiza el pago de su cuota.
+    **Incluye a**: `Realizar Pago Online`.
+  end note
+
+  usecase "3.2. Registrar pago manual" as UC_MANUAL_FEE
+  note right of UC_MANUAL_FEE
+    **Actor**: Administrador
+    Registra un pago hecho por otros medios.
+  end note
+}
+
+rectangle "4. Casos de Uso Incluidos (Abstractos)" {
+  usecase "4.1. Realizar Pago Online" as UC_PROCESS_PAYMENT
+  note bottom of UC_PROCESS_PAYMENT
+    Encapsula la interacción con la pasarela de pago.
+    **Incluido por**: `Pagar Pedido`, `Pagar cuota`.
+  end note
+
+  usecase "4.2. Recibir Webhook de Pago" as UC_WEBHOOK
+  note bottom of UC_WEBHOOK
+    Recibe la confirmación del pago desde el
+    sistema externo. Invocado por el Sistema de Pago.
+  end note
+}
+
+' --- Relaciones ---
+Invitado -- UC_LOGIN
+Invitado -- UC_REGISTER
+Socio -- UC_LIST_PRODUCTS
+Socio -- UC_ADD_ITEM
+Socio -- UC_PAY_ORDER
+Socio -- UC_PAY_FEE
+Administrador -- UC_LIST_USERS
+Administrador -- UC_LIST_ALL_ORDERS
+Administrador -- UC_MANUAL_FEE
+
+(UC_ADD_ITEM) .> (UC_LIST_PRODUCTS) : <<include>>
+(UC_PAY_ORDER) .> (UC_PROCESS_PAYMENT) : <<include>>
+(UC_PAY_FEE) .> (UC_PROCESS_PAYMENT) : <<include>>
+(UC_PROCESS_PAYMENT) -right- SistemaPago
+SistemaPago -right- (UC_WEBHOOK)
+
+(UC_FORGOT_PASSWORD) .> (UC_LOGIN) : <<extend>>
+(UC_APPROVE_USER) .> (UC_LIST_USERS) : <<extend>>
+(UC_MODIFY_ROLES) .> (UC_LIST_USERS) : <<extend>>
+(UC_UPDATE_PRODUCT) .> (UC_LIST_PRODUCTS) : <<extend>>
+(UC_CANCEL_ORDER) .> (UC_LIST_ALL_ORDERS) : <<extend>>
+
+@enduml

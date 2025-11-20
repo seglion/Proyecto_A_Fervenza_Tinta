@@ -1,0 +1,102 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam package {
+    BorderColor #1C6EA4
+    BackgroundColor #A9DCDF
+}
+skinparam class {
+    BorderColor #1C6EA4
+    BackgroundColor #FEFECE
+}
+skinparam interface {
+    BorderColor #1C6EA4
+    BackgroundColor #FFFFFF
+}
+package "Domain" {
+    class Pedido {
+        + id: UUID
+        + user_id: UUID
+        + lineas: List[LineaPedido]
+        + estado: EstadoPedido
+        + total: float
+        + add_linea(prenda_id: UUID, cantidad: int, precio: float)
+        + calcular_total()
+    }
+    class LineaPedido {
+        + id: UUID
+        + prenda_id: UUID
+        + cantidad: int
+        + precio_unitario: float
+    }
+    enum EstadoPedido {
+        BORRADOR
+        CONFIRMADO
+        PAGADO
+        CANCELADO
+    }
+    class User <<from Users>>
+    class Prenda <<from Prendas>>
+}
+package "Application" {
+    interface IPedidoRepository {
+        + find_by_id(id: UUID): Pedido
+        + find_by_user_id(user_id: UUID): List[Pedido]
+        + get_all(): List[Pedido]
+        + add(pedido: Pedido)
+        + update(pedido: Pedido)
+    }
+    class CrearPedidoUseCase {
+        - pedido_repository: IPedidoRepository
+        + execute(user_id: UUID): Pedido
+    }
+    class AddLineaPedidoUseCase {
+        - pedido_repository: IPedidoRepository
+        + execute(dto: AddLineaDTO)
+    }
+    class ConfirmarPedidoUseCase {
+        - pedido_repository: IPedidoRepository
+        + execute(pedido_id: UUID)
+    }
+    class AddLineaDTO <<DTO>> {
+        + pedido_id: UUID
+        + prenda_id: UUID
+        + cantidad: int
+    }
+}
+package "Infrastructure" {
+    class PostgresPedidoRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): Pedido
+        ...
+    }
+    note right of PostgresPedidoRepository: Implementación concreta para PostgreSQL
+    class PedidoModel <<SQLModel>> {
+        + id: UUID
+        + user_id: UUID
+        ...
+    }
+}
+package "Presentation" {
+    class PedidoRouter {
+        + create_pedido()
+        + add_linea(dto: AddLineaDTO)
+        + confirm_pedido(pedido_id: UUID)
+    }
+}
+Pedido "1" *-- "0..*" LineaPedido
+Pedido "1" *-- "1" EstadoPedido
+Pedido "1" -- "1" User
+LineaPedido "1" -- "1" Prenda
+Application ..> Domain
+Infrastructure ..> Domain
+Presentation ..> Application
+PostgresPedidoRepository .up.|> IPedidoRepository
+CrearPedidoUseCase ..> IPedidoRepository
+AddLineaPedidoUseCase ..> IPedidoRepository
+ConfirmarPedidoUseCase ..> IPedidoRepository
+PostgresPedidoRepository ..> PedidoModel
+PedidoRouter ..> CrearPedidoUseCase
+PedidoRouter ..> AddLineaPedidoUseCase
+PedidoRouter ..> ConfirmarPedidoUseCase
+@enduml

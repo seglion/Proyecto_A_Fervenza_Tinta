@@ -1,0 +1,26 @@
+@startgantt
+title Planificación del Proyecto (520 horas)
+project starts 2025-10-06
+saturday are closed
+sunday are closed
+[Definición y requisitos] as [T1] lasts 5 days
+[Creación de artefactos (UML/ER)] as [T2] lasts 5 days
+[Implementación de la API (Backend)] as [T3] lasts 23 days
+[Implementación de la Interfaz (Vue)] as [T4] lasts 25 days
+[Puesta en Producción] as [T5] lasts 5 days
+[Cierre de Proyecto] as [T6] lasts 3 days
+-- Análisis y Diseño --
+[T1] is colored in #A9DCDF
+[T2] is colored in #A9DCDF
+-- Desarrollo --
+[T3] is colored in #FEFECE
+[T4] is colored in #FEFECE
+-- Despliegue y Cierre --
+[T5] is colored in #C3FDB8
+[T6] is colored in #C3FDB8
+[T1] -> [T2]
+[T2] -> [T3]
+[T2] -> [T4]
+[T4] -> [T5]
+[T5] -> [T6]
+@endgantt

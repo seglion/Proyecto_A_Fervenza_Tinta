@@ -1,0 +1,82 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #A9DCDF
+    BorderColor #1C6EA4
+}
+skinparam rectangle {
+    BorderColor #1C6EA4
+}
+actor "Invitado" as Invitado
+actor "Socio" as Socio
+actor "Administrador" as Administrador
+actor "Sistema de Pago" as SistemaPago
+Administrador --|> Socio
+rectangle "1. Gestión de Usuarios y Autenticación" {
+  usecase "1.1. Registrarse" as UC_REGISTER
+  usecase "1.2. Iniciar Sesión" as UC_LOGIN
+  usecase "1.3. Solicitar reseteo de contraseña" as UC_FORGOT_PASSWORD
+  usecase "1.4. Listar usuarios" as UC_LIST_USERS
+  usecase "1.5. Aprobar registro" as UC_APPROVE_USER
+  usecase "1.6. Modificar roles" as UC_MODIFY_ROLES
+}
+rectangle "2. Gestión de Catálogo (Prendas)" {
+  usecase "2.1. Listar prendas" as UC_LIST_PRODUCTS
+  usecase "2.2. Crear prenda" as UC_CREATE_PRODUCT
+  usecase "2.3. Actualizar prenda" as UC_UPDATE_PRODUCT
+}
+rectangle "3. Gestión de Pedidos" {
+  usecase "3.1. Listar mis pedidos" as UC_LIST_MY_ORDERS
+  usecase "3.2. Añadir prenda al pedido" as UC_ADD_ITEM
+  usecase "3.3. Confirmar encargo" as UC_CONFIRM_ORDER
+  usecase "3.4. Pagar Pedido" as UC_PAY_ORDER
+  usecase "3.5. Listar todos los pedidos" as UC_LIST_ALL_ORDERS
+  usecase "3.6. Ver detalle de pedido (Admin)" as UC_VIEW_ANY_ORDER_DETAIL
+  usecase "3.7. Cancelar pedido" as UC_CANCEL_ORDER
+}
+rectangle "4. Gestión de Cuotas" {
+  usecase "4.1. Pagar mi cuota" as UC_PAY_FEE
+  usecase "4.2. Listar mis cuotas" as UC_LIST_MY_FEES
+  usecase "4.3. Ver detalle de mi cuota" as UC_VIEW_MY_FEE_DETAIL
+  usecase "4.4. Registrar pago manual" as UC_MANUAL_FEE
+  usecase "4.5. Listar todas las cuotas" as UC_LIST_ALL_FEES
+  usecase "4.6. Ver detalle de cuota (Admin)" as UC_VIEW_ANY_FEE_DETAIL
+  usecase "4.7. Gestionar Temporadas de Cuota" as UC_MANAGE_FEE_SEASONS
+}
+rectangle "5. Casos de Uso Incluidos (Funcionalidad Requerida)" {
+  usecase "5.1. Realizar Pago Online" as UC_PROCESS_PAYMENT
+  usecase "5.2. Recibir Webhook de Pago" as UC_WEBHOOK
+}
+Invitado -- UC_REGISTER
+Invitado -- UC_LOGIN
+Socio -- UC_LIST_PRODUCTS
+Socio -- UC_LIST_MY_ORDERS
+Socio -- UC_ADD_ITEM
+Socio -- UC_CONFIRM_ORDER
+Socio -- UC_PAY_ORDER
+Socio -- UC_PAY_FEE
+Socio -- UC_LIST_MY_FEES
+Socio -- UC_VIEW_MY_FEE_DETAIL
+Administrador -- UC_LIST_USERS
+Administrador -- UC_CREATE_PRODUCT
+Administrador -- UC_LIST_ALL_ORDERS
+Administrador -- UC_MANUAL_FEE
+Administrador -- UC_LIST_ALL_FEES
+Administrador -- UC_VIEW_ANY_FEE_DETAIL
+Administrador -- UC_MANAGE_FEE_SEASONS
+Administrador -- UC_VIEW_ANY_ORDER_DETAIL
+(UC_ADD_ITEM) .> (UC_LIST_PRODUCTS) : <<include>>
+(UC_PAY_ORDER) .> (UC_PROCESS_PAYMENT) : <<include>>
+(UC_PAY_FEE) .> (UC_PROCESS_PAYMENT) : <<include>>
+(UC_PROCESS_PAYMENT) -- SistemaPago
+SistemaPago -- (UC_WEBHOOK)
+(UC_FORGOT_PASSWORD) .> (UC_LOGIN) : <<extend>>
+(UC_APPROVE_USER) .> (UC_LIST_USERS) : <<extend>>
+(UC_MODIFY_ROLES) .> (UC_LIST_USERS) : <<extend>>
+(UC_UPDATE_PRODUCT) .> (UC_LIST_PRODUCTS) : <<extend>>
+(UC_CANCEL_ORDER) .> (UC_LIST_ALL_ORDERS) : <<extend>>
+(UC_VIEW_ANY_ORDER_DETAIL) .> (UC_LIST_ALL_ORDERS) : <<extend>>
+(UC_VIEW_MY_FEE_DETAIL) .> (UC_LIST_MY_FEES) : <<extend>>
+(UC_VIEW_ANY_FEE_DETAIL) .> (UC_LIST_ALL_FEES) : <<extend>>
+@enduml

@@ -1,0 +1,183 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam package {
+    BorderColor #1C6EA4
+    BackgroundColor #A9DCDF
+}
+skinparam class {
+    BorderColor #1C6EA4
+    BackgroundColor #FEFECE
+}
+skinparam interface {
+    BorderColor #1C6EA4
+    BackgroundColor #FFFFFF
+}
+package "Domain" {
+    class Cuota {
+        + id: UUID
+        + user_id: UUID
+        + temporada_id: UUID
+        + fecha_emision: date
+        + fecha_vencimiento: date
+        + importe: float
+        + estado: EstadoPago
+    }
+    class TemporadaCuota {
+        + id: UUID
+        + nombre: str
+        + fecha_inicio: date
+        + fecha_fin: date
+        + tipo_cuota_id: UUID
+    }
+    class TipoCuota {
+        + id: UUID
+        + nombre: NombreTipoCuota
+        + importe: float
+    }
+    enum EstadoPago {
+        PENDIENTE
+        PAGADO
+        VENCIDO
+    }
+    enum NombreTipoCuota {
+        ALTANUEVA
+        SOCIO
+        ...
+    }
+    class User <<from Users>>
+}
+package "Application" {
+    interface ICuotaRepository {
+        + find_by_id(id: UUID): Cuota
+        + find_by_user(user_id: UUID): List[Cuota]
+        + add(cuota: Cuota)
+        + update(cuota: Cuota)
+    }
+    interface ITemporadaCuotaRepository {
+        + find_by_id(id: UUID): TemporadaCuota
+        + get_all(): List[TemporadaCuota]
+        + add(temporada: TemporadaCuota)
+        + update(temporada: TemporadaCuota)
+        + delete(id: UUID)
+    }
+    interface ITipoCuotaRepository {
+        + find_by_id(id: UUID): TipoCuota
+        + get_all(): List[TipoCuota]
+        + add(tipo_cuota: TipoCuota)
+        + update(tipo_cuota: TipoCuota)
+        + delete(id: UUID)
+    }
+    class PagarCuotaUseCase {
+        - cuota_repo: ICuotaRepository
+        + execute(cuota_id: UUID)
+    }
+    class RegistrarCuotaManualUseCase {
+        - cuota_repo: ICuotaRepository
+        + execute(dto: CuotaManualDTO)
+    }
+    class CrearTemporadaUseCase {
+        - temporada_repo: ITemporadaCuotaRepository
+        + execute(dto: TemporadaDTO)
+    }
+    class CrearTipoCuotaUseCase {
+        - tipo_cuota_repo: ITipoCuotaRepository
+        + execute(dto: TipoCuotaDTO)
+    }
+    class ActualizarTipoCuotaUseCase {
+        - tipo_cuota_repo: ITipoCuotaRepository
+        + execute(dto: TipoCuotaDTO)
+    }
+    class CuotaManualDTO <<DTO>>
+    class TemporadaDTO <<DTO>>
+    class TipoCuotaDTO <<DTO>>
+}
+package "Infrastructure" {
+    class PostgresCuotaRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): Cuota
+        + find_by_user(user_id: UUID): List[Cuota]
+        + add(cuota: Cuota)
+        + update(cuota: Cuota)
+    }
+    class PostgresTemporadaCuotaRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): TemporadaCuota
+        + get_all(): List[TemporadaCuota]
+        + add(temporada: TemporadaCuota)
+        + update(temporada: TemporadaCuota)
+        + delete(id: UUID)
+    }
+    class PostgresTipoCuotaRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): TipoCuota
+        + get_all(): List[TipoCuota]
+        + add(tipo_cuota: TipoCuota)
+        + update(tipo_cuota: TipoCuota)
+        + delete(id: UUID)
+    }
+    class CuotaModel <<SQLModel>> {
+        + id: UUID
+        + user_id: UUID
+        + temporada_id: UUID
+        + fecha_emision: date
+        + fecha_vencimiento: date
+        + importe: float
+        + estado: str
+        --
+        + user: UserModel
+        + temporada: TemporadaCuotaModel
+    }
+    class TemporadaCuotaModel <<SQLModel>> {
+        + id: UUID
+        + nombre: str
+        + fecha_inicio: date
+        + fecha_fin: date
+        + tipo_cuota_id: UUID
+        --
+        + tipo_cuota: TipoCuotaModel
+    }
+    class TipoCuotaModel <<SQLModel>> {
+        + id: UUID
+        + nombre: str
+        + importe: float
+    }
+    class UserModel <<SQLModel>> {
+        + id: UUID
+        + email: str
+        ...
+    }
+    CuotaModel "1" -- "1" UserModel
+    CuotaModel "1" -- "1" TemporadaCuotaModel
+    TemporadaCuotaModel "1" -- "1" TipoCuotaModel
+}
+package "Presentation" {
+    class CuotaRouter {
+        + pagar_cuota(cuota_id: UUID)
+        + registrar_pago_manual(dto: CuotaManualDTO)
+        + crear_temporada(dto: TemporadaDTO)
+        + crear_tipo_cuota(dto: TipoCuotaDTO)
+        + actualizar_tipo_cuota(dto: TipoCuotaDTO)
+    }
+}
+Cuota "1" *-- "1" EstadoPago
+TemporadaCuota "1" *-- "1" TipoCuota
+Cuota "0..*" -- "1" TemporadaCuota
+Cuota "0..*" -- "1" User
+Application ..> Domain
+Infrastructure ..> Domain
+Presentation ..> Application
+PostgresCuotaRepository .up.|> ICuotaRepository
+PostgresTemporadaCuotaRepository .up.|> ITemporadaCuotaRepository
+PostgresTipoCuotaRepository .up.|> ITipoCuotaRepository
+PagarCuotaUseCase ..> ICuotaRepository
+RegistrarCuotaManualUseCase ..> ICuotaRepository
+CrearTemporadaUseCase ..> ITemporadaCuotaRepository
+CrearTipoCuotaUseCase ..> ITipoCuotaRepository
+ActualizarTipoCuotaUseCase ..> ITipoCuotaRepository
+CuotaRouter ..> PagarCuotaUseCase
+CuotaRouter ..> RegistrarCuotaManualUseCase
+CuotaRouter ..> CrearTemporadaUseCase
+CuotaRouter ..> CrearTipoCuotaUseCase
+CuotaRouter ..> ActualizarTipoCuotaUseCase
+@enduml

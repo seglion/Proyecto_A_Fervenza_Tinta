@@ -28,13 +28,13 @@ class IniciarSesionUseCase:
         user = await self.user_repository.buscar_por_email(dto.email)
 
         if not user or not self.password_hasher.verify(dto.contrasena, user.contrasena_hasheada):
-            raise InvalidCredentialsException("Invalid credentials.")
+            raise InvalidCredentialsException()
 
         if not user.email_verificado:
-            raise EmailNotVerifiedException("Email not verified.")
+            raise EmailNotVerifiedException()
 
         if not user.esta_activo:
-            raise AccountInactiveException("Account is inactive.")
+            raise AccountInactiveException()
 
         access_token, refresh_token = self.jwt_service.generar_tokens(user.id, [user.rol.value])
 

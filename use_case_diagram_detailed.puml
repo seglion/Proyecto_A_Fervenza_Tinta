@@ -1,0 +1,92 @@
+@startuml
+' Diagrama de Casos de Uso Detallado
+left to right direction
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #A9DCDF
+    BorderColor #1C6EA4
+}
+skinparam rectangle {
+    BorderColor #1C6EA4
+}
+
+' --- Actores ---
+actor "Invitado" as Invitado
+actor "Socio" as Socio
+actor "Administrador" as Administrador
+actor "Sistema de Pago" as SistemaPago
+
+' --- Herencia de Roles ---
+' Un Administrador es un tipo de Socio con más permisos.
+Administrador --|> Socio
+
+' --- Casos de Uso Detallados por Módulo ---
+
+rectangle "1. Gestión de Usuarios y Autenticación" {
+  usecase "1.1. Registrarse en el sistema" as UC_REGISTER
+  usecase "1.2. Iniciar Sesión" as UC_LOGIN
+  usecase "1.3. Cerrar Sesión" as UC_LOGOUT
+  usecase "1.4. Ver/Editar Mi Perfil" as UC_PROFILE
+  usecase "1.5. Listar todos los usuarios" as UC_LIST_USERS
+  usecase "1.6. Aprobar/Rechazar registro de usuario" as UC_APPROVE_USER
+  usecase "1.7. Modificar roles de un usuario" as UC_MODIFY_ROLES
+}
+
+rectangle "2. Gestión de Prendas (Catálogo)" {
+  usecase "2.1. Crear nueva prenda" as UC_CREATE_PRODUCT
+  usecase "2.2. Actualizar prenda existente" as UC_UPDATE_PRODUCT
+  usecase "2.3. Listar/Ver prendas del catálogo" as UC_LIST_PRODUCTS
+}
+
+rectangle "3. Gestión de Pedidos" {
+  usecase "3.1. Crear pedido en borrador" as UC_CREATE_DRAFT_ORDER
+  usecase "3.2. Añadir prenda al pedido" as UC_ADD_ITEM
+  usecase "3.3. Confirmar y Pagar Pedido" as UC_CONFIRM_PAY_ORDER
+  usecase "3.4. Listar mis pedidos" as UC_LIST_MY_ORDERS
+  usecase "3.5. Listar todos los pedidos del sistema" as UC_LIST_ALL_ORDERS
+  usecase "3.6. Ver detalle de cualquier pedido" as UC_VIEW_ANY_ORDER
+  usecase "3.7. Cancelar un pedido" as UC_CANCEL_ORDER
+}
+
+rectangle "4. Gestión de Cuotas" {
+  usecase "4.1. Generar y Pagar mi cuota" as UC_PAY_FEE
+  usecase "4.2. Registrar pago de cuota manualmente" as UC_MANUAL_FEE
+}
+
+rectangle "5. Sistema de Pago (Webhooks)" {
+  usecase "5.1. Procesar notificación de pago (Webhook)" as UC_WEBHOOK
+}
+
+' --- Relaciones ---
+
+' -- Invitado
+Invitado -- UC_REGISTER
+Invitado -- UC_LOGIN
+
+' -- Socio (Hereda de Administrador)
+Socio -- UC_LOGOUT
+Socio -- UC_PROFILE
+Socio -- UC_LIST_PRODUCTS
+Socio -- UC_CREATE_DRAFT_ORDER
+Socio -- UC_ADD_ITEM
+Socio -- UC_CONFIRM_PAY_ORDER
+Socio -- UC_LIST_MY_ORDERS
+Socio -- UC_PAY_FEE
+
+' -- Administrador (Casos de uso específicos)
+Administrador -- UC_LIST_USERS
+Administrador -- UC_APPROVE_USER
+Administrador -- UC_MODIFY_ROLES
+Administrador -- UC_CREATE_PRODUCT
+Administrador -- UC_UPDATE_PRODUCT
+Administrador -- UC_LIST_ALL_ORDERS
+Administrador -- UC_VIEW_ANY_ORDER
+Administrador -- UC_CANCEL_ORDER
+Administrador -- UC_MANUAL_FEE
+
+' -- Sistema de Pago
+(UC_CONFIRM_PAY_ORDER) ..> SistemaPago : 1. Redirige para pagar
+(UC_PAY_FEE) ..> SistemaPago : 1. Redirige para pagar
+SistemaPago ..> (UC_WEBHOOK) : 2. Notifica resultado
+
+@enduml

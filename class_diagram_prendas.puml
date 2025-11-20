@@ -1,0 +1,96 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam package {
+    BorderColor #1C6EA4
+    BackgroundColor #A9DCDF
+}
+skinparam class {
+    BorderColor #1C6EA4
+    BackgroundColor #FEFECE
+}
+skinparam interface {
+    BorderColor #1C6EA4
+    BackgroundColor #FFFFFF
+}
+package "Domain" {
+    class Prenda {
+        + id: UUID
+        + nombre: str
+        + descripcion: str
+        + genero: GeneroPrenda
+        + variantes: List[VariantePrenda]
+    }
+    class VariantePrenda {
+        + id: UUID
+        + prenda_id: UUID
+        + talla: TallaPrenda
+        + stock: int
+        + precio: float
+    }
+    enum GeneroPrenda {
+        HOMBRE
+        MUJER
+        UNISEX
+    }
+    enum TallaPrenda {
+        XS, S, M, L, XL, XXL
+    }
+}
+package "Application" {
+    interface IPrendaRepository {
+        + find_by_id(id: UUID): Prenda
+        + get_all(): List[Prenda]
+        + add(prenda: Prenda)
+        + update(prenda: Prenda)
+    }
+    class CrearPrendaUseCase {
+        - prenda_repository: IPrendaRepository
+        + execute(dto: PrendaCreateDTO)
+    }
+    class ActualizarPrendaUseCase {
+        - prenda_repository: IPrendaRepository
+        + execute(dto: PrendaUpdateDTO)
+    }
+    class ListarPrendasUseCase {
+        - prenda_repository: IPrendaRepository
+        + execute(): List[Prenda]
+    }
+    class PrendaCreateDTO <<DTO>>
+    class PrendaUpdateDTO <<DTO>>
+}
+package "Infrastructure" {
+    class PostgresPrendaRepository {
+        - session: AsyncSession
+        + find_by_id(id: UUID): Prenda
+        ...
+    }
+    note right of PostgresPrendaRepository: Implementación concreta para PostgreSQL
+    class PrendaModel <<SQLModel>> {
+        + id: UUID
+        + nombre: str
+        ...
+    }
+}
+package "Presentation" {
+    class PrendaRouter {
+        + create_prenda(dto: PrendaCreateDTO)
+        + update_prenda(dto: PrendaUpdateDTO)
+        + get_all_prendas()
+    }
+}
+Prenda "1" *-- "1..*" VariantePrenda
+Prenda "1" *-- "1" GeneroPrenda
+VariantePrenda "1" *-- "1" TallaPrenda
+Application ..> Domain
+Infrastructure ..> Domain
+Presentation ..> Application
+PostgresPrendaRepository .up.|> IPrendaRepository
+CrearPrendaUseCase ..> IPrendaRepository
+ActualizarPrendaUseCase ..> IPrendaRepository
+ListarPrendasUseCase ..> IPrendaRepository
+PostgresPrendaRepository ..> PrendaModel
+PrendaRouter ..> CrearPrendaUseCase
+PrendaRouter ..> ActualizarPrendaUseCase
+PrendaRouter ..> ListarPrendasUseCase
+@enduml
