@@ -1,0 +1,17 @@
+# Imagen base Node.js
+FROM node:20
+
+# Establece directorio
+WORKDIR /workspace
+
+# Copia dependencias
+COPY frontend/package.json frontend/package-lock.json* ./
+
+# Instala dependencias
+RUN npm install
+
+# Copia el resto
+COPY frontend .
+
+# Comando por defecto (lo cambiarás luego por npm run dev o build)
+CMD ["sleep", "infinity"]

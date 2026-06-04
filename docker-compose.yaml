@@ -1,0 +1,71 @@
+services:
+
+  backend:
+    image: seglion/backend:1.0
+    container_name: asociacion_backend_prod
+    env_file:
+      - ./backend/.env
+    restart: always
+    networks:
+      - webnet
+      - backend-net
+
+  frontend:
+    image: seglion/frontend:1.0
+    container_name: asociacion_frontend_prod
+    restart: always
+    networks:
+      - webnet
+    expose:
+      - "80"
+
+  nginx:
+    image: seglion/nginx:1.0
+    container_name: asociacion_proxy_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot:/var/www/certbot
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - webnet
+
+  minio:
+    image: minio/minio:latest
+    container_name: asociacion_minio_prod
+    restart: always
+    env_file:
+      - ./backend/.env
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - webnet
+      - backend-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: asociacion_db_prod
+    env_file:
+      - ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - backend-net
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  webnet:
+    driver: bridge
+  backend-net:
+    driver: bridge

@@ -9,6 +9,13 @@ import typing
 
 from app.core.services.i_email_service import IEmailService
 from app.core.services.sendgrid_email_service import SendgridEmailService
+from app.core.services.i_storage_service import IStorageService
+from app.core.services.minio_storage_service import MinioStorageService
+from app.core.config import settings as _settings
+
+
+def get_storage_service() -> IStorageService:
+    return MinioStorageService(_settings)
 
 
 async def get_current_user(

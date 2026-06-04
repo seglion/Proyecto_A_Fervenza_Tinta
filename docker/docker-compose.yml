@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: fastapi_app
+    volumes:
+      - ../backend:/workspace/backend
+    env_file:
+      - ../backend/.env
+    depends_on:
+      - db
+      - redis
+      - mailhog
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: frontend_app
+    volumes:
+      - ../frontend:/workspace/frontend
+    ports:
+      - "5173:5173"  # si usas Vite
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: asociacion
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog_smtp
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio_storage
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+volumes:
+  pgdata:
+  miniodata:

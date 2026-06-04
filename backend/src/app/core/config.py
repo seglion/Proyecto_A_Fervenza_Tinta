@@ -48,5 +48,12 @@ class Settings(BaseSettings):
 
     FRONTEND_BASE_URL: str
 
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "imagenes"
+    MINIO_PUBLIC_URL_BASE: str = "http://localhost:9000/imagenes"
+    MINIO_SECURE: bool = False
+
 
 settings = Settings()
